@@ -1,0 +1,11 @@
+# Hassas dosyalar
+takip/config.json
+takip/goruldu.json
+takip/log.txt
+
+# Claude Code
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
