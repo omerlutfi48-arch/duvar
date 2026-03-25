@@ -294,7 +294,7 @@ async function getFeedback() { const {data} = await sb.from('feedback').select('
 async function getIlanlar() { const {data} = await sb.from('ilanlar').select('*').order('created_at',{ascending:false}); return data||[]; }
 async function getEtkinlikler() { const {data} = await sb.from('etkinlikler').select('*').order('created_at',{ascending:false}); return data||[]; }
 async function getBanned() { const {data} = await sb.from('kullanicilar').select('nick').eq('banli',true); return (data||[]).map(u=>u.nick); }
-function getUsers() { try { return JSON.parse(localStorage.getItem('duvar_users'))||{}; } catch { return {}; } }
+async function getUsers() { const {data}=await sb.from('kullanicilar').select('*').order('created_at',{ascending:false}); return data||[]; }
 
 // ── AUTH (Supabase Email) ──
 let isAdmin = false;
@@ -362,14 +362,13 @@ const ADMIN_EMAIL = 'omerlutfi48@gmail.com';
 })();
 
 async function updateStats() {
-  const [posts, reports, feedback, banned] = await Promise.all([getPosts(), getReports(), getFeedback(), getBanned()]);
-  const users = getUsers();
+  const [posts, reports, feedback, banned, users] = await Promise.all([getPosts(), getReports(), getFeedback(), getBanned(), getUsers()]);
   const pending = reports.length;
   const acil = posts.filter(p => p.type === 'acil').length;
   const feedbackPending = feedback.filter(f => !f.okundu).length;
 
   document.getElementById('statPosts').textContent = posts.length;
-  document.getElementById('statUsers').textContent = Object.keys(users).length;
+  document.getElementById('statUsers').textContent = users.length;
   document.getElementById('statReports').textContent = pending;
   document.getElementById('statBanned').textContent = banned.length;
   document.getElementById('statAcil').textContent = acil;
@@ -475,20 +474,20 @@ async function togglePin(id, currentPinned) {
 
 // ── USERS ──
 async function renderUsers() {
-  const users = getUsers();
-  const [banned, posts] = await Promise.all([getBanned(), getPosts()]);
+  const [users, posts] = await Promise.all([getUsers(), getPosts()]);
   const q = (document.getElementById('userSearch')?.value || '').toLowerCase();
   const el = document.getElementById('usersList');
 
-  const nickList = Object.keys(users).filter(n => !q || n.includes(q));
+  const filtered = users.filter(u => !q || u.nick.toLowerCase().includes(q));
 
-  if (!nickList.length) {
+  if (!filtered.length) {
     el.innerHTML = '<div class="empty-msg">// kullanıcı yok</div>';
     return;
   }
 
-  el.innerHTML = nickList.map(nick => {
-    const isBanned = banned.includes(nick);
+  el.innerHTML = filtered.map(u => {
+    const nick = u.nick;
+    const isBanned = u.banli;
     const postCount = posts.filter(p => p.author === nick).length;
     return `
     <div class="user-card ${isBanned ? 'banned-user' : ''}">

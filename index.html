@@ -1326,7 +1326,11 @@ async function handleAuth(){
   const users=getUsers();
   const banned=JSON.parse(localStorage.getItem('duvar_banned')||'[]');
   if(activeAuthTab==='register'){
-    if(users[nick]){err.textContent='// bu nickname alınmış';return;}
+    // Supabase'de benzersizlik kontrolü
+    const {data:existing}=await sb.from('kullanicilar').select('nick').eq('nick',nick).maybeSingle();
+    if(existing||users[nick]){err.textContent='// bu nickname alınmış';return;}
+    // Supabase'e kaydet
+    await sb.from('kullanicilar').insert({nick,banli:false});
     users[nick]={hash};saveUsers(users);loginSuccess(nick);
   }else{
     if(!users[nick]){err.textContent='// hesap yok. kayıt ol?';return;}
