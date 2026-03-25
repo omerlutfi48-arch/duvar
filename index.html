@@ -1385,9 +1385,17 @@ function showAuth(){document.getElementById('authModal').classList.remove('hidde
 async function deleteMyPost(id){
   if(!currentUser)return;
   if(!confirm('Bu gönderiyi silmek istediğine emin misin?'))return;
-  await sb.from('posts').update({aktif:false}).eq('id',id).eq('author',currentUser);
+  // Önce local'den kaldır, anında kaybolsun
+  posts=posts.filter(p=>p.id!==id);
+  render();
   toast('// gönderin silindi');
-  await loadPosts();
+  // Sonra Supabase'e yaz
+  const {error}=await sb.from('posts').update({aktif:false}).eq('id',id).eq('author',currentUser);
+  if(error){
+    // Başarısız olursa geri yükle
+    toast('// hata — yeniden yükleniyor');
+    await loadPosts();
+  }
 }
 async function deleteAccount(){
   if(!currentUser)return;
