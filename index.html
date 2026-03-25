@@ -1382,16 +1382,24 @@ function enterAsGuest(){
   render();
 }
 function showAuth(){document.getElementById('authModal').classList.remove('hidden');}
+async function deleteMyPost(id){
+  if(!currentUser)return;
+  if(!confirm('Bu gönderiyi silmek istediğine emin misin?'))return;
+  await sb.from('posts').update({aktif:false}).eq('id',id).eq('author',currentUser);
+  toast('// gönderin silindi');
+  await loadPosts();
+}
 async function deleteAccount(){
   if(!currentUser)return;
-  if(!confirm(`@${currentUser} hesabını kalıcı olarak silmek istediğine emin misin?\n\nGönderilerin anonim olarak kalır, hesabın silinir.`))return;
+  if(!confirm(`@${currentUser} hesabını kalıcı olarak silmek istediğine emin misin?\n\nTüm gönderilerin de silinecek.`))return;
   const nick=currentUser;
   // localStorage'dan sil
   const users=getUsers();
   delete users[nick];
   saveUsers(users);
   localStorage.removeItem(SESSION_KEY);
-  // Supabase'den sil
+  // Supabase'den tüm gönderileri ve hesabı sil
+  await sb.from('posts').update({aktif:false}).eq('author',nick);
   await sb.from('kullanicilar').delete().eq('nick',nick);
   // Çıkış yap
   currentUser=null;
@@ -1493,6 +1501,7 @@ function render(){
           <button class="rxn${mF?' on':''}"onclick="react(${p.id},'like')" title="beğen">${mF?'❤️':'🤍'} ${p.fire||0}</button>
           <button class="rxn"onclick="toggleComments(${p.id})" title="yorum yap">💬 ${p.comments.length}</button>
           ${!isMine?`<button class="rxn report-btn"onclick="openReport(${p.id})"title="şikayet">···</button>`:''}
+          ${isMine?`<button class="rxn"onclick="deleteMyPost(${p.id})"title="gönderimi sil"style="color:#c0392b">🗑</button>`:''}
           ${isModerator?`<button class="rxn"onclick="modDeletePost(${p.id})"title="sil"style="color:#c0392b">🗑</button><button class="rxn"onclick="modPin(${p.id},${!!p.pinned})"title="${p.pinned?'sabiti kaldır':'sabitle'}"style="color:var(--yellow)">${p.pinned?'📌':'📍'}</button><button class="rxn"data-nick="${esc(p.author)}"onclick="modBan(this.dataset.nick)"title="banla"style="color:#c0392b">🚫</button>`:''}
         </div>
       </div>
