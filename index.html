@@ -1128,8 +1128,34 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
   <div style="display:flex;gap:1rem;align-items:center">
     <button class="terms-link" onclick="openFeedback()">öneri & şikayet</button>
     <button class="terms-link" onclick="openTerms()">kullanım koşulları & gizlilik</button>
+    <button class="terms-link" id="modLoginBtn" onclick="openModLogin()" style="opacity:0.2;font-size:.55rem">⚙</button>
+    <button class="terms-link" id="modLogoutBtn" onclick="modLogout()" style="display:none;color:#f5c400">// mod çıkış</button>
   </div>
 </footer>
+
+<!-- MOD GİRİŞ MODAL -->
+<div class="modal-overlay hidden" id="modLoginModal">
+  <div class="modal" style="border-top-color:var(--yellow)">
+    <div class="modal-title" style="color:var(--yellow)">// MOD GİRİŞ</div>
+    <div class="modal-sub">moderatör erişimi · yetkisiz giriş yasaktır</div>
+    <div class="field">
+      <label class="field-label">e-posta</label>
+      <input class="field-input" type="email" id="modEmail" placeholder="admin@duvar.app">
+    </div>
+    <div class="field">
+      <label class="field-label">şifre</label>
+      <input class="field-input" type="password" id="modPass" placeholder="••••••••">
+    </div>
+    <div style="font-family:'Space Mono',monospace;font-size:.62rem;color:var(--red);min-height:1rem;margin-bottom:.8rem" id="modErr"></div>
+    <button class="welcome-cta" style="background:var(--yellow);color:#000" onclick="modLogin()">GİRİŞ YAP</button>
+    <button class="welcome-skip" onclick="closeModLogin()">iptal</button>
+  </div>
+</div>
+
+<!-- MOD BAR -->
+<div id="modBar" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#1a1400;border-top:2px solid var(--yellow);padding:.4rem 1rem;font-family:'Space Mono',monospace;font-size:.62rem;color:var(--yellow);letter-spacing:.1em;z-index:300">
+  ⚡ MOD MODU AKTİF · postların üzerinde yönetim butonları görünür · <button onclick="modLogout()" style="background:transparent;border:none;color:var(--yellow);font-family:inherit;font-size:inherit;cursor:pointer;text-decoration:underline">çıkış yap</button>
+</div>
 
 <script>
 // ── SUPABASE ──
@@ -1194,11 +1220,63 @@ async function sbFeedback(tip,mesaj){
 // Realtime: başka kullanıcı post atınca güncelle
 sb.channel('posts').on('postgres_changes',{event:'INSERT',schema:'public',table:'posts'},()=>loadPosts()).subscribe();
 
+// ── MODERATÖR ──
+function openModLogin(){document.getElementById('modLoginModal').classList.remove('hidden');document.getElementById('modEmail').focus();}
+function closeModLogin(){document.getElementById('modLoginModal').classList.add('hidden');document.getElementById('modErr').textContent='';}
+async function modLogin(){
+  const email=(document.getElementById('modEmail').value||'').trim();
+  const pass=document.getElementById('modPass').value;
+  const err=document.getElementById('modErr');
+  if(!email||!pass){err.textContent='// boş alan var';return;}
+  err.textContent='// giriş yapılıyor...';
+  try{
+    const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
+    if(error){err.textContent='// '+( error.message==='Invalid login credentials'?'e-posta veya şifre yanlış':error.message);return;}
+    setModeratorMode(true);
+    closeModLogin();
+    document.getElementById('modPass').value='';
+    toast('// mod modu aktif');
+  }catch(e){err.textContent='// bağlantı hatası';}
+}
+async function modLogout(){
+  await sb.auth.signOut();
+  setModeratorMode(false);
+  toast('// mod modundan çıkıldı');
+}
+function setModeratorMode(active){
+  isModerator=active;
+  document.getElementById('modBar').style.display=active?'block':'none';
+  document.getElementById('modLogoutBtn').style.display=active?'':'none';
+  document.getElementById('modLoginBtn').style.display=active?'none':'';
+  render();
+}
+async function modDeletePost(id){
+  if(!confirm('Bu gönderiyi silmek istediğine emin misin?'))return;
+  await sb.from('posts').update({aktif:false}).eq('id',id);
+  await loadPosts();
+  toast('// gönderi silindi');
+}
+async function modPin(id,pinned){
+  await sb.from('posts').update({pinned:!pinned}).eq('id',id);
+  await loadPosts();
+  toast(!pinned?'// gönderi sabitlendi':'// sabit kaldırıldı');
+}
+async function modBan(nick){
+  if(!confirm(`@${nick} kullanıcısını banlamak istediğine emin misin?`))return;
+  await sb.from('kullanicilar').upsert({nick,banli:true});
+  toast(`// @${nick} banlı`);
+}
+// Sayfa yüklenince mod oturumu kontrol et
+(async()=>{
+  const {data:{session}}=await sb.auth.getSession();
+  if(session)setModeratorMode(true);
+})();
+
 // ── HASH ──
 async function hashPass(p){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p+'duvar_salt'));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}
 
 // ── STATE ──
-let currentUser=null,activeFilter={kind:'all',val:''},selectedMood=null,selectedType=null,activeAuthTab='login',activeSort='new';
+let currentUser=null,activeFilter={kind:'all',val:''},selectedMood=null,selectedType=null,activeAuthTab='login',activeSort='new',isModerator=false;
 
 let posts=[];
 
@@ -1352,6 +1430,7 @@ function render(){
           <button class="rxn${mF?' on':''}"onclick="react(${p.id},'like')" title="beğen">${mF?'❤️':'🤍'} ${p.fire||0}</button>
           <button class="rxn"onclick="toggleComments(${p.id})" title="yorum yap">💬 ${p.comments.length}</button>
           ${!isMine?`<button class="rxn report-btn"onclick="openReport(${p.id})"title="şikayet">···</button>`:''}
+          ${isModerator?`<button class="rxn"onclick="modDeletePost(${p.id})"title="sil"style="color:#c0392b">🗑</button><button class="rxn"onclick="modPin(${p.id},${!!p.pinned})"title="${p.pinned?'sabiti kaldır':'sabitle'}"style="color:var(--yellow)">${p.pinned?'📌':'📍'}</button><button class="rxn"onclick="modBan('${p.author}')"title="banla"style="color:#c0392b">🚫</button>`:''}
         </div>
       </div>
       <div class="comments-wrap"id="c-${p.id}">
@@ -2192,6 +2271,8 @@ document.getElementById('mainInput').addEventListener('input',function(){
   el.classList.toggle('warn',l<50);
 });
 document.getElementById('mainInput').addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='Enter')addPost();});
+document.getElementById('modPass').addEventListener('keydown',e=>{if(e.key==='Enter')modLogin();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModLogin();});
 document.getElementById('authPass').addEventListener('keydown',e=>{if(e.key==='Enter')handleAuth();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeReport();closeTerms();closePanels();}});
 
