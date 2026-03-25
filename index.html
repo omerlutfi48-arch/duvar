@@ -662,6 +662,7 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
     <div class="panel-section-title">// gönderilerim</div>
     <div id="myPostsList"></div>
     <button class="panel-btn" onclick="logout()">çıkış yap</button>
+    <button class="panel-btn" onclick="deleteAccount()" style="border-color:#5a0000;color:#c0392b;margin-top:2rem">⚠ hesabı sil</button>
   </div>
 </div>
 
@@ -1384,6 +1385,29 @@ function enterAsGuest(){
   render();
 }
 function showAuth(){document.getElementById('authModal').classList.remove('hidden');}
+async function deleteAccount(){
+  if(!currentUser)return;
+  if(!confirm(`@${currentUser} hesabını kalıcı olarak silmek istediğine emin misin?\n\nGönderilerin anonim olarak kalır, hesabın silinir.`))return;
+  const nick=currentUser;
+  // localStorage'dan sil
+  const users=getUsers();
+  delete users[nick];
+  saveUsers(users);
+  localStorage.removeItem(SESSION_KEY);
+  // Supabase'den sil
+  await sb.from('kullanicilar').delete().eq('nick',nick);
+  // Çıkış yap
+  currentUser=null;
+  document.getElementById('userNickDisplay').style.display='none';
+  document.getElementById('profileBtn').style.display='none';
+  document.getElementById('notifBtn').style.display='none';
+  document.getElementById('loginBtn').style.display='';
+  document.getElementById('writeBox').classList.add('locked');
+  document.getElementById('lockNotice').classList.add('show');
+  closePanels();
+  toast('// hesabın silindi');
+  render();
+}
 function logout(){
   currentUser=null;localStorage.removeItem(SESSION_KEY);
   document.getElementById('userNickDisplay').style.display='none';
