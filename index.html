@@ -1268,7 +1268,7 @@ function setModeratorMode(active){
 }
 async function modDeletePost(id){
   if(!confirm('Bu gönderiyi silmek istediğine emin misin?'))return;
-  await sb.from('posts').update({aktif:false}).eq('id',id);
+  await sb.from('posts').delete().eq('id',id);
   await loadPosts();
   toast('// gönderi silindi');
 }
@@ -1390,7 +1390,7 @@ async function deleteMyPost(id){
   render();
   toast('// gönderin silindi');
   // Sonra Supabase'e yaz
-  const {error}=await sb.from('posts').update({aktif:false}).eq('id',id).eq('author',currentUser);
+  const {error}=await sb.from('posts').delete().eq('id',id).eq('author',currentUser);
   if(error){
     // Başarısız olursa geri yükle
     toast('// hata — yeniden yükleniyor');
@@ -1407,7 +1407,7 @@ async function deleteAccount(){
   saveUsers(users);
   localStorage.removeItem(SESSION_KEY);
   // Supabase'den tüm gönderileri ve hesabı sil
-  await sb.from('posts').update({aktif:false}).eq('author',nick);
+  await sb.from('posts').delete().eq('author',nick);
   await sb.from('kullanicilar').delete().eq('nick',nick);
   // Çıkış yap
   currentUser=null;

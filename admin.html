@@ -519,7 +519,7 @@ async function confirmBan(nick) {
 }
 
 async function deletePost(id) {
-  await sb.from('posts').update({ aktif: false }).eq('id', id);
+  await sb.from('posts').delete().eq('id', id);
   await updateStats();
   renderPosts();
   renderReports();
