@@ -1,0 +1,2181 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DUVAR — Mimarlık Öğrencileri için Anonim Yardımlaşma Platformu</title>
+<meta name="description" content="Mimarlık öğrencileri için anonim yardımlaşma ve dayanışma platformu. Dert anlat, soru sor, kaynak paylaş. Hoca yok, yargı yok.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://duvar.app">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://duvar.app">
+<meta property="og:title" content="DUVAR — Mimarlık Öğrencileri Burada">
+<meta property="og:description" content="Dert anlat. Soru sor. Kaynak paylaş. Tamamen anonim.">
+<meta property="og:image" content="https://duvar.app/og-image.png">
+<meta property="og:locale" content="tr_TR">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0e0e0e;--surface:#1a1a1a;--surface2:#222;--border:#333;--border2:#444;--text:#f0f0f0;--text2:#c0c0c0;--muted:#777;--red:#8b1a1a;--red2:#a82020;--yellow:#f5c400;--white:#fff;--line:#1e1e1e}
+[data-theme="light"]{--bg:#f4efe8;--surface:#fff;--surface2:#f0ebe2;--border:#ddd;--border2:#ccc;--text:#1a1a1a;--text2:#444;--muted:#666;--line:#e5dfd6}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-weight:300;min-height:100vh;cursor:crosshair;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 39px,var(--line) 39px,var(--line) 40px);pointer-events:none;z-index:0}
+
+/* WELCOME */
+.welcome-overlay{position:fixed;inset:0;background:var(--bg);z-index:700;display:flex;align-items:center;justify-content:center;overflow-y:auto}
+.welcome-overlay.hidden{display:none}
+.welcome-inner{max-width:540px;width:90vw;padding:2rem 1rem}
+.welcome-eyebrow{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--red);letter-spacing:.2em;text-transform:uppercase;margin-bottom:1.5rem}
+.welcome-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,10vw,6rem);line-height:.95;letter-spacing:.04em;color:var(--text);margin-bottom:2rem}
+.welcome-title span{color:var(--red)}
+.welcome-body{display:flex;flex-direction:column;gap:1rem;margin-bottom:2rem}
+.welcome-line{display:flex;gap:1rem;align-items:flex-start}
+.welcome-line .num{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--red);letter-spacing:.1em;margin-top:.15rem;flex-shrink:0}
+.welcome-line p{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--text2);line-height:1.8}
+.welcome-line p strong{color:var(--text);font-weight:400}
+.welcome-divider{border:none;border-top:1px solid var(--border);margin:.5rem 0}
+.welcome-cta{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.15em;background:var(--red);color:#fff;border:none;padding:.8rem 2.5rem;cursor:pointer;transition:background .15s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)}
+.welcome-cta:hover{background:var(--red2)}
+.welcome-skip{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted);background:transparent;border:none;cursor:pointer;letter-spacing:.1em;margin-left:1.2rem}
+
+/* AUTH */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:500;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.hidden{display:none}
+.modal{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--red);padding:2.5rem;width:min(420px,92vw)}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.1em;color:var(--text);margin-bottom:.3rem}
+.modal-sub{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted);letter-spacing:.1em;margin-bottom:2rem}
+.modal-tabs{display:flex;margin-bottom:1.8rem;border-bottom:1px solid var(--border)}
+.modal-tab{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:transparent;border:none;padding:.6rem 1rem .6rem 0;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
+.modal-tab.active{color:var(--red);border-bottom-color:var(--red)}
+.field{margin-bottom:1.2rem}
+.field label{font-family:'Space Mono',monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:.4rem}
+.field input{width:100%;background:var(--surface2);border:1px solid var(--border);border-left:2px solid var(--red);color:var(--text);font-family:'Space Mono',monospace;font-size:.82rem;padding:.65rem .9rem;outline:none;caret-color:var(--yellow);transition:border-color .15s}
+.field input:focus{border-color:var(--red)}
+.modal-err{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--red);min-height:1.2rem;margin-bottom:1rem}
+.modal-btn{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.15em;background:var(--red);color:#fff;border:none;padding:.65rem 2rem;cursor:pointer;width:100%;transition:background .15s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)}
+.modal-btn:hover{background:var(--red2)}
+.modal-note{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--muted);margin-top:1rem;line-height:1.6}
+.guest-btn{display:block;width:100%;margin-top:.8rem;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.1em;padding:.55rem;cursor:pointer;transition:all .15s;text-align:center}
+.guest-btn:hover{border-color:var(--border2);color:var(--text)}
+
+/* HEADER */
+header{position:relative;z-index:10;padding:2rem 2rem 1.5rem;border-bottom:2px solid var(--red);max-width:900px;margin:0 auto}
+.header-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.site-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,10vw,6rem);letter-spacing:.05em;line-height:1;color:var(--text)}
+.header-controls{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:.5rem}
+.user-nick{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--yellow);letter-spacing:.1em;border:1px solid #3a3a00;padding:.3rem .7rem;background:#1a1a00}
+[data-theme="light"] .user-nick{background:#fffbe6;border-color:#d4b800}
+.user-nick::before{content:'@';color:var(--muted)}
+.icon-btn{font-family:'Space Mono',monospace;font-size:.72rem;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.3rem .65rem;cursor:pointer;transition:all .15s;position:relative}
+.icon-btn:hover{border-color:var(--border2);color:var(--text)}
+.notif-dot{position:absolute;top:-3px;right:-3px;width:7px;height:7px;background:var(--red);border-radius:50%;display:none}
+.notif-dot.show{display:block}
+.site-subtitle{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-top:.6rem}
+.site-subtitle span{color:var(--yellow)}
+.header-tags{display:flex;gap:.4rem;margin-top:.8rem;flex-wrap:wrap}
+.tag{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.1em;padding:.2rem .55rem;border:1px solid var(--border);color:var(--muted);text-transform:uppercase}
+.tag.hot{border-color:var(--red);color:var(--red)}
+
+/* NAV */
+nav{position:relative;z-index:10;max-width:900px;margin:0 auto;border-bottom:1px solid var(--border);display:flex;overflow-x:auto}
+nav::-webkit-scrollbar{display:none}
+.nav-tab{font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);background:transparent;border:none;border-bottom:2px solid transparent;padding:.9rem 1.2rem;cursor:pointer;transition:all .15s;margin-bottom:-1px;white-space:nowrap}
+.nav-tab:hover{color:var(--text)}
+.nav-tab.active{color:var(--text);border-bottom-color:var(--red)}
+
+/* MAIN */
+main{max-width:900px;margin:0 auto;padding:1.5rem 2rem 4rem;position:relative;z-index:10}
+
+/* FILTER */
+.filter-bar{display:flex;gap:.35rem;padding:1rem 0;flex-wrap:wrap;align-items:center;border-bottom:1px solid var(--border);margin-bottom:1.5rem}
+.filter-label{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--text2);letter-spacing:.08em;text-transform:uppercase;margin-right:.2rem}
+.filter-chip{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.04em;background:transparent;border:1px solid var(--border);color:var(--text2);padding:.28rem .75rem;cursor:pointer;transition:all .15s}
+.filter-chip:hover{border-color:var(--border2);color:var(--text)}
+.filter-chip.active{border-color:var(--red);color:#ff6b6b;background:#1f0808}
+[data-theme="light"] .filter-chip.active{background:#fff0f0;color:var(--red)}
+.filter-sep{color:var(--border);font-size:.8rem;margin:0 .1rem}
+
+/* SEARCH + SORT */
+.search-sort-bar{display:flex;align-items:center;gap:.5rem;margin-bottom:1.2rem;flex-wrap:wrap}
+.search-input{flex:1;min-width:160px;background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--border2);color:var(--text);font-family:'Space Mono',monospace;font-size:.72rem;padding:.5rem .8rem;outline:none;caret-color:var(--red);transition:border-color .15s}
+.search-input::placeholder{color:var(--muted)}
+.search-input:focus{border-color:var(--red)}
+.sort-btns{display:flex;gap:.3rem}
+.sort-btn{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.06em;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.3rem .75rem;cursor:pointer;transition:all .15s;white-space:nowrap}
+.sort-btn:hover{border-color:var(--border2);color:var(--text)}
+.sort-btn.active{border-color:var(--red);color:#ff6b6b}
+[data-theme="light"] .sort-btn.active{color:var(--red)}
+.ctrl-hint{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:.05em;opacity:.7}
+
+/* WRITE BOX */
+.write-lock-notice{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);margin-bottom:1.5rem;border:1px dashed var(--border);padding:.9rem 1.1rem;display:none}
+.write-lock-notice a{color:var(--red);cursor:pointer;text-decoration:underline}
+.write-lock-notice.show{display:block}
+.write-box{border:1px solid var(--border);border-left:3px solid var(--red);background:var(--surface);padding:1.5rem;margin-bottom:2rem;position:relative}
+.write-box::before{content:'// yaz bakalım';font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:.1em;position:absolute;top:-.85rem;left:1rem;background:var(--bg);padding:0 .4rem;transition:background .3s}
+.write-box.locked{opacity:.6;pointer-events:none}
+.write-as{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--text2);margin-bottom:.8rem}
+.write-as strong{color:var(--yellow)}
+.write-selectors{display:flex;gap:.8rem;margin-bottom:1rem;flex-wrap:wrap}
+.selector-group{display:flex;flex-direction:column;gap:.35rem}
+.selector-label{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--text2);letter-spacing:.1em;text-transform:uppercase}
+.pill-row{display:flex;gap:.3rem;flex-wrap:wrap}
+.pill{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.04em;background:transparent;border:1px solid var(--border);color:var(--text2);padding:.3rem .7rem;cursor:pointer;transition:all .15s}
+.pill:hover{border-color:var(--border2);color:var(--text)}
+.pill.active.mood-yorgun{background:#2a1f00;color:#f5c400;border-color:#3a3000}
+[data-theme="light"] .pill.active.mood-yorgun{background:#fff8dc;color:#b8860b;border-color:#d4a000}
+.pill.active.mood-yardim{background:#1a0808;color:#fca5a5;border-color:var(--red)}
+[data-theme="light"] .pill.active.mood-yardim{background:#fff0f0;color:#c0392b;border-color:var(--red)}
+.pill.active.mood-iyi{background:#0a1a0e;color:#4ade80;border-color:#1a4a2a}
+[data-theme="light"] .pill.active.mood-iyi{background:#f0fff4;color:#1a7a3a;border-color:#1a5a2a}
+.pill.active.mood-tesekkur{background:#0a1020;color:#7dd3fc;border-color:#1a2a3a}
+[data-theme="light"] .pill.active.mood-tesekkur{background:#f0f8ff;color:#1a5a9a;border-color:#1a3a6a}
+.pill.active.type-dert{background:#1a1010;color:var(--text);border-color:#333}
+[data-theme="light"] .pill.active.type-dert{background:#f5f5f5;color:#333;border-color:#888}
+.pill.active.type-soru{background:#0a1020;color:#93c5fd;border-color:#1a2535}
+[data-theme="light"] .pill.active.type-soru{background:#f0f4ff;color:#1a3a8a;border-color:#1a2a6a}
+.pill.active.type-kaynak{background:#0a180e;color:#86efac;border-color:#1a3020}
+[data-theme="light"] .pill.active.type-kaynak{background:#f0fff4;color:#1a5a2a;border-color:#1a4020}
+.pill.active.type-acil{background:var(--red);color:#fff;border-color:var(--red)}
+textarea{width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);outline:none;font-family:'Inter',sans-serif;font-size:1rem;color:var(--text);line-height:1.8;resize:none;min-height:100px;caret-color:var(--red);padding-bottom:.5rem;transition:border-color .2s;font-weight:300}
+textarea::placeholder{color:var(--muted);font-style:italic}
+textarea:focus{border-bottom-color:var(--red)}
+.write-footer{display:flex;align-items:center;justify-content:space-between;margin-top:1rem;flex-wrap:wrap;gap:.5rem}
+.char-left{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--text2)}
+.char-left.warn{color:var(--red)}
+.submit-btn{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.15em;background:var(--red);color:#fff;border:none;padding:.55rem 1.8rem;cursor:pointer;transition:background .15s,transform .1s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)}
+.submit-btn:hover{background:var(--red2);transform:skewX(-1deg)}
+.submit-btn:active{transform:scale(.97)}
+
+/* WALL */
+.wall-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}
+.wall-label{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.1em;color:var(--text)}
+.wall-stats{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.posts{display:flex;flex-direction:column;gap:1px}
+.post{background:var(--surface);border:1px solid var(--border);padding:1.4rem;position:relative;animation:slideIn .3s ease both;transition:border-color .2s,background .3s}
+.post:hover{border-color:var(--border2)}
+.post.mine{border-left:3px solid #555500}
+.post.pinned-post{border-left:3px solid #1a6a3a}
+.post-header{display:flex;align-items:center;gap:.6rem;margin-bottom:.7rem;flex-wrap:wrap}
+.post-number{font-family:'Space Mono',monospace;font-size:.7rem;color:#c0392b;letter-spacing:.1em}
+.post-author{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--text2);letter-spacing:.06em}
+.post-author.me{color:var(--yellow)}
+.post-author::before{content:'@'}
+.mini-tag{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.08em;padding:.15rem .5rem;border:1px solid}
+.mini-tag.mine-tag{color:#aaaa00;border-color:#777700}
+.mini-tag.pin-tag{color:#2db870;border-color:#1a7a45}
+.post-badges{display:flex;gap:.35rem;margin-bottom:.7rem;flex-wrap:wrap}
+.badge{font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.06em;padding:.25rem .65rem;border:1px solid;font-weight:400}
+.badge-mood-yorgun{color:#ffd700;border-color:#5a4a00;background:#2a2200}
+.badge-mood-yardim{color:#ff9999;border-color:#5a2020;background:#2a0f0f}
+.badge-mood-iyi{color:#6ee88a;border-color:#1a5a2a;background:#0d2a14}
+.badge-mood-tesekkur{color:#7dd3fc;border-color:#1a3a5a;background:#0d1e2e}
+.badge-type-dert{color:#d0d0d0;border-color:#555;background:#2a2a2a}
+[data-theme="light"] .badge-type-dert{color:#444;border-color:#ccc;background:#f5f5f5}
+.badge-type-soru{color:#93c5fd;border-color:#2a3a5a;background:#111e30}
+.badge-type-kaynak{color:#86efac;border-color:#1a4a2a;background:#0d2218}
+.badge-type-acil{color:#fff;border-color:var(--red);background:var(--red);animation:blink 1.5s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.6}}
+.post-text{font-family:'Inter',sans-serif;font-size:1rem;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-word;margin-bottom:1rem;font-weight:300}
+.post-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:.8rem;border-top:1px solid var(--border);flex-wrap:wrap;gap:.5rem}
+.post-time{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted)}
+.reactions{display:flex;gap:.3rem;flex-wrap:wrap}
+.rxn{font-family:'Space Mono',monospace;font-size:.75rem;background:transparent;border:1px solid var(--border);color:var(--text2);padding:.3rem .75rem;cursor:pointer;transition:all .15s}
+.rxn:hover{border-color:var(--border2);color:var(--text)}
+.rxn.on{border-color:var(--red);color:#ff6b6b}
+
+/* COMMENTS */
+.comments-wrap{margin-top:1rem;display:none;border-top:1px dashed var(--border);padding-top:1rem}
+.comments-wrap.open{display:block}
+.comment{font-family:'Inter',sans-serif;font-size:.9rem;color:var(--text2);padding:.6rem 0;border-bottom:1px solid var(--border);line-height:1.65;font-weight:300}
+.comment::before{content:'> ';color:var(--red);font-family:'Space Mono',monospace}
+.comment-nick{color:var(--muted);margin-right:.3rem;font-family:'Space Mono',monospace;font-size:.72rem}
+.comment-nick.me{color:var(--yellow)}
+.comment-nick::before{content:'@';font-size:.68rem}
+.comment-row{display:flex;gap:.4rem;margin-top:.8rem}
+.comment-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-left:2px solid var(--yellow);color:var(--text);font-family:'Inter',sans-serif;font-size:.9rem;padding:.5rem .9rem;outline:none;caret-color:var(--yellow);min-width:0;font-weight:300}
+.comment-input::placeholder{color:var(--muted)}
+.comment-input:focus{border-color:var(--yellow)}
+.comment-input:disabled{opacity:.4}
+.comment-send{background:transparent;border:1px solid var(--border);color:var(--text2);font-family:'Space Mono',monospace;font-size:.68rem;padding:.45rem .9rem;cursor:pointer;letter-spacing:.06em;transition:all .15s;white-space:nowrap}
+.comment-send:hover{border-color:var(--yellow);color:var(--yellow)}
+.comment-send:disabled{opacity:.3;cursor:default}
+
+/* SIDE PANELS */
+.panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:450;display:none;backdrop-filter:blur(3px)}
+.panel-overlay.open{display:block}
+.side-panel{position:fixed;top:0;right:0;bottom:0;width:min(380px,95vw);background:var(--surface);border-left:1px solid var(--border);z-index:460;transform:translateX(100%);transition:transform .3s ease;overflow-y:auto}
+.side-panel.open{transform:translateX(0)}
+.panel-header{padding:1.5rem;border-bottom:2px solid var(--red);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1}
+.panel-title{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.1em;color:var(--text)}
+.panel-close{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);background:transparent;border:1px solid var(--border);padding:.3rem .6rem;cursor:pointer;transition:all .15s}
+.panel-close:hover{border-color:var(--red);color:var(--red)}
+.panel-body{padding:1.5rem}
+.panel-nick{font-family:'Space Mono',monospace;font-size:1rem;color:var(--yellow);letter-spacing:.08em;margin-bottom:.3rem}
+.panel-nick::before{content:'@';color:var(--muted)}
+.panel-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin:1.2rem 0}
+.panel-stat{background:var(--surface2);padding:.9rem 1rem}
+.panel-stat-num{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--text);letter-spacing:.05em}
+.panel-stat-label{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:.2rem}
+.panel-section-title{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--red);letter-spacing:.15em;text-transform:uppercase;margin:1.5rem 0 .8rem}
+.my-post-mini{background:var(--surface2);border:1px solid var(--border);padding:.8rem;margin-bottom:1px;cursor:pointer;transition:border-color .15s}
+.my-post-mini:hover{border-color:var(--border2)}
+.my-post-mini-text{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--text2);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.my-post-mini-meta{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);margin-top:.4rem;display:flex;gap:.8rem}
+.panel-btn{width:100%;font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.1em;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.6rem;cursor:pointer;transition:all .15s;margin-top:.5rem}
+.panel-btn:hover{border-color:var(--red);color:var(--red)}
+.notif-item{padding:1rem 1.5rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.notif-item:hover{background:var(--surface2)}
+.notif-item.unread{border-left:3px solid var(--red)}
+.notif-text{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--text2);line-height:1.6}
+.notif-text strong{color:var(--text);font-weight:400}
+.notif-time{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);margin-top:.3rem}
+.notif-empty{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--muted);padding:2rem 1.5rem;letter-spacing:.08em}
+
+/* REPORT */
+.report-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.report-modal.hidden{display:none}
+.report-box{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--yellow);padding:2rem;width:min(400px,92vw)}
+.report-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.1em;color:var(--yellow);margin-bottom:.3rem}
+.report-sub{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.6}
+.report-options{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.5rem}
+.report-opt{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted);background:transparent;border:1px solid var(--border);padding:.6rem .9rem;cursor:pointer;text-align:left;transition:all .15s}
+.report-opt:hover{border-color:var(--yellow);color:var(--text)}
+.report-opt.selected{border-color:var(--yellow);color:var(--yellow);background:#1a1a00}
+.report-actions{display:flex;gap:.5rem}
+.report-send{flex:1;font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.12em;background:var(--yellow);color:#000;border:none;padding:.6rem;cursor:pointer;clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%)}
+.report-cancel{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);background:transparent;border:1px solid var(--border);padding:.5rem 1rem;cursor:pointer}
+.report-cancel:hover{border-color:var(--red);color:var(--red)}
+
+/* TERMS */
+.terms-overlay{position:fixed;inset:0;background:var(--bg);z-index:400;overflow-y:auto;display:none}
+.terms-overlay.open{display:block}
+.terms-inner{max-width:680px;margin:0 auto;padding:3rem 2rem 5rem}
+.terms-header{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;letter-spacing:.1em;color:var(--text);margin-bottom:.3rem}
+.terms-date{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);margin-bottom:2.5rem;border-bottom:1px solid var(--border);padding-bottom:1rem}
+.terms-section{margin-bottom:2rem}
+.terms-section h3{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--red);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.8rem}
+.terms-section p,.terms-section li{font-family:'Space Mono',monospace;font-size:.75rem;color:var(--text2);line-height:1.9}
+.terms-section ul{padding-left:1.2rem}
+.terms-section li{margin-bottom:.3rem}
+.terms-close{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.15em;background:var(--red);color:#fff;border:none;padding:.65rem 2rem;cursor:pointer;margin-top:2rem;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)}
+
+/* SÖZLÜK */
+.sozluk-header{padding-top:1.5rem;margin-bottom:1.5rem}
+.sozluk-eyebrow{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem}
+.sozluk-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.08em;color:var(--text)}
+.sozluk-sub{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--text2);line-height:1.7;margin-top:.3rem}
+.sozluk-sub span{color:var(--yellow)}
+.sozluk-controls{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+.sozluk-search{flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--red);color:var(--text);font-family:'Space Mono',monospace;font-size:.75rem;padding:.55rem .9rem;outline:none;caret-color:var(--red);transition:border-color .15s}
+.sozluk-search::placeholder{color:var(--muted)}
+.sozluk-search:focus{border-color:var(--red)}
+.sozluk-cats{display:flex;gap:.3rem;flex-wrap:wrap}
+.sozluk-cat{font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.06em;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.3rem .75rem;cursor:pointer;transition:all .15s;white-space:nowrap}
+.sozluk-cat:hover{border-color:var(--border2);color:var(--text)}
+.sozluk-cat.active{border-color:var(--red);color:#ff6b6b;background:#1f0808}
+[data-theme="light"] .sozluk-cat.active{background:#fff0f0;color:var(--red)}
+.sozluk-stats{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);letter-spacing:.08em;margin-bottom:1rem}
+.sozluk-grid{display:flex;flex-direction:column;gap:1px}
+.sozluk-item{background:var(--surface);border:1px solid var(--border);border-left:3px solid transparent;cursor:pointer;transition:border-color .15s,background .15s}
+.sozluk-item:hover{border-color:var(--border2)}
+.sozluk-item.open{border-left-color:var(--red)}
+.sozluk-item-head{display:flex;align-items:center;gap:.8rem;padding:.9rem 1.2rem;flex-wrap:wrap}
+.sozluk-term{font-family:'Space Mono',monospace;font-size:.88rem;color:var(--text);letter-spacing:.04em;font-weight:700}
+.sozluk-en{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);letter-spacing:.06em;font-style:italic}
+.sozluk-cat-badge{font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:.08em;padding:.15rem .5rem;border:1px solid;margin-left:auto;white-space:nowrap}
+.cat-teknik{color:#93c5fd;border-color:#2a3a5a;background:#0d1520}
+.cat-tasarim{color:#c4b5fd;border-color:#3a2a5a;background:#150d20}
+.cat-malzeme{color:#86efac;border-color:#1a4a2a;background:#0d2018}
+.cat-yazilim{color:#fcd34d;border-color:#4a3a00;background:#1a1500}
+.cat-kultur{color:#fca5a5;border-color:#5a2020;background:#200d0d}
+[data-theme="light"] .cat-teknik{color:#1a5a9a;border-color:#1a3a7a;background:#eff6ff}
+[data-theme="light"] .cat-tasarim{color:#5a1a9a;border-color:#5a1a9a;background:#f5f0ff}
+[data-theme="light"] .cat-malzeme{color:#1a5a2a;border-color:#1a5a2a;background:#f0fff4}
+[data-theme="light"] .cat-yazilim{color:#8a5a00;border-color:#8a5a00;background:#fffbeb}
+[data-theme="light"] .cat-kultur{color:#9a1a1a;border-color:#9a1a1a;background:#fff0f0}
+.sozluk-item-body{display:none;padding:0 1.2rem 1.1rem;border-top:1px dashed var(--border)}
+.sozluk-item.open .sozluk-item-body{display:block}
+.sozluk-def{font-family:'Inter',sans-serif;font-size:.92rem;color:var(--text);line-height:1.8;margin-top:.9rem;font-weight:300}
+.sozluk-note{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--text2);line-height:1.7;margin-top:.7rem;border-left:2px solid var(--border2);padding-left:.8rem}
+.sozluk-note::before{content:'// ';color:var(--red)}
+.sozluk-ornek{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--muted);margin-top:.6rem;font-style:italic}
+.sozluk-ornek::before{content:'örn: ';color:var(--yellow);font-style:normal}
+.sozluk-empty{font-family:'Space Mono',monospace;font-size:.75rem;color:var(--muted);padding:3rem 1rem;text-align:center;letter-spacing:.08em}
+
+/* ARAÇLAR */
+.araclar-tabs{display:flex;gap:.3rem;margin-bottom:2rem;border-bottom:1px solid var(--border);padding-top:1.5rem}
+.arac-tab{font-family:'Space Mono',monospace;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);background:transparent;border:none;border-bottom:2px solid transparent;padding:.6rem 1rem;cursor:pointer;margin-bottom:-1px;transition:all .15s}
+.arac-tab:hover{color:var(--text)}
+.arac-tab.active{color:var(--red);border-bottom-color:var(--red)}
+.arac-section{display:none}
+.arac-section.active{display:block}
+/* Teslim Sayacı */
+.sayac-header{margin-bottom:1.5rem}
+.sayac-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.08em;color:var(--text)}
+.sayac-sub{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted);margin-top:.3rem}
+.sayac-form{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:2rem;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--red);padding:1.2rem}
+.sayac-form input[type="text"]{flex:1;min-width:140px;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:.75rem;padding:.5rem .8rem;outline:none;caret-color:var(--red)}
+.sayac-form input[type="text"]:focus{border-color:var(--red)}
+.sayac-form input[type="datetime-local"]{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:.72rem;padding:.5rem .8rem;outline:none;cursor:pointer;color-scheme:dark}
+[data-theme="light"] .sayac-form input[type="datetime-local"]{color-scheme:light}
+.sayac-add-btn{font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.12em;background:var(--red);color:#fff;border:none;padding:.5rem 1.5rem;cursor:pointer;clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%);white-space:nowrap}
+.sayac-add-btn:hover{background:var(--red2)}
+.sayac-list{display:flex;flex-direction:column;gap:1px}
+.sayac-card{background:var(--surface);border:1px solid var(--border);padding:1.2rem 1.5rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap;transition:border-color .15s}
+.sayac-card:hover{border-color:var(--border2)}
+.sayac-card.acil{border-left:3px solid var(--red)}
+.sayac-card.bitti{border-left:3px solid #555;opacity:.5}
+.sayac-name{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.08em;color:var(--text);min-width:120px}
+.sayac-display{font-family:'Space Mono',monospace;font-size:.88rem;color:var(--yellow);letter-spacing:.06em;flex:1}
+.sayac-card.acil .sayac-display{color:#ff6b6b;animation:blink 1s infinite}
+.sayac-card.bitti .sayac-display{color:var(--muted)}
+.sayac-date{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted)}
+.sayac-del{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);background:transparent;border:1px solid var(--border);padding:.25rem .6rem;cursor:pointer;transition:all .15s}
+.sayac-del:hover{border-color:var(--red);color:var(--red)}
+.sayac-empty{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--muted);padding:2rem 1rem;border:1px dashed var(--border);text-align:center}
+/* Jüri Simülatörü */
+.juri-header{margin-bottom:1.5rem}
+.juri-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.08em;color:var(--text)}
+.juri-sub{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted);margin-top:.3rem}
+.juri-form{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--yellow);padding:1.5rem;margin-bottom:1.5rem}
+.juri-label{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--text2);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem;display:block}
+.juri-types{display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:1.2rem}
+.juri-type{font-family:'Space Mono',monospace;font-size:.7rem;letter-spacing:.04em;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.3rem .8rem;cursor:pointer;transition:all .15s}
+.juri-type:hover{border-color:var(--border2);color:var(--text)}
+.juri-type.active{border-color:var(--yellow);color:var(--yellow);background:#1a1a00}
+[data-theme="light"] .juri-type.active{background:#fffbe6;color:#8a6a00;border-color:#c8a800}
+.juri-concept{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Inter',sans-serif;font-size:.9rem;padding:.6rem .9rem;outline:none;caret-color:var(--yellow);margin-bottom:1.2rem;font-weight:300}
+.juri-concept::placeholder{color:var(--muted);font-style:italic}
+.juri-concept:focus{border-color:var(--yellow)}
+.juri-btn{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.15em;background:var(--yellow);color:#000;border:none;padding:.6rem 2rem;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:opacity .15s}
+.juri-btn:hover{opacity:.85}
+.juri-output{display:none}
+.juri-output.show{display:block}
+.juri-output-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}
+.juri-output-title{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--yellow);letter-spacing:.1em;text-transform:uppercase}
+.juri-regen{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);background:transparent;border:1px solid var(--border);padding:.3rem .7rem;cursor:pointer;transition:all .15s}
+.juri-regen:hover{border-color:var(--yellow);color:var(--yellow)}
+.juri-questions{display:flex;flex-direction:column;gap:1px}
+.juri-q{background:var(--surface);border:1px solid var(--border);padding:1rem 1.2rem;display:flex;gap:.8rem;align-items:flex-start;animation:slideIn .25s ease both}
+.juri-qnum{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--red);flex-shrink:0;margin-top:.15rem;letter-spacing:.06em}
+.juri-qtext{font-family:'Space Mono',monospace;font-size:.78rem;color:var(--text);line-height:1.7}
+.juri-tip{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);border-left:2px solid var(--border2);padding-left:.6rem;margin-top:.4rem}
+
+/* MİMARLAR */
+.mimarlar-header{padding-top:1.5rem;margin-bottom:1.5rem}
+.mimarlar-eyebrow{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem}
+.mimarlar-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.08em;color:var(--text)}
+.mimarlar-sub{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--text2);margin-top:.3rem;line-height:1.7}
+.mimarlar-sub span{color:var(--yellow)}
+.mimarlar-filters{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.8rem}
+.mimar-filter{font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.06em;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.3rem .75rem;cursor:pointer;transition:all .15s;white-space:nowrap}
+.mimar-filter:hover{border-color:var(--border2);color:var(--text)}
+.mimar-filter.active{border-color:var(--red);color:#ff6b6b;background:#1f0808}
+[data-theme="light"] .mimar-filter.active{background:#fff0f0;color:var(--red)}
+.mimarlar-stats{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);margin-bottom:1rem}
+.mimarlar-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1px}
+.mimar-card-wrap{perspective:900px;height:240px;cursor:pointer}
+.mimar-card-inner{width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,0,.2,1);position:relative}
+.mimar-card-wrap.flipped .mimar-card-inner{transform:rotateY(180deg)}
+.mimar-front,.mimar-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--surface);border:1px solid var(--border);padding:1.4rem;display:flex;flex-direction:column;justify-content:space-between}
+.mimar-back{transform:rotateY(180deg);border-color:var(--border2)}
+.mimar-card-wrap:hover .mimar-front{border-color:var(--border2)}
+.mimar-akım{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--red);letter-spacing:.12em;text-transform:uppercase;margin-bottom:.5rem}
+.mimar-isim{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.06em;color:var(--text);line-height:1.1;margin-bottom:.3rem}
+.mimar-yillar{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);margin-bottom:.8rem}
+.mimar-soz{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--text2);line-height:1.7;font-style:italic;flex:1}
+.mimar-hint{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--muted);letter-spacing:.08em;align-self:flex-end}
+.mimar-back-akım{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--yellow);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.8rem}
+.mimar-yapi{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.06em;color:var(--text);margin-bottom:.3rem}
+.mimar-yapi-alt{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);margin-bottom:.9rem}
+.mimar-aciklama{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--text2);line-height:1.7;flex:1}
+.mimar-ulke{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--muted);align-self:flex-end}
+
+/* ÖLÇEK HESAPLAYICI */
+.olcek-form{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--yellow);padding:1.5rem;margin-bottom:1.5rem}
+.olcek-row{display:flex;gap:.8rem;flex-wrap:wrap;align-items:flex-end;margin-bottom:.5rem}
+.olcek-field{display:flex;flex-direction:column;gap:.4rem;flex:1;min-width:120px}
+.olcek-field label{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.olcek-field input,.olcek-field select{background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:'Space Mono',monospace;font-size:.78rem;padding:.55rem .8rem;outline:none;width:100%}
+.olcek-field input{caret-color:var(--yellow)}
+.olcek-field input:focus,.olcek-field select:focus{border-color:var(--yellow)}
+.olcek-sonuc{background:var(--surface2);border:1px solid var(--border);padding:1.2rem 1.5rem;display:none}
+.olcek-sonuc.show{display:block}
+.olcek-sonuc-line{font-family:'Space Mono',monospace;font-size:.75rem;color:var(--text2);margin-bottom:.4rem;line-height:1.7}
+.olcek-sonuc-line strong{color:var(--yellow)}
+.olcek-tablosu{margin-top:.8rem;border-collapse:collapse;width:100%}
+.olcek-tablosu th{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:.1em;text-align:left;padding:.4rem .7rem;border-bottom:1px solid var(--border);text-transform:uppercase}
+.olcek-tablosu td{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--text);padding:.35rem .7rem;border-bottom:1px dashed var(--border)}
+.olcek-tablosu td:last-child{color:var(--yellow)}
+/* ALAN PROGRAMI */
+.alan-tipler{display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:1.5rem}
+.alan-tip{font-family:'Space Mono',monospace;font-size:.7rem;letter-spacing:.04em;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.3rem .8rem;cursor:pointer;transition:all .15s}
+.alan-tip:hover{border-color:var(--border2);color:var(--text)}
+.alan-tip.active{border-color:var(--yellow);color:var(--yellow);background:#1a1a00}
+[data-theme="light"] .alan-tip.active{background:#fffbe6;color:#8a6a00;border-color:#c8a800}
+.alan-table{width:100%;border-collapse:collapse;font-family:'Space Mono',monospace}
+.alan-table th{font-size:.6rem;color:var(--muted);letter-spacing:.1em;text-align:left;padding:.5rem .8rem;border-bottom:1px solid var(--border);text-transform:uppercase}
+.alan-table td{font-size:.72rem;color:var(--text2);padding:.45rem .8rem;border-bottom:1px dashed var(--border);line-height:1.5}
+.alan-table td:first-child{color:var(--text)}
+.alan-table td:nth-child(2){color:var(--yellow)}
+.alan-table td:nth-child(3){color:var(--muted)}
+.alan-note{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);margin-top:1rem;border-left:2px solid var(--border2);padding-left:.8rem;line-height:1.7}
+/* BİNGO */
+.bingo-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.08em;color:var(--text)}
+.bingo-sub{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted);margin:.3rem 0 .8rem}
+.bingo-status{font-family:'Space Mono',monospace;font-size:.78rem;color:var(--yellow);margin-bottom:.8rem;min-height:1.4rem;letter-spacing:.06em}
+.bingo-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin-bottom:1rem;max-width:520px}
+.bingo-cell{background:var(--surface);border:1px solid var(--border);padding:.5rem .2rem;font-family:'Space Mono',monospace;font-size:.58rem;color:var(--text2);text-align:center;cursor:pointer;transition:all .15s;line-height:1.4;min-height:62px;display:flex;align-items:center;justify-content:center}
+.bingo-cell:hover{border-color:var(--border2);background:var(--surface2)}
+.bingo-cell.marked{background:#1a1a00;border-color:var(--yellow);color:var(--yellow)}
+.bingo-cell.free{background:#1a0808;border-color:var(--red);color:var(--red);cursor:default}
+.bingo-cell.bingo-line{background:#0a1a0e;border-color:#2db870;color:#4ade80}
+.bingo-btn{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.12em;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.45rem 1.5rem;cursor:pointer;transition:all .15s}
+.bingo-btn:hover{border-color:var(--yellow);color:var(--yellow)}
+/* PROJE FİKİR */
+.fikir-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.08em;color:var(--text);margin-bottom:.3rem}
+.fikir-sub{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--muted);margin-bottom:1.5rem}
+.fikir-btn{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.15em;background:var(--red);color:#fff;border:none;padding:.65rem 2.5rem;cursor:pointer;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);transition:background .15s}
+.fikir-btn:hover{background:var(--red2)}
+.fikir-kart{display:none;margin-top:1.5rem;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--red);padding:1.8rem;animation:slideIn .3s ease both}
+.fikir-kart.show{display:block}
+.fikir-satirlar{display:flex;flex-direction:column;gap:1rem}
+.fikir-satir{display:flex;gap:1rem;align-items:flex-start}
+.fikir-label{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;min-width:65px;margin-top:.2rem;flex-shrink:0}
+.fikir-deger{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.06em;color:var(--text);line-height:1.2}
+.fikir-footer{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);margin-top:1.2rem;padding-top:1rem;border-top:1px dashed var(--border)}
+/* GUIDE */
+.guide-section{display:none}
+.guide-section.active{display:block}
+.guide-header{margin-bottom:2rem;padding-top:1.5rem}
+.guide-eyebrow{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.5rem}
+.guide-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.08em;color:var(--text)}
+.guide-sub{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--text2);line-height:1.7;margin-top:.4rem}
+.guide-sub span{color:var(--yellow)}
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1px;margin-bottom:3rem}
+.guide-card{background:var(--surface);border:1px solid var(--border);padding:1.5rem;cursor:pointer;transition:border-color .2s;animation:slideIn .3s ease both}
+.guide-card:hover{border-color:var(--border2)}
+.guide-card.open{border-color:var(--red)}
+.guide-card-num{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--red);letter-spacing:.12em;margin-bottom:.6rem;display:block}
+.guide-card-title{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:.08em;color:var(--text);margin-bottom:.5rem}
+.guide-card-desc{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--text2);line-height:1.7}
+.guide-card-tag{display:inline-block;font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.1em;border:1px solid var(--border);color:var(--muted);padding:.15rem .45rem;margin-top:.8rem}
+.guide-card-expand{display:none;margin-top:1.2rem;padding-top:1rem;border-top:1px dashed var(--border)}
+.guide-card.open .guide-card-expand{display:block}
+.guide-card-expand ul{padding-left:0;list-style:none;display:flex;flex-direction:column;gap:.5rem}
+.guide-card-expand li{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--text2);line-height:1.7;padding-left:1rem;position:relative}
+.guide-card-expand li::before{content:'→';position:absolute;left:0;color:var(--red);font-size:.6rem;top:.12rem}
+.guide-card-expand li strong{color:var(--text);font-weight:400}
+
+/* İLANLAR */
+.ilanlar-header{padding-top:1.5rem;margin-bottom:1.5rem}
+.ilanlar-eyebrow{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem}
+.ilanlar-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.08em;color:var(--text)}
+.ilanlar-sub{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--text2);margin-top:.3rem;line-height:1.7}
+.ilanlar-sub span{color:var(--yellow)}
+.ilanlar-filters{display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center}
+.ilan-filter{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.06em;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.3rem .75rem;cursor:pointer;transition:all .15s;white-space:nowrap}
+.ilan-filter:hover{border-color:var(--border2);color:var(--text)}
+.ilan-filter.active{border-color:var(--red);color:#ff6b6b;background:#1f0808}
+[data-theme="light"] .ilan-filter.active{background:#fff0f0;color:var(--red)}
+.ilanlar-stats{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);margin-bottom:1rem}
+.ilanlar-grid{display:flex;flex-direction:column;gap:1px}
+.ilan-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid transparent;padding:1.4rem;transition:border-color .15s,background .15s}
+.ilan-card:hover{border-color:var(--border2)}
+.ilan-card.staj{border-left-color:var(--yellow)}
+.ilan-card.tam{border-left-color:#4ade80}
+.ilan-card.yari{border-left-color:#93c5fd}
+.ilan-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:.8rem}
+.ilan-ofis{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.06em;color:var(--text)}
+.ilan-tip-badge{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.08em;padding:.2rem .6rem;border:1px solid;white-space:nowrap;flex-shrink:0}
+.ilan-tip-staj{color:var(--yellow);border-color:#3a3a00;background:#1a1a00}
+.ilan-tip-tam{color:#4ade80;border-color:#1a4a2a;background:#0d2018}
+.ilan-tip-yari{color:#93c5fd;border-color:#2a3a5a;background:#0d1520}
+[data-theme="light"] .ilan-tip-staj{color:#8a6a00;border-color:#c8a800;background:#fffbe6}
+[data-theme="light"] .ilan-tip-tam{color:#1a6a2a;border-color:#1a6a2a;background:#f0fff4}
+[data-theme="light"] .ilan-tip-yari{color:#1a3a8a;border-color:#1a3a8a;background:#eff6ff}
+.ilan-baslik{font-family:'Space Mono',monospace;font-size:.82rem;color:var(--text);font-weight:700;margin-bottom:.5rem}
+.ilan-aciklama{font-family:'Inter',sans-serif;font-size:.92rem;color:var(--text2);line-height:1.8;margin-bottom:.9rem;font-weight:300}
+.ilan-meta{display:flex;gap:1rem;flex-wrap:wrap;font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted)}
+.ilan-meta span{display:flex;align-items:center;gap:.3rem}
+.ilan-iletisim{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--yellow);margin-top:.8rem;word-break:break-all}
+.ilan-empty{font-family:'Space Mono',monospace;font-size:.75rem;color:var(--muted);padding:3rem 1rem;text-align:center;letter-spacing:.08em;border:1px dashed var(--border)}
+/* ETKİNLİKLER */
+.etkinlik-header{padding-top:1.5rem;margin-bottom:1.5rem}
+.etkinlik-eyebrow{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase;margin-bottom:.4rem}
+.etkinlik-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.08em;color:var(--text)}
+.etkinlik-sub{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--text2);margin-top:.3rem;line-height:1.7}
+.etkinlik-sub span{color:var(--yellow)}
+.etkinlik-filters{display:flex;gap:.35rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center}
+.etkinlik-filter{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.06em;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.3rem .75rem;cursor:pointer;transition:all .15s;white-space:nowrap}
+.etkinlik-filter:hover{border-color:var(--border2);color:var(--text)}
+.etkinlik-filter.active{border-color:var(--red);color:#ff6b6b;background:#1f0808}
+[data-theme="light"] .etkinlik-filter.active{background:#fff0f0;color:var(--red)}
+.etkinlik-stats{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);margin-bottom:1rem}
+.etkinlik-grid{display:flex;flex-direction:column;gap:1px}
+.etkinlik-card{background:var(--surface);border:1px solid var(--border);border-left:3px solid transparent;padding:1.4rem;transition:border-color .15s}
+.etkinlik-card:hover{border-color:var(--border2)}
+.etkinlik-card.yarisma{border-left-color:#c084fc}
+.etkinlik-card.festival{border-left-color:#fb923c}
+.etkinlik-card.etkinlik{border-left-color:#38bdf8}
+.etkinlik-card.workshop{border-left-color:#4ade80}
+.etkinlik-card.seminer{border-left-color:var(--yellow)}
+.etkinlik-head{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:.8rem}
+.etkinlik-baslik{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:.06em;color:var(--text);line-height:1.2}
+.etkinlik-org{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--text2);margin-top:.2rem}
+.etkinlik-tip-badge{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.08em;padding:.2rem .6rem;border:1px solid;white-space:nowrap;flex-shrink:0}
+.tip-yarisma{color:#c084fc;border-color:#5a2a7a;background:#1a0a2a}
+.tip-festival{color:#fb923c;border-color:#7a3a00;background:#2a1200}
+.tip-etkinlik{color:#38bdf8;border-color:#0a4a6a;background:#041520}
+.tip-workshop{color:#4ade80;border-color:#1a4a2a;background:#0d2018}
+.tip-seminer{color:var(--yellow);border-color:#3a3a00;background:#1a1a00}
+[data-theme="light"] .tip-yarisma{color:#7a1a9a;border-color:#7a1a9a;background:#faf0ff}
+[data-theme="light"] .tip-festival{color:#9a4a00;border-color:#9a4a00;background:#fff7ed}
+[data-theme="light"] .tip-etkinlik{color:#0a5a8a;border-color:#0a5a8a;background:#f0f9ff}
+[data-theme="light"] .tip-workshop{color:#1a6a2a;border-color:#1a6a2a;background:#f0fff4}
+[data-theme="light"] .tip-seminer{color:#8a6a00;border-color:#8a6a00;background:#fffbe6}
+.etkinlik-aciklama{font-family:'Inter',sans-serif;font-size:.92rem;color:var(--text2);line-height:1.8;margin-bottom:.9rem;font-weight:300}
+.etkinlik-meta{display:flex;gap:1rem;flex-wrap:wrap;font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted)}
+.etkinlik-link{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--yellow);margin-top:.8rem;word-break:break-all}
+.etkinlik-empty{font-family:'Space Mono',monospace;font-size:.75rem;color:var(--muted);padding:3rem 1rem;text-align:center;letter-spacing:.08em;border:1px dashed var(--border)}
+/* GERİ BİLDİRİM MODAL */
+.feedback-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:600;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.feedback-modal.hidden{display:none}
+.feedback-box{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--yellow);padding:2rem;width:min(420px,92vw)}
+.feedback-title{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.1em;color:var(--yellow);margin-bottom:.3rem}
+.feedback-sub{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.6}
+.feedback-types{display:flex;gap:.4rem;margin-bottom:1.2rem}
+.feedback-type{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.06em;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.35rem .9rem;cursor:pointer;transition:all .15s}
+.feedback-type.active{border-color:var(--yellow);color:var(--yellow);background:#1a1a00}
+[data-theme="light"] .feedback-type.active{background:#fffbe6;color:#8a6a00;border-color:#c8a800}
+.feedback-textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-left:2px solid var(--yellow);color:var(--text);font-family:'Inter',sans-serif;font-size:.9rem;padding:.8rem .9rem;outline:none;caret-color:var(--yellow);resize:none;min-height:100px;font-weight:300;margin-bottom:1rem}
+.feedback-textarea::placeholder{color:var(--muted);font-style:italic}
+.feedback-textarea:focus{border-color:var(--yellow)}
+.feedback-actions{display:flex;gap:.5rem}
+.feedback-send{flex:1;font-family:'Bebas Neue',sans-serif;font-size:.95rem;letter-spacing:.12em;background:var(--yellow);color:#000;border:none;padding:.6rem;cursor:pointer;clip-path:polygon(5px 0%,100% 0%,calc(100% - 5px) 100%,0% 100%)}
+.feedback-send:hover{opacity:.85}
+.feedback-cancel{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);background:transparent;border:1px solid var(--border);padding:.5rem 1rem;cursor:pointer;transition:all .15s}
+.feedback-cancel:hover{border-color:var(--red);color:var(--red)}
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.1em;background:var(--red);color:#fff;padding:.7rem 1.2rem;opacity:0;transform:translateY(10px);transition:all .3s;z-index:999;pointer-events:none;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);max-width:calc(100vw - 3rem)}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* FOOTER */
+footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem 2rem 3rem;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem}
+.footer-left{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--muted);letter-spacing:.08em}
+.terms-link{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--muted);background:transparent;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.terms-link:hover{color:var(--text)}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:3rem 1rem}
+.empty-state .big{font-family:'Space Mono',monospace;font-size:.8rem;color:var(--muted);font-style:italic}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border)}
+::-webkit-scrollbar-thumb:hover{background:var(--red)}
+
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+
+/* MOBİL */
+@media(max-width:600px){
+  header{padding:1.2rem 1rem 1rem}
+  main{padding:1rem 1rem 4rem}
+  nav{padding:0 .5rem}
+  .nav-tab{padding:.75rem .8rem;font-size:.6rem}
+  .write-box{padding:1rem}
+  .post{padding:1rem}
+  .write-selectors{flex-direction:column}
+  .header-tags{display:none}
+  .filter-bar{gap:.25rem}
+  .filter-chip{font-size:.57rem;padding:.2rem .5rem}
+  footer{padding:1.2rem 1rem 2rem}
+  .side-panel{width:100vw}
+  .toast{right:.8rem;left:.8rem;max-width:calc(100vw - 1.6rem)}
+}
+</style>
+</head>
+<body>
+
+<!-- WELCOME -->
+<div class="welcome-overlay hidden" id="welcomeScreen">
+  <div class="welcome-inner">
+    <div class="welcome-eyebrow">// ilk kez hoş geldin</div>
+    <div class="welcome-title">DU<span>VAR</span></div>
+    <div class="welcome-body">
+      <div class="welcome-line"><span class="num">01 —</span><p>Mimarlık öğrencileri için <strong>anonim yardımlaşma ve dayanışma platformu.</strong> Dert anlat, soru sor, kaynak paylaş.</p></div>
+      <div class="welcome-line"><span class="num">02 —</span><p><strong>Kimse gerçek kimliğini bilmez.</strong> Hoca yok, not yok, yargı yok.</p></div>
+      <div class="welcome-line"><span class="num">03 —</span><p>Her yazıya <strong>mood ve tür</strong> seçebilirsin. Okumak ücretsiz, yazmak için nickname yeterli.</p></div>
+      <div class="welcome-line"><span class="num">04 —</span><p>Acil durumlarda <strong>182 ALO Psikiyatri Hattı'nı</strong> ara.</p></div>
+    </div>
+    <hr class="welcome-divider">
+    <div style="margin-top:1.5rem">
+      <button class="welcome-cta" onclick="dismissWelcome()">DUVARA GİT</button>
+      <button class="welcome-skip" onclick="dismissWelcome()">anladım, geç →</button>
+    </div>
+  </div>
+</div>
+
+<!-- AUTH -->
+<div class="modal-overlay hidden" id="authModal">
+  <div class="modal">
+    <div class="modal-title">DUVAR</div>
+    <div class="modal-sub">giriş yap veya kayıt ol · tamamen anonim</div>
+    <div class="modal-tabs">
+      <button class="modal-tab active" onclick="switchAuthTab('login')">giriş yap</button>
+      <button class="modal-tab" onclick="switchAuthTab('register')">kayıt ol</button>
+    </div>
+    <div class="modal-err" id="authErr"></div>
+    <div class="field"><label>nickname</label><input type="text" id="authNick" placeholder="ör: gece_studiocu" maxlength="20" autocomplete="off"></div>
+    <div class="field"><label>şifre</label><input type="password" id="authPass" placeholder="en az 4 karakter" maxlength="50"></div>
+    <button class="modal-btn" id="authBtn" onclick="handleAuth()">GİRİŞ YAP</button>
+    <div class="modal-note">// gerçek isim girme. şifren bu cihazda saklanır.</div>
+    <button class="guest-btn" onclick="enterAsGuest()">sadece okumak istiyorum →</button>
+  </div>
+</div>
+
+<!-- PANEL OVERLAY -->
+<div class="panel-overlay" id="panelOverlay" onclick="closePanels()"></div>
+
+<!-- PROFİL PANELİ -->
+<div class="side-panel" id="profilePanel">
+  <div class="panel-header">
+    <div class="panel-title">// PROFİL</div>
+    <button class="panel-close" onclick="closePanels()">✕ kapat</button>
+  </div>
+  <div class="panel-body">
+    <div class="panel-nick" id="profileNick"></div>
+    <div class="panel-stats" id="profileStats"></div>
+    <div class="panel-section-title">// gönderilerim</div>
+    <div id="myPostsList"></div>
+    <button class="panel-btn" onclick="logout()">çıkış yap</button>
+  </div>
+</div>
+
+<!-- BİLDİRİMLER PANELİ -->
+<div class="side-panel" id="notifPanel">
+  <div class="panel-header">
+    <div class="panel-title">// BİLDİRİMLER</div>
+    <button class="panel-close" onclick="closePanels()">✕ kapat</button>
+  </div>
+  <div id="notifList"></div>
+</div>
+
+<!-- REPORT -->
+<div class="report-modal hidden" id="reportModal">
+  <div class="report-box">
+    <div class="report-title">// ŞİKAYET</div>
+    <div class="report-sub">Bu içerik neden uygunsuz? Bildirilen içerikler incelenir.</div>
+    <div class="report-options">
+      <button class="report-opt" onclick="selectReason(this,'hakaret')">hakaret / aşağılama</button>
+      <button class="report-opt" onclick="selectReason(this,'tehdit')">tehdit / taciz</button>
+      <button class="report-opt" onclick="selectReason(this,'kisisel_veri')">kişisel bilgi ifşası</button>
+      <button class="report-opt" onclick="selectReason(this,'zarar')">zarar verici içerik</button>
+      <button class="report-opt" onclick="selectReason(this,'diger')">diğer</button>
+    </div>
+    <div class="report-actions">
+      <button class="report-send" onclick="submitReport()">BİLDİR</button>
+      <button class="report-cancel" onclick="closeReport()">iptal</button>
+    </div>
+  </div>
+</div>
+
+<!-- TERMS -->
+<div class="terms-overlay" id="termsOverlay">
+  <div class="terms-inner">
+    <div class="terms-header">KULLANIM KOŞULLARI</div>
+    <div class="terms-date">// mart 2025 · duvar platformu</div>
+    <div class="terms-section"><h3>// 01 — amaç</h3><p>Mimarlık öğrencilerine anonim ve güvenli dışavurum alanı. Profesyonel yardımın yerini tutmaz.</p></div>
+    <div class="terms-section"><h3>// 02 — yasaklı içerikler</h3><ul><li>Hakaret, aşağılama veya kişiye yönelik saldırı</li><li>Tehdit, taciz veya zorbalık</li><li>Başkalarına ait kişisel bilgilerin paylaşılması</li><li>Nefret söylemi veya ayrımcı ifadeler</li><li>Kendine veya başkalarına zarar vermeyi teşvik</li></ul></div>
+    <div class="terms-section"><h3>// 03 — içerik kaldırma</h3><p>Kurallara aykırı içerikler önceden bildirim yapılmaksızın kaldırılabilir. Şikayetler 48 saat içinde incelenir.</p></div>
+    <div class="terms-section"><h3>// 04 — gizlilik ve kvkk</h3><p>Yalnızca takma ad ve şifreli kimlik bilgisi saklanır. Gerçek kimlik toplanmaz. Veriler üçüncü taraflarla paylaşılmaz.</p></div>
+    <div class="terms-section"><h3>// 05 — acil durum</h3><p>Kendine zarar verme ya da intihar düşüncesi yaşıyorsan lütfen <strong>182 ALO Psikiyatri Hattı'nı</strong> ara.</p></div>
+    <button class="terms-close" onclick="closeTerms()">KAPAT</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-top">
+    <div class="site-title">DUVAR</div>
+    <div class="header-controls">
+      <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="tema">◑</button>
+      <button class="icon-btn" onclick="openNotifs()" id="notifBtn" title="bildirimler" style="display:none">◉<span class="notif-dot" id="notifDot"></span></button>
+      <button class="icon-btn" onclick="openProfile()" id="profileBtn" title="profil" style="display:none">⊙</button>
+      <span class="user-nick" id="userNickDisplay" style="display:none"></span>
+    </div>
+  </div>
+  <div class="site-subtitle">mim okulu · yardımlaşma & dayanışma · <span>anonim</span></div>
+  <div class="header-tags">
+    <span class="tag hot">anonim</span>
+    <span class="tag">soru & cevap</span>
+    <span class="tag">kaynak</span>
+    <span class="tag">dayanışma</span>
+  </div>
+</header>
+
+<nav>
+  <button class="nav-tab active" id="tab-duvar" onclick="switchNav('duvar')">// duvar</button>
+  <button class="nav-tab" id="tab-rehber" onclick="switchNav('rehber')">// rehber</button>
+  <button class="nav-tab" id="tab-sozluk" onclick="switchNav('sozluk')">// sözlük</button>
+  <button class="nav-tab" id="tab-araclar" onclick="switchNav('araclar')">// araçlar</button>
+  <button class="nav-tab" id="tab-mimarlar" onclick="switchNav('mimarlar')">// mimarlar</button>
+  <button class="nav-tab" id="tab-ilanlar" onclick="switchNav('ilanlar')">// ilanlar</button>
+  <button class="nav-tab" id="tab-etkinlik" onclick="switchNav('etkinlik')">// etkinlik</button>
+</nav>
+
+<main>
+  <!-- DUVAR -->
+  <div id="section-duvar">
+    <div class="write-lock-notice" id="lockNotice">// yazmak için <a onclick="showAuth()">giriş yap veya kayıt ol</a> — okumak her zaman ücretsiz.</div>
+    <div class="write-box" id="writeBox">
+      <div class="write-as">yazan: <strong id="writeAsNick">—</strong></div>
+      <div class="write-selectors">
+        <div class="selector-group">
+          <div class="selector-label">// nasıl hissediyorsun</div>
+          <div class="pill-row">
+            <button class="pill mood-yorgun" onclick="selectMood(this,'yorgun')">😮‍💨 yorgunum</button>
+            <button class="pill mood-yardim" onclick="selectMood(this,'yardim')">🆘 yardım lazım</button>
+            <button class="pill mood-iyi" onclick="selectMood(this,'iyi')">✓ iyiyim</button>
+            <button class="pill mood-tesekkur" onclick="selectMood(this,'tesekkur')">♡ teşekkür</button>
+          </div>
+        </div>
+        <div class="selector-group">
+          <div class="selector-label">// ne paylaşıyorsun</div>
+          <div class="pill-row">
+            <button class="pill type-dert" onclick="selectType(this,'dert')">// dert</button>
+            <button class="pill type-soru" onclick="selectType(this,'soru')">? soru</button>
+            <button class="pill type-kaynak" onclick="selectType(this,'kaynak')">↗ kaynak</button>
+            <button class="pill type-acil" onclick="selectType(this,'acil')">! acil</button>
+          </div>
+        </div>
+      </div>
+      <textarea id="mainInput" placeholder="dert anlat, soru sor, kaynak paylaş — ya da sadece bir şey söyle." maxlength="500" rows="4"></textarea>
+      <div class="write-footer">
+        <span class="char-left" id="charCount">500 karakter kaldı</span>
+        <div style="display:flex;align-items:center;gap:.7rem">
+          <span class="ctrl-hint">ctrl+↵</span>
+          <button class="submit-btn" onclick="addPost()">DUVARA YAZ</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <span class="filter-label">filtre:</span>
+      <button class="filter-chip active" onclick="setFilter('all',this)">tümü</button>
+      <span class="filter-sep">·</span>
+      <button class="filter-chip" onclick="setFilter('acil',this,'type')">! acil</button>
+      <button class="filter-chip" onclick="setFilter('soru',this,'type')">? soru</button>
+      <button class="filter-chip" onclick="setFilter('kaynak',this,'type')">↗ kaynak</button>
+      <button class="filter-chip" onclick="setFilter('dert',this,'type')">// dert</button>
+      <span class="filter-sep">·</span>
+      <button class="filter-chip" onclick="setFilter('yardim',this,'mood')">🆘 yardım</button>
+      <button class="filter-chip" onclick="setFilter('yorgun',this,'mood')">😮‍💨 yorgun</button>
+      <button class="filter-chip" onclick="setFilter('iyi',this,'mood')">✓ iyi</button>
+      <button class="filter-chip" onclick="setFilter('tesekkur',this,'mood')">♡ teşekkür</button>
+    </div>
+
+    <div class="search-sort-bar" id="searchSortBar">
+      <input class="search-input" id="searchInput" type="text" placeholder="// gönderilerde ara..." oninput="render()">
+      <div class="sort-btns">
+        <button class="sort-btn active" id="sort-new" onclick="setSort('new',this)">↓ yeni</button>
+        <button class="sort-btn" id="sort-top" onclick="setSort('top',this)">⚡ popüler</button>
+      </div>
+    </div>
+
+    <div class="wall-header">
+      <div class="wall-label">// DUVAR</div>
+      <div class="wall-stats" id="wallStats"></div>
+    </div>
+    <div class="posts" id="postsGrid"></div>
+  </div>
+
+  <!-- REHBER -->
+  <div class="guide-section" id="section-rehber">
+    <div class="guide-header">
+      <div class="guide-eyebrow">// deneyimli öğrencilerden · keşke biri söyleseydi</div>
+      <div class="guide-title">1. SINIF REHBERİ</div>
+      <div class="guide-sub">Hoca tavsiyesi değil. <span>Aynı yoldan geçmiş öğrencilerden.</span> Tıkla, aç, oku.</div>
+    </div>
+    <div class="guide-grid">
+      <div class="guide-card" onclick="toggleCard(this)">
+        <span class="guide-card-num">// 001</span>
+        <div class="guide-card-title">İLK JÜRİDEN ÖNCE</div>
+        <div class="guide-card-desc">Jüri seni yıkmak için değil, projeyi anlamak için sorular sorar.</div>
+        <span class="guide-card-tag">jüri</span>
+        <div class="guide-card-expand"><ul>
+          <li>Projenin hikayesini <strong>3 cümleyle</strong> anlat — neden bu form, neden bu malzeme.</li>
+          <li>"Bilmiyorum" demek utanç değil. <strong>"Düşünmedim, ilginç nokta"</strong> de ve devam et.</li>
+          <li>Jüri bitince eleştirileri not al. <strong>Sonraki proje için altın.</strong></li>
+          <li>Bir gece önce uyku uyumak sabaha kadar çalışmaktan daha iyi sonuç verir.</li>
+        </ul></div>
+      </div>
+      <div class="guide-card" onclick="toggleCard(this)">
+        <span class="guide-card-num">// 002</span>
+        <div class="guide-card-title">ATÖLYE KÜLTÜRÜ</div>
+        <div class="guide-card-desc">Atölye sadece çalışma yeri değil, bir ekosistem.</div>
+        <span class="guide-card-tag">sosyal</span>
+        <div class="guide-card-expand"><ul>
+          <li>Üst sınıfların projelerine bak — <strong>sadece izle ve öğren.</strong></li>
+          <li><strong>Gece atölyesi</strong> romantik görünür ama sürdürülebilir değil.</li>
+          <li>Hocayla fikir ayrılığın varsa <strong>çizimle savun,</strong> sözle değil.</li>
+          <li>Birinin projesini beğendiysen söyle. Rekabet değil, <strong>dayanışma.</strong></li>
+        </ul></div>
+      </div>
+      <div class="guide-card" onclick="toggleCard(this)">
+        <span class="guide-card-num">// 003</span>
+        <div class="guide-card-title">YAZILIM & ARAÇLAR</div>
+        <div class="guide-card-desc">Hepsini öğrenmek zorunda değilsin.</div>
+        <span class="guide-card-tag">teknik</span>
+        <div class="guide-card-expand"><ul>
+          <li><strong>AutoCAD:</strong> Kısayolları öğren — L, C, TR, EX, O. Mouse'u bırakma.</li>
+          <li><strong>SketchUp:</strong> Hızlı hacim için. 1. yılda yeterli.</li>
+          <li><strong>Revit</strong> ilerki yıllara bırak.</li>
+          <li>YouTube tutorial'ları <strong>resmi eğitimden iyi.</strong></li>
+        </ul></div>
+      </div>
+      <div class="guide-card" onclick="toggleCard(this)">
+        <span class="guide-card-num">// 004</span>
+        <div class="guide-card-title">MAKET YAPIMI</div>
+        <div class="guide-card-desc">İlk maket hep berbat olur. Bu normal.</div>
+        <span class="guide-card-tag">teknik</span>
+        <div class="guide-card-expand"><ul>
+          <li><strong>Keskin bıçak</strong> her şeyi çözer.</li>
+          <li>Yapıştırmadan önce <strong>kuru monte et,</strong> gör, sonra yapıştır.</li>
+          <li>Fotoğrafını <strong>gün ışığında</strong> çek.</li>
+        </ul></div>
+      </div>
+      <div class="guide-card" onclick="toggleCard(this)">
+        <span class="guide-card-num">// 005</span>
+        <div class="guide-card-title">KAYNAK & İLHAM</div>
+        <div class="guide-card-desc">Sadece Archdaily değil.</div>
+        <span class="guide-card-tag">kaynak</span>
+        <div class="guide-card-expand"><ul>
+          <li><strong>ArchEyes:</strong> Detay çizimleri için harika.</li>
+          <li><strong>Failed Architecture:</strong> Başarısız projelerden öğrenmek değerli.</li>
+          <li><strong>Francis Ching — Form, Space & Order:</strong> Mutlaka oku.</li>
+          <li>Pinterest — form, malzeme, ışık için ayrı board'lar oluştur.</li>
+        </ul></div>
+      </div>
+      <div class="guide-card" onclick="toggleCard(this)">
+        <span class="guide-card-num">// 006</span>
+        <div class="guide-card-title">ZİHİNSEL SAĞLIK</div>
+        <div class="guide-card-desc">Mimarlık maratondur, sprint değil.</div>
+        <span class="guide-card-tag">sağlık</span>
+        <div class="guide-card-expand"><ul>
+          <li><strong>Karşılaştırma tuzağına</strong> düşme. Hepiniz aynı yerdedir.</li>
+          <li>Bir proje seni tanımlamaz.</li>
+          <li>Uyku, yemek, hareket — bunlar lüks değil, <strong>üretkenliğin temeli.</strong></li>
+          <li>Acil durumlarda <strong>182 ALO Psikiyatri Hattı.</strong></li>
+        </ul></div>
+      </div>
+      <div class="guide-card" onclick="toggleCard(this)">
+        <span class="guide-card-num">// 007</span>
+        <div class="guide-card-title">MALZEME REHBERİ</div>
+        <div class="guide-card-desc">Her malzemenin bir karakteri var. İyi mimarlık, malzemeyi tanımaktan geçer.</div>
+        <span class="guide-card-tag">malzeme</span>
+        <div class="guide-card-expand"><ul>
+          <li><strong>Beton:</strong> Plastik, dayanıklı ama ağır. Kalıba bağımlı. Yüzey işlemi önemli — kaba kalıp izi mi, perdahlı mı?</li>
+          <li><strong>Ahşap:</strong> Sıcak, işlenebilir ama neme ve yangına duyarlı. CLT ile büyük açıklıklar artık mümkün.</li>
+          <li><strong>Çelik:</strong> Hafif, yüksek mukavemet, hızlı montaj. Isıl genleşme ve yangın korumasını unutma.</li>
+          <li><strong>Cam:</strong> Işık ve şeffaflık. U-değeri kritik — düşük yayınımlı cam enerji tasarrufu demek.</li>
+          <li><strong>Tuğla:</strong> Doku, ısıl kütle, geleneksel his. Farklı örgü biçimleri cepheye karakter katar.</li>
+          <li><strong>Çelik profil:</strong> HEB, IPE, UPN. Kolon-kiriş sisteminde boyutlandırma için müh. ile çalış.</li>
+        </ul></div>
+      </div>
+      <div class="guide-card" onclick="toggleCard(this)">
+        <span class="guide-card-num">// 008</span>
+        <div class="guide-card-title">SUNUM İPUÇLARI</div>
+        <div class="guide-card-desc">İyi proje kötü sunumla kaybedilir. Seslenmesini bilen mimar kazanır.</div>
+        <span class="guide-card-tag">sunum</span>
+        <div class="guide-card-expand"><ul>
+          <li><strong>Hikaye anlat:</strong> "Bu bina neden burada, neden bu form?" Soruyu sormadan önce cevapla.</li>
+          <li><strong>Sessizlik korkutmasın:</strong> Düşünmek için 2 saniye beklemek güçsüzlük değil, zekadir.</li>
+          <li><strong>Paftaları anlatma, oku:</strong> Jüri görüyor. Çizimin göremediğini anlat.</li>
+          <li><strong>Eleştiriyi not al:</strong> "Haklısınız, bunu düşünmemiştim" demek olgunluktur, zayıflık değil.</li>
+          <li><strong>Poster düzeni:</strong> Göz soldan sağa, yukarıdan aşağıya tarar. Önce fikir, sonra detay.</li>
+          <li><strong>Bir gece önce prova yap:</strong> Sesli anlat. Takıldığın yer jürinin soracağı yerdir.</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARAÇLAR -->
+  <div class="guide-section" id="section-araclar">
+    <div class="araclar-tabs">
+      <button class="arac-tab active" id="arac-tab-sayac" onclick="switchArac('sayac')">⏳ teslim sayacı</button>
+      <button class="arac-tab" id="arac-tab-juri" onclick="switchArac('juri')">🎭 jüri simülatörü</button>
+      <button class="arac-tab" id="arac-tab-olcek" onclick="switchArac('olcek')">📐 ölçek hesap</button>
+      <button class="arac-tab" id="arac-tab-alan" onclick="switchArac('alan')">📋 alan programı</button>
+      <button class="arac-tab" id="arac-tab-bingo" onclick="switchArac('bingo')">🎯 bingo</button>
+      <button class="arac-tab" id="arac-tab-fikir" onclick="switchArac('fikir')">🎲 proje fikir</button>
+    </div>
+
+    <!-- TESLİM SAYACI -->
+    <div class="arac-section active" id="arac-sayac">
+      <div class="sayac-header">
+        <div class="sayac-title">TESLİM SAYACI</div>
+        <div class="sayac-sub">// tarihi gir, gerisi otomatik. tarayıcına kayıtlı kalır.</div>
+      </div>
+      <div class="sayac-form">
+        <input type="text" id="sayacAd" placeholder="teslim adı (ör: bitirme projesi)" maxlength="40">
+        <input type="datetime-local" id="sayacTarih">
+        <button class="sayac-add-btn" onclick="sayacEkle()">+ EKLE</button>
+      </div>
+      <div id="sayacList"></div>
+    </div>
+
+    <!-- JÜRİ SİMÜLATÖRÜ -->
+    <div class="arac-section" id="arac-juri">
+      <div class="juri-header">
+        <div class="juri-title">JÜRİ SİMÜLATÖRÜ</div>
+        <div class="juri-sub">// proje türünü ve konseptini gir, olası jüri sorularını al.</div>
+      </div>
+      <div class="juri-form">
+        <span class="juri-label">proje türü</span>
+        <div class="juri-types">
+          <button class="juri-type active" onclick="selectJuriType(this,'genel')">genel</button>
+          <button class="juri-type" onclick="selectJuriType(this,'konut')">konut</button>
+          <button class="juri-type" onclick="selectJuriType(this,'kultur')">kültür</button>
+          <button class="juri-type" onclick="selectJuriType(this,'ofis')">ofis</button>
+          <button class="juri-type" onclick="selectJuriType(this,'egitim')">eğitim</button>
+          <button class="juri-type" onclick="selectJuriType(this,'saglik')">sağlık</button>
+          <button class="juri-type" onclick="selectJuriType(this,'karma')">karma</button>
+        </div>
+        <span class="juri-label">konsept / anahtar kelimeler</span>
+        <input class="juri-concept" id="juriKonsept" type="text" placeholder="örn: sınır, ışık, geçicilik, endüstriyel dönüşüm..." maxlength="100">
+        <button class="juri-btn" onclick="juriUret()">SORULARI ÜRET</button>
+      </div>
+      <div class="juri-output" id="juriOutput">
+        <div class="juri-output-header">
+          <span class="juri-output-title">// olası jüri soruları</span>
+          <button class="juri-regen" onclick="juriUret()">↺ yeniden üret</button>
+        </div>
+        <div class="juri-questions" id="juriQuestions"></div>
+      </div>
+    </div>
+
+    <!-- ÖLÇEK HESAPLAYICI -->
+    <div class="arac-section" id="arac-olcek">
+      <div class="sayac-header">
+        <div class="sayac-title">ÖLÇEK HESAPLAYICI</div>
+        <div class="sayac-sub">// gerçek boyut ↔ çizim boyutu. her iki yönde çalışır.</div>
+      </div>
+      <div class="olcek-form">
+        <div class="olcek-row">
+          <div class="olcek-field">
+            <label>gerçek boyut (mm)</label>
+            <input type="number" id="olcekGercek" placeholder="örn: 3000" min="0" oninput="olcekHesapla()">
+          </div>
+          <div class="olcek-field">
+            <label>ölçek</label>
+            <select id="olcekOlcek" onchange="olcekHesapla()">
+              <option value="20">1:20</option>
+              <option value="50">1:50</option>
+              <option value="100" selected>1:100</option>
+              <option value="200">1:200</option>
+              <option value="500">1:500</option>
+              <option value="1000">1:1000</option>
+            </select>
+          </div>
+          <div class="olcek-field">
+            <label>çizimde (mm) — veya buradan gir</label>
+            <input type="number" id="olcekCizim" placeholder="örn: 30" min="0" oninput="olcekTersHesapla()">
+          </div>
+        </div>
+      </div>
+      <div class="olcek-sonuc" id="olcekSonuc">
+        <div id="olcekSonucText"></div>
+        <table class="olcek-tablosu">
+          <thead><tr><th>ölçek</th><th>çizimde (mm)</th><th>çizimde (cm)</th></tr></thead>
+          <tbody id="olcekTabloBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ALAN PROGRAMI -->
+    <div class="arac-section" id="arac-alan">
+      <div class="sayac-header">
+        <div class="sayac-title">ALAN PROGRAMI</div>
+        <div class="sayac-sub">// proje türüne göre standart mekanlar ve önerilen m².</div>
+      </div>
+      <div class="alan-tipler">
+        <button class="alan-tip active" onclick="setAlanTip(this,'konut')">konut</button>
+        <button class="alan-tip" onclick="setAlanTip(this,'kultur')">kültür merkezi</button>
+        <button class="alan-tip" onclick="setAlanTip(this,'egitim')">eğitim</button>
+        <button class="alan-tip" onclick="setAlanTip(this,'ofis')">ofis</button>
+        <button class="alan-tip" onclick="setAlanTip(this,'saglik')">sağlık</button>
+      </div>
+      <div id="alanTabloWrap"></div>
+    </div>
+
+    <!-- BİNGO -->
+    <div class="arac-section" id="arac-bingo">
+      <div class="bingo-title">MİMARLIK BİNGO</div>
+      <div class="bingo-sub">// jüri ve stüdyo klişelerini işaretle. beş doldur, bingo!</div>
+      <div class="bingo-status" id="bingoStatus"></div>
+      <div class="bingo-grid" id="bingoGrid"></div>
+      <button class="bingo-btn" onclick="newBingo()">↺ yeni kart</button>
+    </div>
+
+    <!-- PROJE FİKİR ÜRETİCİ -->
+    <div class="arac-section" id="arac-fikir">
+      <div class="fikir-title">PROJE FİKİR ÜRETİCİ</div>
+      <div class="fikir-sub">// program + arazi + kısıt + kavram. rastgele, ama düşündürücü.</div>
+      <button class="fikir-btn" onclick="projeUret()">FİKİR ÜRET</button>
+      <div class="fikir-kart" id="fikirkart">
+        <div class="fikir-satirlar" id="fikirdegerler"></div>
+        <div class="fikir-footer">// bu kombinasyonla bir tasarım egzersizi yapabilirsin.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MİMARLAR -->
+  <div class="guide-section" id="section-mimarlar">
+    <div class="mimarlar-header">
+      <div class="mimarlar-eyebrow">// tarihin ve çağın önemli isimleri</div>
+      <div class="mimarlar-title">MİMAR KARTLARI</div>
+      <div class="mimarlar-sub">Karta tıkla, çevir. <span>İsim, söz, yapı.</span></div>
+    </div>
+    <div class="mimarlar-filters" id="mimarFilters"></div>
+    <div class="mimarlar-stats" id="mimarStats"></div>
+    <div class="mimarlar-grid" id="mimarGrid"></div>
+  </div>
+
+  <!-- SÖZLÜK -->
+  <div class="guide-section" id="section-sozluk">
+    <div class="sozluk-header">
+      <div class="sozluk-eyebrow">// mimarlık terimleri · türkçe–ingilizce</div>
+      <div class="sozluk-title">MİMARLIK SÖZLÜĞÜ</div>
+      <div class="sozluk-sub">Stüdyoda duyacağın her terimin tanımı. <span>Tıkla, aç, öğren.</span></div>
+    </div>
+    <div class="sozluk-controls">
+      <input class="sozluk-search" id="sozlukSearch" type="text" placeholder="// terim ara..." oninput="renderSozluk()">
+      <div class="sozluk-cats">
+        <button class="sozluk-cat active" onclick="setSozlukCat('all',this)">tümü</button>
+        <button class="sozluk-cat" onclick="setSozlukCat('teknik',this)">teknik</button>
+        <button class="sozluk-cat" onclick="setSozlukCat('tasarim',this)">tasarım</button>
+        <button class="sozluk-cat" onclick="setSozlukCat('malzeme',this)">malzeme</button>
+        <button class="sozluk-cat" onclick="setSozlukCat('yazilim',this)">yazılım</button>
+        <button class="sozluk-cat" onclick="setSozlukCat('kultur',this)">kültür</button>
+      </div>
+    </div>
+    <div class="sozluk-stats" id="sozlukStats"></div>
+    <div class="sozluk-grid" id="sozlukGrid"></div>
+  </div>
+
+  <!-- ETKİNLİK -->
+  <div class="guide-section" id="section-etkinlik">
+    <div class="etkinlik-header">
+      <div class="etkinlik-eyebrow">// yarışmalar · festivaller · etkinlikler</div>
+      <div class="etkinlik-title">ETKİNLİK TAKVİMİ</div>
+      <div class="etkinlik-sub">Mimarlık dünyasından duyurular. <span>Yarışma · Festival · Workshop · Seminer.</span></div>
+    </div>
+    <div class="etkinlik-filters">
+      <button class="etkinlik-filter active" onclick="setEtkinlikFilter('all',this)">tümü</button>
+      <button class="etkinlik-filter" onclick="setEtkinlikFilter('yarisma',this)">yarışma</button>
+      <button class="etkinlik-filter" onclick="setEtkinlikFilter('festival',this)">festival</button>
+      <button class="etkinlik-filter" onclick="setEtkinlikFilter('etkinlik',this)">etkinlik</button>
+      <button class="etkinlik-filter" onclick="setEtkinlikFilter('workshop',this)">workshop</button>
+      <button class="etkinlik-filter" onclick="setEtkinlikFilter('seminer',this)">seminer</button>
+    </div>
+    <div class="etkinlik-stats" id="etkinlikStats"></div>
+    <div class="etkinlik-grid" id="etkinlikGrid"></div>
+  </div>
+
+  <!-- İLANLAR -->
+  <div class="guide-section" id="section-ilanlar">
+    <div class="ilanlar-header">
+      <div class="ilanlar-eyebrow">// ofislerden & firmalardan · güncel fırsatlar</div>
+      <div class="ilanlar-title">İŞ & STAJ İLANLARI</div>
+      <div class="ilanlar-sub">Mimarlık ofislerinden doğrudan gelen ilanlar. <span>Güncel · Ücretsiz.</span></div>
+    </div>
+    <div class="ilanlar-filters">
+      <button class="ilan-filter active" onclick="setIlanFilter('all',this)">tümü</button>
+      <button class="ilan-filter" onclick="setIlanFilter('staj',this)">staj</button>
+      <button class="ilan-filter" onclick="setIlanFilter('tam',this)">tam zamanlı</button>
+      <button class="ilan-filter" onclick="setIlanFilter('yari',this)">yarı zamanlı</button>
+    </div>
+    <div class="ilanlar-stats" id="ilanlarStats"></div>
+    <div class="ilanlar-grid" id="ilanlarGrid"></div>
+  </div>
+</main>
+
+<!-- GERİ BİLDİRİM MODAL -->
+<div class="feedback-modal hidden" id="feedbackModal">
+  <div class="feedback-box">
+    <div class="feedback-title">// GERİ BİLDİRİM</div>
+    <div class="feedback-sub">Öneri veya şikayetin doğrudan site yönetimine iletilir. Anonim kalabilirsin.</div>
+    <div class="feedback-types">
+      <button class="feedback-type active" onclick="selectFeedbackType(this,'oneri')">💡 öneri</button>
+      <button class="feedback-type" onclick="selectFeedbackType(this,'sikayet')">⚑ şikayet</button>
+    </div>
+    <textarea class="feedback-textarea" id="feedbackText" placeholder="düşünceni yaz..." maxlength="600" rows="5"></textarea>
+    <div class="feedback-actions">
+      <button class="feedback-send" onclick="submitFeedback()">GÖNDER</button>
+      <button class="feedback-cancel" onclick="closeFeedback()">iptal</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<footer>
+  <div class="footer-left">// duvar · tüm içerikler kullanıcıya aittir</div>
+  <div style="display:flex;gap:1rem;align-items:center">
+    <button class="terms-link" onclick="openFeedback()">öneri & şikayet</button>
+    <button class="terms-link" onclick="openTerms()">kullanım koşulları & gizlilik</button>
+  </div>
+</footer>
+
+<script>
+// ── STORAGE ──
+const USERS_KEY='duvar_users',POSTS_KEY='duvar_posts',SESSION_KEY='duvar_session',NOTIFS_KEY='duvar_notifs_';
+const getUsers=()=>{try{return JSON.parse(localStorage.getItem(USERS_KEY))||{};}catch{return{};}};
+const saveUsers=u=>localStorage.setItem(USERS_KEY,JSON.stringify(u));
+const getPosts=()=>{try{return JSON.parse(localStorage.getItem(POSTS_KEY))||null;}catch{return null;}};
+const savePosts=p=>localStorage.setItem(POSTS_KEY,JSON.stringify(p));
+const getSession=()=>{try{return JSON.parse(localStorage.getItem(SESSION_KEY))||null;}catch{return null;}};
+const saveSession=s=>localStorage.setItem(SESSION_KEY,JSON.stringify(s));
+const getNotifs=u=>{try{return JSON.parse(localStorage.getItem(NOTIFS_KEY+u))||[];}catch{return[];}};
+const saveNotifs=(u,n)=>localStorage.setItem(NOTIFS_KEY+u,JSON.stringify(n));
+
+// ── HASH ──
+async function hashPass(p){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p+'duvar_salt'));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}
+
+// ── STATE ──
+let currentUser=null,activeFilter={kind:'all',val:''},selectedMood=null,selectedType=null,activeAuthTab='login',activeSort='new';
+
+let posts=getPosts()||[
+  {id:1,author:'gece_studiocu',mood:'yorgun',type:'dert',text:"gece 4'te render alıyorum. sabah 9'da jüri. hocanın 'bu tasarım düşünülmemiş' demesi için.",time:'47 dk önce',fire:31,hug:12,fired:[],hugged:[],comments:[{nick:'sessiz_mimar',text:"'düşünülmemiş' = hoca sana dikkat ediyor. umursamadığı projeleri geçiştiriyor."},{nick:'koridordan',text:'sen yalnız değilsin. aynı masada bekliyorum.'}]},
+  {id:2,author:'dördüncü_yıl',mood:'yardim',type:'soru',text:"revit'te çatı eğimini otomatik hesaplamak mümkün mü? jüri yarın sabah.",time:'1 sa önce',fire:18,hug:9,fired:[],hugged:[],comments:[{nick:'mezun_biri',text:"architecture tab > roof by footprint > slope arrow. eğimi properties'ten değiştirirsin."}]},
+  {id:3,author:'staj_dönüşü',mood:'iyi',type:'kaynak',text:'dezeen ve archdaily dışında: failedarchitecture.com — başarısız projeleri analiz ediyor, jüride çok işe yaradı.',time:'3 sa önce',fire:44,hug:20,fired:[],hugged:[],comments:[]},
+  {id:4,author:'anonim_43',mood:'tesekkur',type:'dert',text:'bu siteyi açan kişi iyi biri. geçen hafta burada yazdım, cevaplar iyi geldi.',time:'1 gün önce',fire:103,hug:77,fired:[],hugged:[],comments:[]}
+];
+
+// ── THEME ──
+function toggleTheme(){
+  const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',t);
+  localStorage.setItem('duvar_theme',t);
+  document.getElementById('themeBtn').textContent=t==='dark'?'◑':'◐';
+}
+(()=>{const t=localStorage.getItem('duvar_theme')||'dark';document.documentElement.setAttribute('data-theme',t);document.getElementById('themeBtn').textContent=t==='dark'?'◑':'◐';})();
+
+// ── ESC ──
+const esc=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+// ── AUTH ──
+function switchAuthTab(tab){
+  activeAuthTab=tab;
+  document.querySelectorAll('.modal-tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&tab==='login')||(i===1&&tab==='register')));
+  document.getElementById('authBtn').textContent=tab==='login'?'GİRİŞ YAP':'KAYIT OL';
+  document.getElementById('authErr').textContent='';
+}
+async function handleAuth(){
+  const nick=document.getElementById('authNick').value.trim().toLowerCase().replace(/\s+/g,'_');
+  const pass=document.getElementById('authPass').value;
+  const err=document.getElementById('authErr');
+  if(nick.length<2){err.textContent='// nickname en az 2 karakter';return;}
+  if(pass.length<4){err.textContent='// şifre en az 4 karakter';return;}
+  if(!/^[a-zA-Z0-9_çğıöşüÇĞİÖŞÜ]+$/.test(nick)){err.textContent='// sadece harf, rakam ve _';return;}
+  const hash=await hashPass(pass);
+  const users=getUsers();
+  const banned=JSON.parse(localStorage.getItem('duvar_banned')||'[]');
+  if(activeAuthTab==='register'){
+    if(users[nick]){err.textContent='// bu nickname alınmış';return;}
+    users[nick]={hash};saveUsers(users);loginSuccess(nick);
+  }else{
+    if(!users[nick]){err.textContent='// hesap yok. kayıt ol?';return;}
+    if(users[nick].hash!==hash){err.textContent='// şifre yanlış';return;}
+    if(banned.includes(nick)){err.textContent='// bu hesap askıya alınmış';return;}
+    loginSuccess(nick);
+  }
+}
+function loginSuccess(nick){
+  currentUser=nick;saveSession({nick});
+  document.getElementById('authModal').classList.add('hidden');
+  const nd=document.getElementById('userNickDisplay');
+  nd.textContent=nick;nd.style.display='';
+  document.getElementById('writeAsNick').textContent=nick;
+  document.getElementById('writeBox').classList.remove('locked');
+  document.getElementById('lockNotice').classList.remove('show');
+  document.getElementById('profileBtn').style.display='';
+  document.getElementById('notifBtn').style.display='';
+  checkNotifDot();render();
+}
+function enterAsGuest(){
+  currentUser=null;
+  document.getElementById('authModal').classList.add('hidden');
+  document.getElementById('writeBox').classList.add('locked');
+  document.getElementById('lockNotice').classList.add('show');
+  document.getElementById('userNickDisplay').style.display='none';
+  document.getElementById('profileBtn').style.display='none';
+  document.getElementById('notifBtn').style.display='none';
+  render();
+}
+function showAuth(){document.getElementById('authModal').classList.remove('hidden');}
+function logout(){
+  currentUser=null;localStorage.removeItem(SESSION_KEY);
+  document.getElementById('userNickDisplay').style.display='none';
+  document.getElementById('profileBtn').style.display='none';
+  document.getElementById('notifBtn').style.display='none';
+  document.getElementById('writeBox').classList.add('locked');
+  document.getElementById('lockNotice').classList.add('show');
+  closePanels();showAuth();render();
+}
+
+// ── NAV ──
+function switchNav(tab){
+  document.getElementById('section-duvar').style.display=tab==='duvar'?'block':'none';
+  ['rehber','sozluk','araclar','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('section-'+t).classList.toggle('active',t===tab));
+  ['duvar','rehber','sozluk','araclar','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active',t===tab));
+  if(tab==='sozluk')renderSozluk();
+  if(tab==='mimarlar')renderMimarlar();
+  if(tab==='araclar')renderSayac();
+  if(tab==='ilanlar')renderIlanlar();
+  if(tab==='etkinlik')renderEtkinlikler();
+}
+
+// ── FILTER ──
+function setFilter(val,el,kind='all'){
+  activeFilter={kind,val};
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');render();
+}
+
+// ── SORT ──
+function setSort(s,el){
+  activeSort=s;
+  document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');render();
+}
+
+// ── RELATIVE TIME ──
+function relTime(val){
+  if(typeof val==='string'&&!/^\d/.test(val))return val; // "47 dk önce" gibi static string
+  const d=new Date(val),now=Date.now(),diff=now-d;
+  if(isNaN(diff))return val;
+  const m=Math.floor(diff/60000),h=Math.floor(diff/3600000),day=Math.floor(diff/86400000);
+  if(m<1)return 'şimdi';
+  if(m<60)return m+' dk önce';
+  if(h<24)return h+' sa önce';
+  if(day<7)return day+' gün önce';
+  return d.toLocaleDateString('tr-TR');
+}
+
+// ── RENDER ──
+const moodL={yorgun:'😮‍💨 yorgunum',yardim:'🆘 yardım lazım',iyi:'✓ iyiyim',tesekkur:'♡ teşekkür'};
+const typeL={dert:'// dert',soru:'? soru',kaynak:'↗ kaynak',acil:'! acil'};
+
+function render(){
+  const grid=document.getElementById('postsGrid');
+  const q=(document.getElementById('searchInput')?.value||'').toLowerCase().trim();
+  let filtered=[...posts];
+  if(activeFilter.kind!=='all'){filtered=filtered.filter(p=>p[activeFilter.kind]===activeFilter.val);}
+  if(q){filtered=filtered.filter(p=>p.text.toLowerCase().includes(q)||p.author.toLowerCase().includes(q));}
+  // sıralama
+  if(activeSort==='top'){
+    filtered.sort((a,b)=>(b.type==='acil'?1:0)-(a.type==='acil'?1:0)||(b.pinned?1:0)-(a.pinned?1:0)||((b.fire||0)-(a.fire||0)));
+  } else {
+    filtered.sort((a,b)=>(b.type==='acil'?1:0)-(a.type==='acil'?1:0)||(b.pinned?1:0)-(a.pinned?1:0));
+  }
+  const isFiltered=activeFilter.kind!=='all'||q;
+  document.getElementById('wallStats').textContent=filtered.length+' mesaj'+(isFiltered?' · filtrelendi':'');
+  if(!filtered.length){grid.innerHTML='<div class="empty-state"><div class="big">// bu filtrede gönderi yok</div></div>';return;}
+  grid.innerHTML=filtered.map((p,i)=>{
+    const isMine=p.author===currentUser;
+    const mF=p.fired&&p.fired.includes(currentUser);
+    const mB=p.mood?`<span class="badge badge-mood-${p.mood}">${moodL[p.mood]||p.mood}</span>`:'';
+    const tB=p.type?`<span class="badge badge-type-${p.type}">${typeL[p.type]||p.type}</span>`:'';
+    return`<div class="post${isMine?' mine':''}${p.pinned?' pinned-post':''}"style="animation-delay:${Math.min(i,6)*.05}s">
+      <div class="post-header">
+        <span class="post-number">#${String(filtered.length-i).padStart(3,'0')}</span>
+        <span class="post-author${isMine?' me':''}">${esc(p.author)}</span>
+        ${isMine?'<span class="mini-tag mine-tag">sen</span>':''}
+        ${p.pinned?'<span class="mini-tag pin-tag">📌 sabit</span>':''}
+      </div>
+      ${(mB||tB)?`<div class="post-badges">${tB}${mB}</div>`:''}
+      <div class="post-text">${esc(p.text)}</div>
+      <div class="post-bottom">
+        <span class="post-time">${relTime(p.time)}</span>
+        <div class="reactions">
+          <button class="rxn${mF?' on':''}"onclick="react(${p.id},'like')" title="beğen">${mF?'❤️':'🤍'} ${p.fire||0}</button>
+          <button class="rxn"onclick="toggleComments(${p.id})" title="yorum yap">💬 ${p.comments.length}</button>
+          ${!isMine?`<button class="rxn report-btn"onclick="openReport(${p.id})"title="şikayet">···</button>`:''}
+        </div>
+      </div>
+      <div class="comments-wrap"id="c-${p.id}">
+        ${p.comments.map(c=>`<div class="comment"><span class="comment-nick${c.nick===currentUser?' me':''}">${esc(c.nick)}</span>${esc(c.text)}</div>`).join('')}
+        <div class="comment-row">
+          <input class="comment-input"id="ci-${p.id}"placeholder="${currentUser?(p.type==='soru'?'cevapla...':'destek yaz...'):'yazmak için giriş yap'}"maxlength="200"${!currentUser?' disabled':''}>
+          <button class="comment-send"onclick="sendComment(${p.id})"${!currentUser?' disabled':''}>${p.type==='soru'?'cevapla':'gönder'}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── ACTIONS ──
+function selectMood(el,mood){
+  document.querySelectorAll('.pill[class*="mood-"]').forEach(p=>p.classList.remove('active'));
+  selectedMood=selectedMood===mood?null:mood;
+  if(selectedMood)el.classList.add('active');
+}
+function selectType(el,type){
+  document.querySelectorAll('.pill[class*="type-"]').forEach(p=>p.classList.remove('active'));
+  selectedType=selectedType===type?null:type;
+  if(selectedType)el.classList.add('active');
+}
+function addPost(){
+  if(!currentUser)return;
+  const banned=JSON.parse(localStorage.getItem('duvar_banned')||'[]');
+  if(banned.includes(currentUser)){toast('// hesabın askıya alınmış');logout();return;}
+  const val=document.getElementById('mainInput').value.trim();
+  if(!val)return;
+  posts.unshift({id:Date.now(),author:currentUser,text:val,mood:selectedMood,type:selectedType,time:new Date().toISOString(),fire:0,hug:0,fired:[],hugged:[],comments:[]});
+  savePosts(posts);
+  document.getElementById('mainInput').value='';
+  document.getElementById('charCount').textContent='500 karakter kaldı';
+  selectedMood=null;selectedType=null;
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  render();toast('// duvara yazıldı');
+}
+function react(id,type){
+  if(!currentUser)return;
+  const p=posts.find(x=>x.id===id);if(!p)return;
+  if(type==='like'){
+    if(p.fired.includes(currentUser)){p.fired=p.fired.filter(x=>x!==currentUser);p.fire--;}
+    else{p.fired.push(currentUser);p.fire++;addNotif(p.author,currentUser,'❤️ gönderini beğendi');}
+  }
+  savePosts(posts);render();
+}
+function toggleComments(id){document.getElementById('c-'+id).classList.toggle('open');}
+function sendComment(id){
+  if(!currentUser)return;
+  const inp=document.getElementById('ci-'+id);
+  const val=inp.value.trim();if(!val)return;
+  const p=posts.find(x=>x.id===id);
+  if(p){
+    p.comments.push({nick:currentUser,text:val});
+    savePosts(posts);
+    addNotif(p.author,currentUser,p.type==='soru'?'💬 sorunuzu cevapladı':'💬 yorum yaptı');
+    render();
+    document.getElementById('c-'+id).classList.add('open');
+    toast('// iletildi');
+  }
+}
+
+// ── BİLDİRİMLER ──
+function addNotif(toUser,fromUser,action){
+  if(!toUser||toUser===fromUser)return;
+  const notifs=getNotifs(toUser);
+  notifs.unshift({from:fromUser,action,time:new Date().toISOString(),read:false});
+  if(notifs.length>50)notifs.pop();
+  saveNotifs(toUser,notifs);
+  if(toUser===currentUser)checkNotifDot();
+}
+function checkNotifDot(){
+  if(!currentUser)return;
+  const n=getNotifs(currentUser).filter(x=>!x.read).length;
+  document.getElementById('notifDot').classList.toggle('show',n>0);
+}
+function openNotifs(){
+  if(!currentUser)return;
+  closePanels();
+  const notifs=getNotifs(currentUser);
+  const list=document.getElementById('notifList');
+  if(!notifs.length){list.innerHTML='<div class="notif-empty">// henüz bildirim yok</div>';}
+  else{
+    list.innerHTML=notifs.map(n=>`<div class="notif-item${n.read?'':' unread'}"><div class="notif-text"><strong>@${esc(n.from)}</strong> ${esc(n.action)}</div><div class="notif-time">${relTime(n.time)}</div></div>`).join('');
+    const updated=notifs.map(n=>({...n,read:true}));
+    saveNotifs(currentUser,updated);
+    document.getElementById('notifDot').classList.remove('show');
+  }
+  document.getElementById('notifPanel').classList.add('open');
+  document.getElementById('panelOverlay').classList.add('open');
+}
+
+// ── PROFİL ──
+function openProfile(){
+  if(!currentUser)return;
+  closePanels();
+  document.getElementById('profileNick').textContent=currentUser;
+  const myPosts=posts.filter(p=>p.author===currentUser);
+  const tF=myPosts.reduce((s,p)=>s+p.fire,0);
+  document.getElementById('profileStats').innerHTML=`
+    <div class="panel-stat"><div class="panel-stat-num">${myPosts.length}</div><div class="panel-stat-label">gönderi</div></div>
+    <div class="panel-stat"><div class="panel-stat-num">${tF}</div><div class="panel-stat-label">❤️ toplam</div></div>
+    <div class="panel-stat"><div class="panel-stat-num">${myPosts.reduce((s,p)=>s+p.comments.length,0)}</div><div class="panel-stat-label">yorum aldı</div></div>
+    <div class="panel-stat"><div class="panel-stat-num">${myPosts.filter(p=>p.type==='acil').length}</div><div class="panel-stat-label">acil gönderi</div></div>`;
+  document.getElementById('myPostsList').innerHTML=myPosts.length
+    ?myPosts.map(p=>`<div class="my-post-mini">
+      ${p.type?`<span style="font-family:Space Mono,monospace;font-size:.55rem;color:var(--muted)">${typeL[p.type]||p.type} · </span>`:''}
+      <div class="my-post-mini-text">${esc(p.text)}</div>
+      <div class="my-post-mini-meta"><span>⚡ ${p.fire}</span><span>◎ ${p.hug}</span><span>↳ ${p.comments.length}</span><span>${p.time}</span></div>
+    </div>`).join('')
+    :'<div style="font-family:Space Mono,monospace;font-size:.7rem;color:var(--muted);padding:1rem 0">// henüz gönderi yok</div>';
+  document.getElementById('profilePanel').classList.add('open');
+  document.getElementById('panelOverlay').classList.add('open');
+}
+function closePanels(){
+  ['profilePanel','notifPanel'].forEach(id=>document.getElementById(id).classList.remove('open'));
+  document.getElementById('panelOverlay').classList.remove('open');
+}
+
+// ── REPORT ──
+let reportTargetId=null,reportReason=null;
+function openReport(id){reportTargetId=id;reportReason=null;document.querySelectorAll('.report-opt').forEach(o=>o.classList.remove('selected'));document.getElementById('reportModal').classList.remove('hidden');}
+function closeReport(){document.getElementById('reportModal').classList.add('hidden');}
+function selectReason(el,r){document.querySelectorAll('.report-opt').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');reportReason=r;}
+function submitReport(){
+  if(!currentUser){toast('// şikayet için giriş yap');closeReport();showAuth();return;}
+  if(!reportReason){toast('// bir neden seç');return;}
+  const reports=JSON.parse(localStorage.getItem('duvar_reports')||'[]');
+  reports.push({postId:reportTargetId,reason:reportReason,by:currentUser,time:new Date().toISOString()});
+  localStorage.setItem('duvar_reports',JSON.stringify(reports));
+  closeReport();toast('// bildirim alındı');
+}
+
+// ── TERMS / GUIDE ──
+function openTerms(){document.getElementById('termsOverlay').classList.add('open');}
+function closeTerms(){document.getElementById('termsOverlay').classList.remove('open');}
+function toggleCard(el){el.classList.toggle('open');}
+
+// ── WELCOME ──
+function dismissWelcome(){
+  document.getElementById('welcomeScreen').classList.add('hidden');
+  localStorage.setItem('duvar_welcomed','1');
+  document.getElementById('authModal').classList.remove('hidden');
+}
+
+// ── TOAST ──
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+
+// ── ARAÇLAR: ALT SEKME ──
+function switchArac(tab){
+  ['sayac','juri','olcek','alan','bingo','fikir'].forEach(t=>{
+    document.getElementById('arac-'+t).classList.toggle('active',t===tab);
+    document.getElementById('arac-tab-'+t).classList.toggle('active',t===tab);
+  });
+  if(tab==='sayac')renderSayac();
+  if(tab==='alan')renderAlanProgram();
+  if(tab==='bingo'&&!bingoKart.length)newBingo();
+}
+
+// ── TESLİM SAYACI ──
+const SAYAC_KEY='duvar_sayaclar';
+function getSayaclar(){try{return JSON.parse(localStorage.getItem(SAYAC_KEY))||[];}catch{return[];}}
+function saveSayaclar(s){localStorage.setItem(SAYAC_KEY,JSON.stringify(s));}
+
+function sayacEkle(){
+  const ad=document.getElementById('sayacAd').value.trim();
+  const tarih=document.getElementById('sayacTarih').value;
+  if(!ad||!tarih){toast('// ad ve tarih gir');return;}
+  const sayaclar=getSayaclar();
+  sayaclar.push({id:Date.now(),ad,tarih});
+  saveSayaclar(sayaclar);
+  document.getElementById('sayacAd').value='';
+  document.getElementById('sayacTarih').value='';
+  renderSayac();
+  toast('// teslim eklendi');
+}
+
+function sayacSil(id){
+  saveSayaclar(getSayaclar().filter(s=>s.id!==id));
+  renderSayac();
+}
+
+function formatSayac(tarih){
+  const diff=new Date(tarih)-Date.now();
+  if(diff<=0)return{text:'TESLİM GEÇTİ',bitti:true,acil:false};
+  const gun=Math.floor(diff/86400000);
+  const sa=Math.floor((diff%86400000)/3600000);
+  const dk=Math.floor((diff%3600000)/60000);
+  const sn=Math.floor((diff%60000)/1000);
+  const acil=diff<86400000;
+  if(gun>0)return{text:`${gun} gün ${sa} sa ${dk} dk`,bitti:false,acil};
+  return{text:`${sa} sa ${dk} dk ${sn} sn`,bitti:false,acil};
+}
+
+function renderSayac(){
+  const el=document.getElementById('sayacList');
+  if(!el)return;
+  const sayaclar=getSayaclar();
+  if(!sayaclar.length){
+    el.innerHTML='<div class="sayac-empty">// henüz teslim eklenmedi — yukarıdan ekle</div>';
+    return;
+  }
+  el.innerHTML=sayaclar.map(s=>{
+    const f=formatSayac(s.tarih);
+    const d=new Date(s.tarih);
+    const tarihStr=d.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    return`<div class="sayac-card${f.acil?' acil':''}${f.bitti?' bitti':''}">
+      <div class="sayac-name">${esc(s.ad)}</div>
+      <div>
+        <div class="sayac-display" data-id="${s.id}">${f.text}</div>
+        <div class="sayac-date">${tarihStr}</div>
+      </div>
+      <button class="sayac-del" onclick="sayacSil(${s.id})">✕ sil</button>
+    </div>`;
+  }).join('');
+}
+
+// Sayaç canlı güncelle
+setInterval(()=>{
+  const sayaclar=getSayaclar();
+  document.querySelectorAll('.sayac-display[data-id]').forEach(el=>{
+    const id=parseInt(el.dataset.id);
+    const s=sayaclar.find(x=>x.id===id);
+    if(!s)return;
+    const f=formatSayac(s.tarih);
+    el.textContent=f.text;
+    const card=el.closest('.sayac-card');
+    if(card){
+      card.classList.toggle('acil',f.acil);
+      card.classList.toggle('bitti',f.bitti);
+    }
+  });
+},1000);
+
+// ── JÜRİ SİMÜLATÖRÜ ──
+let juriType='genel';
+
+const JURI_HAVUZ={
+  genel:[
+    {s:'Konseptini 3 cümleyle anlatır mısın?',t:'Açık ve net olmaya çalış. Jüri anlatımı tasarım kadar değerlendiriyor.'},
+    {s:'Bu malzemeyi neden seçtin?',t:'Sadece estetik değil; yapısal, çevresel ve maliyet gerekçeleri hazırla.'},
+    {s:'Strüktürel sistemi açıklar mısın?',t:'Yük aktarım yolunu net anlat. Kolon-kiriş mi, perde mi, karma mı?'},
+    {s:'Doğal ışık tasarımında nasıl bir karar aldın?',t:'Gün boyu ışık değişimini düşün. Yön ve açıklık boyutu kritik.'},
+    {s:'Yapıyı çevresiyle nasıl ilişkilendirdin?',t:'Bağlam analizi yaptıysan bunu göster. Yapmadıysan dürüst ol.'},
+    {s:'Kullanıcı deneyimini nasıl kurguladın?',t:'Kullanıcı profilini tanımla. Hareket rotalarını anlat.'},
+    {s:'En kritik tasarım kararın ne oldu, neden?',t:'Bu soruyu dürüstçe cevapla. Jüri özgünlüğü takdir eder.'},
+    {s:'Sürdürülebilirlik açısından ne düşündün?',t:'Pasif sistemler, yön, malzeme ömrü veya enerji verimini anlat.'},
+    {s:'Referans aldığın yapılar veya mimarlar var mı?',t:'Referans almak zayıflık değil. Ama "kopyaladım" gibi durma.'},
+    {s:'Bu projede neyi farklı yapardın?',t:'Öz eleştiri yapabilmek güçlü bir tasarımcı işaretidir.'},
+    {s:'Sirkülasyon kurgusunu açıklar mısın?',t:'Giriş, ana aks, çıkış, servis — hepsini mantıkla bağla.'},
+    {s:'Maket ve çizimlerin tasarımı ne ölçüde yansıtıyor?',t:'Temsil araçlarını savunabilmen gerekiyor.'},
+    {s:'Bu konsepti neden bu programa uyguladın?',t:'Konsept ile program arasındaki mantıksal bağı kur.'},
+  ],
+  konut:[
+    {s:'Mahremiyet hiyerarşisi nasıl kurgulandı?',t:'Kamusal → yarı kamusal → özel geçişi açıkla.'},
+    {s:'Ortak alan ile özel alan dengesi nasıl sağlandı?',t:'Paylaşımlı mekanlar ne kadar büyük, nerede konumlandı?'},
+    {s:'Kullanıcı profili kimden oluşuyor, bunu tasarıma nasıl yansıttın?',t:'Tek kişi mi, aile mi, öğrenci mi? Mekan bunu hissettirmeli.'},
+    {s:'Komşuluk ilişkileri nasıl ele alındı?',t:'Pencere-pencere karşılaşmaları düşünüldü mü?'},
+    {s:'Depolama ve servis mekanları tasarlandı mı?',t:'Çoğu öğrenci bunu unutur. Mutfak depo, çamaşırlık, teknik hacim.'},
+  ],
+  kultur:[
+    {s:'Ziyaretçi sirkülasyonu ile servis sirkülasyonu ayrıldı mı?',t:'Sergi, depo, teknik, personel — hepsinin ayrı yolu olmalı.'},
+    {s:'Sergileme alanlarında doğal ışık kontrolü nasıl sağlandı?',t:'Doğrudan güneş ışığı eserlere zarar verir. Nasıl difüze ettin?'},
+    {s:'Gece kullanımı ve etkinlik programı düşünüldü mü?',t:'Kültür yapıları çoğu zaman akşam daha yoğundur.'},
+    {s:'Erişilebilirlik tasarıma nasıl entegre edildi?',t:'Engelli erişimi sonradan eklenen rampa olmamalı.'},
+    {s:'Depolama ve konservasyon mekanları nerede?',t:'Sergi alanının en az 1/3ü kadar depo gerekir.'},
+  ],
+  ofis:[
+    {s:'Bireysel ve grup çalışma modelleri nasıl destekleniyor?',t:'Açık ofis + odaklanma kabinleri + toplantı odaları dengesi.'},
+    {s:'Esnek kullanım düşünüldü mü?',t:'Şirketler büyür veya küçülür. Duvarlar taşınabilir mi?'},
+    {s:'Servis çekirdeğinin konumu neden burada?',t:'Kolon-çekirdek ilişkisi yapısal ve fonksiyonel açıdan açıklanmalı.'},
+    {s:'Çalışan refahı için hangi kararlar alındı?',t:'Terrace, yeşil alan, kafeterya, dinlenme köşesi.'},
+  ],
+  egitim:[
+    {s:'Öğrenci-öğretmen mekansal ilişkisi nasıl kurgulandı?',t:'Otorite mi, işbirliği mi? Bu fikir plana yansımalı.'},
+    {s:'Kapasite hesabı yapıldı mı, acil tahliye düşünüldü mü?',t:'Sınıf başına öğrenci, kişi başına alan, çıkış sayısı.'},
+    {s:'Dışarı ile bağlantı nasıl kuruldu?',t:'Avlu, bahçe, yarı açık mekan — eğitim yapılarının vazgeçilmezi.'},
+    {s:'Farklı yaş grupları veya eğitim modelleri dikkate alındı mı?',t:'Anaokulu ile lise aynı mekan ihtiyacına sahip değil.'},
+  ],
+  saglik:[
+    {s:'Steril ve kirli zonlama nasıl ayrıldı?',t:'Çapraz kontaminasyonu önlemek temel sağlık yapısı ilkesidir.'},
+    {s:'Hasta sirkülasyonu ile personel sirkülasyonu ayrıldı mı?',t:'Acil, poliklinik, servis girişleri ayrı olmalı.'},
+    {s:'Doğal ışık ve görünüm hasta odaları için nasıl ele alındı?',t:'Araştırmalar doğal ışığın iyileşmeyi hızlandırdığını gösteriyor.'},
+    {s:'Hijyen protokolleri tasarıma nasıl yansıdı?',t:'Zemin-duvar köşeleri, kapı kolları, havalandırma.'},
+  ],
+  karma:[
+    {s:'Farklı fonksiyonlar arasındaki çatışmalar nasıl çözüldü?',t:'Gürültü, koku, sirkülasyon çakışmaları var mı?'},
+    {s:'Her fonksiyonun bağımsız girişi var mı?',t:'Karma kullanımda her program kendi saatinde çalışabilmeli.'},
+    {s:'Karma kullanımın sinerjisini nasıl yarattın?',t:'1+1=3 yapabildin mi? Yoksa sadece yan yana koydun mu?'},
+    {s:'Fonksiyonların birbirini etkilemesi tasarıma yansıdı mı?',t:'Aktif-pasif, gündüz-gece kullanım çiftleri düşün.'},
+  ],
+};
+
+function selectJuriType(el,type){
+  juriType=type;
+  document.querySelectorAll('.juri-type').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function juriUret(){
+  const konsept=document.getElementById('juriKonsept').value.trim();
+  const genel=[...JURI_HAVUZ.genel];
+  const ozel=juriType!=='genel'?[...(JURI_HAVUZ[juriType]||[])]:[...JURI_HAVUZ.genel];
+  // Karıştır
+  const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+  shuffle(genel);shuffle(ozel);
+  // 4 genel + 3 türe özel
+  const secilen=[...genel.slice(0,4),...ozel.slice(0,3)];
+  // Konseptten 1 özel soru üret
+  if(konsept){
+    const templates=[
+      `"${konsept}" kavramını yapının hangi mekansal kararında en net hissedebiliyoruz?`,
+      `"${konsept}" fikri cephe tasarımına nasıl yansıdı?`,
+      `"${konsept}" konseptini ilk kez nasıl buldun, nasıl geliştirdi?`,
+      `"${konsept}" ile bu program arasındaki ilişkiyi açıklar mısın?`,
+    ];
+    secilen.unshift({s:templates[Math.floor(Math.random()*templates.length)],t:'Konseptine özel bu soruyu güçlü cevapla — jüri burada seni dinliyor.'});
+  }
+  shuffle(secilen);
+  document.getElementById('juriOutput').classList.add('show');
+  document.getElementById('juriQuestions').innerHTML=secilen.slice(0,7).map((q,i)=>`
+    <div class="juri-q" style="animation-delay:${i*.06}s">
+      <span class="juri-qnum">${String(i+1).padStart(2,'0')} —</span>
+      <div>
+        <div class="juri-qtext">${esc(q.s)}</div>
+        ${q.t?`<div class="juri-tip">${esc(q.t)}</div>`:''}
+      </div>
+    </div>`).join('');
+  toast('// '+secilen.slice(0,7).length+' soru üretildi');
+}
+
+// ── MİMAR KARTLARI ──
+const MIMARLAR=[
+  {isim:'Le Corbusier',yillar:'1887–1965',akim:'Modernizm',soz:'"Ev yaşamak için bir makinedir."',yapi:'Villa Savoye',yapiAlt:'Poissy, Fransa · 1931',aciklama:'Modern mimarlığın 5 ilkesini tanımladı. Piloti, çatı bahçesi, serbest plan, şerit pencere, serbest cephe. Mimarlık eğitiminin olmazsa olmazı.',ulke:'İsviçre / Fransa'},
+  {isim:'Mies van der Rohe',yillar:'1886–1969',akim:'Modernizm',soz:'"Az çoktur."',yapi:'Barcelona Pavyonu',yapiAlt:'Barselona, İspanya · 1929',aciklama:'Saf geometri, cam ve çeliğin ustası. "Evrensel mekan" kavramıyla esnek, sütun destekli açık planı mimarlığa kazandırdı.',ulke:'Almanya / ABD'},
+  {isim:'Frank Lloyd Wright',yillar:'1867–1959',akim:'Organik Mimarlık',soz:'"Mimarlık doğanın insan dilidir."',yapi:'Şelale Evi (Fallingwater)',yapiAlt:'Pennsylvania, ABD · 1939',aciklama:'Yapıyı araziden koparmak yerine onunla bütünleştirdi. Prairie Style ve organik mimarlığın kurucusu.',ulke:'ABD'},
+  {isim:'Zaha Hadid',yillar:'1950–2016',akim:'Dekonstruktivizm / Parametrik',soz:'"Yönler her yöndedir."',yapi:'MAXXI Müzesi',yapiAlt:'Roma, İtalya · 2010',aciklama:'İlk Pritzker ödülü alan kadın mimar. Keskin köşeleri ve akışkan formlarıyla mimarlık dilini dönüştürdü. Dijital üretimin öncüsü.',ulke:'Irak / İngiltere'},
+  {isim:'Tadao Ando',yillar:'1941–',akim:'Minimalizm / Eleştirel Bölgeselcilik',soz:'"Sessizlik bir konuşma biçimidir."',yapi:'Işık Kilisesi',yapiAlt:'Osaka, Japonya · 1989',aciklama:'Beton duvarlar, keskin geometri ve ışığın mekana sızdığı yarıklar. Japon kültürünü modernist dille buluşturdu. Mimarlık okumadan mimarız.',ulke:'Japonya'},
+  {isim:'Rem Koolhaas',yillar:'1944–',akim:'Çağdaş / Eleştirel',soz:'"Kentler üzerinde kontrol sahibi olamayız, onlarla müzakere ederiz."',yapi:'CCTV Merkezi',yapiAlt:'Pekin, Çin · 2012',aciklama:'OMA\'nın kurucusu. "Delirious New York" ile teorisyen, CCTV ile mühendis sınırlarını zorladı. Mimarlığı kültürel eleştiri aracı olarak kullandı.',ulke:'Hollanda'},
+  {isim:'Frank Gehry',yillar:'1929–',akim:'Dekonstruktivizm',soz:'"Neden yapılar sıkıcı olmak zorunda?"',yapi:'Guggenheim Bilbao',yapiAlt:'Bilbao, İspanya · 1997',aciklama:'Titanium kaplı Guggenheim Bilbao şehri dönüştürdü. "Bilbao etkisi" kavramı ondan geliyor. Formu özgürleştirdi, CAD\'i mimarlığa entegre etti.',ulke:'Kanada / ABD'},
+  {isim:'Renzo Piano',yillar:'1937–',akim:'Hi-Tech Mimarlık',soz:'"Güzellik bir amacın ürünüdür."',yapi:'Centre Pompidou',yapiAlt:'Paris, Fransa · 1977',aciklama:'Rogers ile birlikte Pompidou\'yu tasarladı — tüm strüktür ve mekanik dışarıda. Hafiflik ve şeffaflık peşinde koşan bir mühendis-mimar.',ulke:'İtalya'},
+  {isim:'Peter Zumthor',yillar:'1943–',akim:'Fenomenolojik Mimarlık',soz:'"Mimarlık duyularla düşünmektir."',yapi:'Therme Vals',yapiAlt:'Vals, İsviçre · 1996',aciklama:'Az yapı, derin düşünce. Her projesinde malzeme, ışık ve sessizliğin mekana dönüşümünü araştırır. "Atmopshere" kitabı tasarım eğitiminin temel metinlerinden.',ulke:'İsviçre'},
+  {isim:'Álvaro Siza',yillar:'1933–',akim:'Eleştirel Bölgeselcilik',soz:'"Hiçbir şey icat etmiyorum, onu dönüştürüyorum."',yapi:'Serralves Müzesi',yapiAlt:'Porto, Portekiz · 1999',aciklama:'Portekiz mimarlığını dünyaya açan isim. Arazi, ışık ve yerel kültürü modernizmin ustalığıyla buluşturur. Serbest el çizimleri efsanedir.',ulke:'Portekiz'},
+  {isim:'Louis Kahn',yillar:'1901–1974',akim:'Modern Klasikçilik',soz:'"Tuğlaya ne olmak istediğini sor."',yapi:'Salk Enstitüsü',yapiAlt:'La Jolla, ABD · 1965',aciklama:'"Hizmet eden" ve "hizmet edilen" mekan ayrımıyla yapı organizasyonunu yeniden tanımladı. Işık ve ağırlığın şairi.',ulke:'ABD'},
+  {isim:'Alvar Aalto',yillar:'1898–1976',akim:'Organik Modernizm',soz:'"Mimarlık insanlık için bir sentez yapmalıdır."',yapi:'Paimio Sanatoryumu',yapiAlt:'Paimio, Finlandiya · 1933',aciklama:'Modernizmi insanileştirdi. Ahşap, doğal ışık ve ergonomik detaylarla soğuk fonksiyonalizme sıcaklık kattı. Finlandiya\'nın ulusal mimarı.',ulke:'Finlandiya'},
+  {isim:'Carlo Scarpa',yillar:'1906–1978',akim:'Zanaatkâr Mimarlık',soz:'"Detay bütünün içindedir."',yapi:'Castelvecchio Müzesi',yapiAlt:'Verona, İtalya · 1973',aciklama:'Tarihi yapıları yeni katmanlarla dönüştürmenin ustası. Her derzi, her bağlantıyı tasarladı. Mimarın elini en çok hissettiren isim.',ulke:'İtalya'},
+  {isim:'Kengo Kuma',yillar:'1954–',akim:'Çağdaş / Japon Gelenekçiliği',soz:'"Mimarlığı silmek istiyorum."',yapi:'Suntory Müzesi',yapiAlt:'Tokyo, Japonya · 2007',aciklama:'Yapıyı doğaya ve zemine yedirmeyi hedefler. Ahşap, bambu, taş ile geleneksel Japon estetiğini çağdaş yapılara taşıyor.',ulke:'Japonya'},
+  {isim:'SANAA / Kazuyo Sejima',yillar:'1956–',akim:'Minimal Çağdaş',soz:'"Mimarlık insanların arasındaki ilişkiler hakkındadır."',yapi:'Rolex Öğrenme Merkezi',yapiAlt:'Lozan, İsviçre · 2010',aciklama:'İnce çelik, saydam cam ve akışkan planlarla mekansal sınırları ortadan kaldırdı. SANAA ile Pritzker 2010.',ulke:'Japonya'},
+  {isim:'Bjarke Ingels',yillar:'1974–',akim:'Çağdaş / Pragmatik Ütopya',soz:'"Mimarlık hem hayalperest hem de pratik olabilir."',yapi:'8 House',yapiAlt:'Kopenhag, Danimarka · 2010',aciklama:'BIG (Bjarke Ingels Group) ile mimarlığı eğlenceli hale getirdi. Hedonist sürdürülebilirlik: iyi yaşam + iyi çevre.',ulke:'Danimarka'},
+  {isim:'Diébédo Francis Kéré',yillar:'1965–',akim:'Sürdürülebilir / Toplumsal Mimarlık',soz:'"Mimarlık bir toplumu inşa etme aracıdır."',yapi:'Gando İlköğretim Okulu',yapiAlt:'Gando, Burkina Faso · 2001',aciklama:'Köyü için burs toplayarak okul inşa etti. Yerel malzeme ve toplum katılımıyla sürdürülebilir mimarlığı yeniden tanımladı. Pritzker 2022.',ulke:'Burkina Faso'},
+  {isim:'Oscar Niemeyer',yillar:'1907–2012',akim:'Modernizm / Brezilya',soz:'"Düz çizgi beni ilgilendirmiyor — o insan elinin değil, Tanrı\'nın çizgisidir."',yapi:'Brezilya Ulusal Kongresi',yapiAlt:'Brasília, Brezilya · 1960',aciklama:'Le Corbusier\'in betonunu Latin Amerika\'nın kıvrımlarıyla buluşturdu. Başkent Brasília\'nın tamamını tasarladı. 104 yıl yaşadı, son güne kadar çizdi.',ulke:'Brezilya'},
+  {isim:'Herzog & de Meuron',yillar:'1950– / 1950–',akim:'Çağdaş',soz:'"Yüzey gerçekliğin kendisidir."',yapi:'Tate Modern',yapiAlt:'Londra, İngiltere · 2000',aciklama:'Cepheyi bir bilgi katmanı olarak kullandılar. Eski Bankside Santrali\'ni Avrupa\'nın en çok ziyaret edilen müzesine dönüştürdüler.',ulke:'İsviçre'},
+  {isim:'Sou Fujimoto',yillar:'1971–',akim:'Çağdaş Japon',soz:'"Mimarlık doğanın bir parçasıdır, doğayı taklit etmez."',yapi:'Serpentine Pavilion',yapiAlt:'Londra, İngiltere · 2013',aciklama:'Ağaç gibi büyüyen yapılar tasarlıyor. Sınırları bulanıklaştırmak, iç-dış ayrımını silmek onun temel meselesi.',ulke:'Japonya'},
+  {isim:'Balkrishna Doshi',yillar:'1927–2023',akim:'Eleştirel Bölgeselcilik / Sosyal Mimarlık',soz:'"Mimarlık yaşamı zenginleştirir."',yapi:'Aranya Konut Projesi',yapiAlt:'Indore, Hindistan · 1989',aciklama:'Le Corbusier ve Kahn ile çalışıp Hindistan\'a döndü. Düşük maliyetli konut ile yüksek mimari kaliteyi buluşturdu. Pritzker 2018.',ulke:'Hindistan'},
+  {isim:'Sedad Hakkı Eldem',yillar:'1908–1988',akim:'Türk Evi Geleneği / Modernizm',soz:'"Mimarinin özü dürüstlüktür."',yapi:'Sosyal Sigortalar Kurumu',yapiAlt:'İstanbul, Türkiye · 1963',aciklama:'Türk mimarlık kimliğini modern dünyaya taşımaya çalıştı. Geleneksel Türk evinin mekansal özelliklerini modernizm ile sentezledi.',ulke:'Türkiye'},
+  {isim:'Turgut Cansever',yillar:'1920–2009',akim:'İslam Geleneği / Bölgeselcilik',soz:'"Mimarlık varoluşun mekânsal ifadesidir."',yapi:'Arap Konutları',yapiAlt:'Bodrum, Türkiye · 1970ler',aciklama:'İslam mimarisinin felsefi derinliğini çağdaş yapılara aktardı. Ağa Han Mimarlık Ödülü\'nü üç kez kazandı.',ulke:'Türkiye'},
+  {isim:'Robert Venturi',yillar:'1925–2018',akim:'Postmodernizm',soz:'"Az can sıkıcıdır."',yapi:'Vanna Venturi Evi',yapiAlt:'Philadelphia, ABD · 1964',aciklama:'"Complexity and Contradiction in Architecture" ile modernizmin katı kurallarını sorguladı. Tarihsel referans ve ironiyi mimarlığa geri getirdi.',ulke:'ABD'},
+  {isim:'Anne Lacaton',yillar:'1955–',akim:'Dönüşüm / Sosyal Mimarlık',soz:'"Asla yıkmayın."',yapi:'Tour Bois le Prêtre',yapiAlt:'Paris, Fransa · 2011',aciklama:'Lacaton & Vassal ile sosyal konut dönüşümünü yeniden tanımladı. Yıkmak yerine genişletmek. Sade malzeme, maksimum alan. Pritzker 2021.',ulke:'Fransa'},
+];
+
+const MIMAR_AKIMLAR=['tümü','Modernizm','Dekonstruktivizm / Parametrik','Minimalizm / Eleştirel Bölgeselcilik','Hi-Tech Mimarlık','Fenomenolojik Mimarlık','Çağdaş','Organik Mimarlık','Postmodernizm','Sürdürülebilir / Toplumsal Mimarlık','Türkiye'];
+let mimarAkim='tümü';
+
+function renderMimarlar(){
+  const filtersEl=document.getElementById('mimarFilters');
+  const statsEl=document.getElementById('mimarStats');
+  const gridEl=document.getElementById('mimarGrid');
+  if(!gridEl)return;
+
+  // Filtre butonlarını yalnızca ilk kez oluştur
+  if(!filtersEl.innerHTML){
+    // Basit akım listesi
+    const akimlar=['tümü','Modernizm','Organik Mimarlık','Dekonstruktivizm','Parametrik','Minimal','Hi-Tech','Çağdaş','Postmodernizm','Sürdürülebilir','Türkiye'];
+    filtersEl.innerHTML=akimlar.map(a=>`<button class="mimar-filter${a==='tümü'?' active':''}" onclick="setMimarAkim('${a}',this)">${a}</button>`).join('');
+  }
+
+  let liste=MIMARLAR;
+  if(mimarAkim!=='tümü'){
+    liste=MIMARLAR.filter(m=>{
+      const lower=mimarAkim.toLowerCase();
+      return m.akim.toLowerCase().includes(lower)||m.ulke.toLowerCase().includes(lower);
+    });
+  }
+  statsEl.textContent=liste.length+' mimar'+(mimarAkim!=='tümü'?' · filtrelendi':'');
+  gridEl.innerHTML=liste.map((m,i)=>`
+    <div class="mimar-card-wrap" onclick="this.classList.toggle('flipped')" style="animation-delay:${Math.min(i,8)*.04}s;animation:slideIn .3s ease both">
+      <div class="mimar-card-inner">
+        <div class="mimar-front">
+          <div>
+            <div class="mimar-akım">${esc(m.akim)}</div>
+            <div class="mimar-isim">${esc(m.isim)}</div>
+            <div class="mimar-yillar">${esc(m.yillar)} · ${esc(m.ulke)}</div>
+          </div>
+          <div class="mimar-soz">"${esc(m.soz.replace(/"/g,''))}"</div>
+          <div class="mimar-hint">// çevir →</div>
+        </div>
+        <div class="mimar-back">
+          <div>
+            <div class="mimar-back-akım">// en önemli yapı</div>
+            <div class="mimar-yapi">${esc(m.yapi)}</div>
+            <div class="mimar-yapi-alt">${esc(m.yapiAlt)}</div>
+          </div>
+          <div class="mimar-aciklama">${esc(m.aciklama)}</div>
+          <div class="mimar-ulke">← geri</div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function setMimarAkim(akim,el){
+  mimarAkim=akim;
+  document.querySelectorAll('.mimar-filter').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderMimarlar();
+}
+
+// ── SÖZLÜK ──
+const SOZLUK=[
+  // TEKNİK
+  {tr:'Rölöve',en:'Survey Drawing',cat:'teknik',def:'Mevcut bir yapının veya alanın yerinde ölçülerek hazırlanan ölçekli çizimi. Restorasyon projelerinin ilk adımı.',not:'Rölöve olmadan restorasyon olmaz. Doğru ölçüm, doğru proje demektir.',ornek:'"Rölöve çizimini bitirdin mi?" — tarihi yapı dersinin ilk ödevi'},
+  {tr:'Restitüsyon',en:'Restitution',cat:'teknik',def:'Bir yapının özgün haline dair hipotezi belgeleyen, araştırmaya dayalı çizim ve rapor çalışması.',not:'Restitüsyon "tahmin" değil, kanıta dayalı yeniden kurgulamadır.'},
+  {tr:'Restorasyon',en:'Restoration',cat:'teknik',def:'Tarihi yapının özgün niteliklerini koruyarak onarılması ve işlevlendirilmesi süreci.',not:'Restorasyon; eklemek değil, var olanı yaşatmaktır.'},
+  {tr:'Plan',en:'Floor Plan',cat:'teknik',def:'Yapının yatay bir düzlemde, genellikle döşemeden ~1.2m yukarıdan kesilmiş yatay kesit çizimi.',not:'Plan en temel mimari çizimdir. Her şey plandan başlar.',ornek:'"Planı 1/50 çiz" — öğrenci projelerinde standart sunum ölçeği'},
+  {tr:'Kesit',en:'Section',cat:'teknik',def:'Yapının dikey bir düzlemde kesilmesiyle elde edilen iç mekan ve strüktür çizimi.',ornek:'"Merdivenden geçen bir kesit al" — iç mekan yüksekliklerini göstermek için'},
+  {tr:'Cephe / Görünüş',en:'Elevation / Façade',cat:'teknik',def:'Yapının dışarıdan, düz bir açıyla bakıldığında görünen yüzeyinin ortogonal çizimi.',not:'Cephe hem teknik çizim hem tasarım kararıdır.'},
+  {tr:'Aksonometri',en:'Axonometric',cat:'teknik',def:'Üç boyutlu bir objeyi ölçek kaybetmeden göstermek için kullanılan paralel projeksiyon çizim tekniği.',ornek:'"Akso çiz, jüriye hacmi göster" — perspektife göre daha teknik görünür'},
+  {tr:'Perspektif',en:'Perspective',cat:'teknik',def:'Yapıyı veya mekanı insan gözüne yakın biçimde gösteren, kaçış noktalı üç boyutlu çizim.',not:'Teknik açıdan perspektif "yanlış" boyutlara sahiptir — ama en çok anlatan çizimdir.'},
+  {tr:'Detay',en:'Detail Drawing',cat:'teknik',def:'Yapı elemanlarının bağlantı ve yapım bilgilerini büyük ölçekte (1/5, 1/10, 1/20) gösteren teknik çizim.',ornek:'"Alçıpan-cam bağlantısını detaylandır" — bitirme projelerinde şart'},
+  {tr:'Ölçek',en:'Scale',cat:'teknik',def:'Çizimde gösterilen boyutun gerçek boyuta oranı. 1/100 = gerçeğin yüzde biri.',ornek:'"Bu çizim hangi ölçekte?" — jüride mutlaka sorulan soru'},
+  {tr:'TAKS',en:'Ground Floor Area Ratio',cat:'teknik',def:'Taban Alanı Kat Sayısı. Yapının oturduğu alanın arsa alanına oranı. İmar planında belirlenir.',not:'TAKS=0.40 ise arsanın en fazla %40ına bina oturabilir.'},
+  {tr:'KAKS / Emsal',en:'Floor Area Ratio (FAR)',cat:'teknik',def:'Kat Alanı Kat Sayısı. Toplam inşaat alanının arsa alanına oranı.',ornek:'"Emsal 2.0 ise 500m² arsaya 1000m² inşaat yapılabilir"'},
+  {tr:'Gabari',en:'Building Envelope / Height Limit',cat:'teknik',def:'İmar mevzuatında belirlenen maksimum yapı yüksekliği ve hacmini tanımlayan sınır.',not:'Gabari aşımı ruhsat iptali demektir.'},
+  {tr:'Aplikasyon',en:'Staking Out',cat:'teknik',def:'Projedeki yapının, arazinin gerçek koordinatlarına işaretlenerek yerleştirilmesi işlemi.',not:'İnşaata başlamadan önce yapılması zorunludur.'},
+  {tr:'Kotaj',en:'Dimensioning',cat:'teknik',def:'Çizimlere ölçü ve yükseklik bilgilerinin eklenmesi işlemi.',ornek:'"Kotajlar eksik, ölçüleri yaz" — hoca değerlendirmesi'},
+  {tr:'Pafta',en:'Drawing Sheet',cat:'teknik',def:'Mimari çizimlerin üzerine yapıldığı standart boyutlu çizim kağıdı (A0, A1, A2 vb.).',ornek:'"Sunumu A1 paftaya sığdır"'},
+  {tr:'Ruhsat',en:'Building Permit',cat:'teknik',def:'Belediyeden alınan, yapı inşaatına başlamayı yasal olarak mümkün kılan resmi izin belgesi.'},
+  // TASARIM
+  {tr:'Konsept',en:'Concept',cat:'tasarim',def:'Tasarımın arkasındaki temel fikir, kavram veya yönlendirici düşünce. Projenin "neden"ine cevap verir.',not:'Güçlü bir konsept olmadan tasarım yönsüz kalır. Jüri her zaman konsepti sorar.',ornek:'"Konseptin nedir?" — jürideki en sık soru'},
+  {tr:'Program',en:'Architectural Program / Brief',cat:'tasarim',def:'Projenin barındırması gereken fonksiyonları, alanları ve ilişkilerini tanımlayan ihtiyaç listesi.',not:'Program olmadan tasarıma başlamak temelsiz bina inşa etmek gibidir.'},
+  {tr:'Sirkülasyon',en:'Circulation',cat:'tasarim',def:'Yapı içindeki ve çevresindeki insan, araç veya hizmet hareketinin organizasyonu ve akış şeması.',ornek:'"Servis sirkülasyonu ile misafir sirkülasyonunu ayır"'},
+  {tr:'Strüktür',en:'Structure',cat:'tasarim',def:'Yapının yüklerini taşıyan ve aktaran taşıyıcı sistem. Kolon-kiriş, çelik çerçeve, kabuk vb.',not:'Strüktür tasarımı şekillendirir. Mimarlık ve strüktür ayrılmaz.'},
+  {tr:'Bağlam / Kontekst',en:'Context',cat:'tasarim',def:'Yapının içinde yer aldığı fiziksel, kültürel, tarihi ve sosyal çevre. Tasarımın cevap verdiği dış koşullar.',not:'Bağlamı okuyan tasarım "yer"e aittir; okumayan ise her yerde olabilir.'},
+  {tr:'Oran',en:'Proportion',cat:'tasarim',def:'Bir tasarım içindeki elemanların birbirleriyle ve bütünle olan boyutsal ilişkisi.',ornek:'"Pencere oranları cepheyle uyumsuz" — hoca değerlendirmesi'},
+  {tr:'Hiyerarşi',en:'Hierarchy',cat:'tasarim',def:'Tasarım içindeki elemanların önem, boyut veya konum bakımından kademeli düzenlenmesi.',ornek:'"Ana giriş hiyerarşik olarak öne çıkmıyor"'},
+  {tr:'Mekan',en:'Space',cat:'tasarim',def:'Sınırlandırılmış, algılanabilir ve deneyimlenebilir üç boyutlu boşluk. Mimarlığın asıl ürünü.',not:'"Mimarlık duvarlar değil, aralarındaki mekandır." — antik söz'},
+  {tr:'Kütle',en:'Mass / Volume',cat:'tasarim',def:'Yapının dış dünyaya sunduğu üç boyutlu hacimsel form. Planın değil, hacmin ifadesi.',ornek:'"Kütle çalışmasını maketlemeden önce SketchUp\'ta dene"'},
+  {tr:'Aks / Eksen',en:'Axis',cat:'tasarim',def:'Tasarımda düzeni ve simetriyi organize eden soyut doğrusal referans çizgisi.',ornek:'"Ana aks boyunca kapıları hizala"'},
+  {tr:'Şeffaflık',en:'Transparency',cat:'tasarim',def:'Hem fiziksel (cam, açıklık) hem kavramsal (katmanların okunabilirliği) anlamda kullanılan tasarım ilkesi.',not:'Le Corbusier\'in "fenomenal şeffaflık" kavramı mimarlık teorisinin köşe taşlarından.'},
+  {tr:'Fenomonoloji',en:'Phenomenology',cat:'tasarim',def:'Mimarlıkta mekanın bedensel ve duyusal deneyimine odaklanan teorik yaklaşım.',not:'Peter Zumthor ve Juhani Pallasmaa bu alanın önemli isimleri.'},
+  {tr:'Tipoloji',en:'Typology',cat:'tasarim',def:'Benzer plan, form veya fonksiyon özelliklerine göre yapıları sınıflandıran kavramsal çerçeve.',ornek:'"Bu yapı avlulu konut tipolojisine giriyor"'},
+  {tr:'Sürdürülebilirlik',en:'Sustainability',cat:'tasarim',def:'Çevresel, ekonomik ve sosyal kaynakları tüketmeden ihtiyaçları karşılayan tasarım yaklaşımı.',not:'Artık her projede sorgulanıyor. Pasif sistemler, yenilenebilir enerji, yeşil çatı.'},
+  // MALZEME
+  {tr:'Betonarme',en:'Reinforced Concrete',cat:'malzeme',def:'Çelik donatı ile güçlendirilmiş beton yapı malzemesi. Türkiye\'deki yapıların büyük çoğunluğu betonarme.',not:'Basınca dayanıklı beton + çekmeye dayanıklı çelik = betonarme.'},
+  {tr:'Perde Duvar',en:'Curtain Wall',cat:'malzeme',def:'Hem hafif cam-metal cephe sistemi anlamında hem de betonarmede yatay yükleri taşıyan düşey perde eleman.',not:'İki farklı anlamı var — bağlama dikkat et.'},
+  {tr:'Alüminyum Kompozit',en:'Aluminum Composite Panel (ACP)',cat:'malzeme',def:'İki alüminyum tabaka arasına yerleştirilmiş polietilen çekirdekli hafif cephe kaplama paneli.',ornek:'"Cepheyi alüminyum kompozit kapla" — hızlı ve ekonomik çözüm'},
+  {tr:'Polikarbonat',en:'Polycarbonate',cat:'malzeme',def:'Işık geçirgen, hafif, çift cidarlı plastik levha. Atölye, sera ve geçici yapılarda yaygın.',ornek:'"Çatıyı polikarbonat yap, doğal ışık alsın"'},
+  {tr:'EPDM',en:'EPDM Membrane',cat:'malzeme',def:'Düz çatılarda su yalıtımı için kullanılan sentetik kauçuk membran.',not:'Düz çatı tasarlarsan su yalıtımını unutursan hoca sormadan geçmez.'},
+  {tr:'Doğal Taş',en:'Natural Stone',cat:'malzeme',def:'Kesme veya yarma yoluyla işlenmiş granit, mermer, traverten, bazalt gibi yapı ve kaplama malzemeleri.',not:'Ağırdır, pahalıdır ama devamlıdır. Sürdürülebilirlik tartışmalarında yeniden önem kazandı.'},
+  {tr:'Ahşap Kaplama',en:'Timber Cladding',cat:'malzeme',def:'Yapı dış veya iç yüzeylerinde kullanılan ağaç kökenli kaplama elemanları.',ornek:'"Cepheye ipe ahşabı dene, iklime dayanıklı"'},
+  {tr:'Yalıtım',en:'Insulation',cat:'malzeme',def:'Enerji kaybını ve ses geçişini azaltmak için kullanılan taş yünü, cam yünü, EPS gibi malzemeler.',not:'Binalarda ısı köprüsü oluşturmadan doğru detaylandırmak kritik.'},
+  // YAZILIM
+  {tr:'AutoCAD',en:'AutoCAD',cat:'yazilim',def:'2D teknik çizim için endüstri standardı vektör çizim yazılımı. Mimarlıkta plan, kesit, detay çizimlerinde kullanılır.',not:'Kısayolları ezber: L (line), C (circle), TR (trim), EX (extend), O (offset), M (move), CO (copy).',ornek:'"AutoCAD\'de layer yönetimi yapmazsan çizimler karmakarışık olur"'},
+  {tr:'SketchUp',en:'SketchUp',cat:'yazilim',def:'Hızlı 3D kütle ve form çalışması için kullanılan, öğrenmesi kolay modelleme yazılımı.',not:'1. ve 2. yıl için yeterli. Kompleks geometrilerde yetersiz kalır.',ornek:'"Hızlı bir kütle çalışması için SketchUp aç"'},
+  {tr:'Revit',en:'Revit',cat:'yazilim',def:'BIM (Yapı Bilgi Modellemesi) tabanlı, tüm mimari çizimlerin tek modelden üretildiği Autodesk yazılımı.',not:'İlk yıl için erken. 3-4. yıl veya stajda öğren. Şirketlerde standart.',ornek:'"Revit öğrenmek istiyorum" — o zaman YouTube\'dan başla, kurs para tutar'},
+  {tr:'Rhino',en:'Rhinoceros 3D',cat:'yazilim',def:'NURBS tabanlı, kompleks ve organik geometrileri modellemek için kullanılan 3D yazılım.',not:'Grasshopper ile birlikte parametrik tasarımın kapısını açar.'},
+  {tr:'Grasshopper',en:'Grasshopper',cat:'yazilim',def:'Rhino içinde çalışan görsel programlama arayüzü. Algoritmik ve parametrik tasarım için kullanılır.',not:'Kod yazmayı bilmesen de mantığını kavramak artık mimarlıkta avantaj.',ornek:'"Grasshopper\'da cephe modülü kurdum" — jüride etkileyici'},
+  {tr:'V-Ray',en:'V-Ray',cat:'yazilim',def:'Fotorealistik render üretmek için kullanılan ışık simülasyonlu render motoru. Revit, SketchUp, Rhino ile çalışır.',not:'Render kalitesi malzeme ve ışık ayarına bağlı, yazılımdan çok bilgiye.',ornek:'"V-Ray render 3 saat sürdü, sabahladım"'},
+  {tr:'Lumion',en:'Lumion',cat:'yazilim',def:'Mimarlık projeleri için hızlı, gerçek zamanlı render ve animasyon yazılımı.',not:'V-Ray\'den hızlı ama daha az gerçekçi. Sunum videoları için iyi.'},
+  {tr:'InDesign',en:'Adobe InDesign',cat:'yazilim',def:'Mimari sunum paftaları ve portfolyo tasarımı için kullanılan sayfa düzeni yazılımı.',not:'Pafta düzeni için Word veya PowerPoint kullanma. Hocalar fark eder.',ornek:'"Paftaları InDesign\'da topla, PDF\'e aktar"'},
+  {tr:'Enscape',en:'Enscape',cat:'yazilim',def:'Revit, SketchUp ve Rhino ile entegre çalışan gerçek zamanlı render ve sanal gerçeklik aracı.',not:'Tek tuşla VR deneyimi sunar. Müşteri sunumlarında giderek yaygınlaşıyor.',ornek:'"Enscape\'le yürüyüş videosu çek, jüriye göster"'},
+  {tr:'Twinmotion',en:'Twinmotion',cat:'yazilim',def:'Epic Games tarafından geliştirilen mimarlık ve kentsel tasarım için gerçek zamanlı 3D görselleştirme yazılımı.',not:'Ücretsiz sürümü öğrenciler için yeterli. Unreal Engine tabanlı.'},
+  {tr:'Blender',en:'Blender',cat:'yazilim',def:'Açık kaynaklı 3D modelleme, animasyon ve render yazılımı. Mimarlıkta görselleştirme ve sunum animasyonları için kullanılır.',not:'Ücretsiz ve güçlü. Cycles/EEVEE render motorlarıyla giderek mimarlıkta da tercih ediliyor.',ornek:'"Blender\'da izometrik sunum çizdim" — sosyal medyada trend'},
+  {tr:'3ds Max',en:'3D Studio Max',cat:'yazilim',def:'Autodesk\'in 3D modelleme ve render yazılımı. V-Ray ile kombinasyonu endüstri standardıdır.',not:'Fotorealistik iç mekan görseli üretiminde hâlâ çok yaygın.'},
+  {tr:'ArchiCAD',en:'ArchiCAD',cat:'yazilim',def:'Graphisoft tarafından geliştirilen BIM tabanlı mimari tasarım yazılımı. Revit\'in alternatifi.',not:'Avrupa\'da yaygın, Türkiye\'de az kullanılır ama öğrenmesi nispeten kolaydır.'},
+  {tr:'QGIS',en:'QGIS',cat:'yazilim',def:'Açık kaynaklı coğrafi bilgi sistemi yazılımı. Kentsel analiz, arazi etüdü ve harita üretiminde kullanılır.',not:'Kentsel tasarım ve peyzaj projelerinde altın değerinde. Ücretsiz.'},
+  {tr:'Photoshop',en:'Adobe Photoshop',cat:'yazilim',def:'Görsel düzenleme ve sunum görseli üretimi için kullanılan standart yazılım. Render sonrası post-prodüksiyonun temelidir.',ornek:'"Renderi Photoshop\'ta bitir — insanları ekle, gölgeleri yumuşat"'},
+  {tr:'Illustrator',en:'Adobe Illustrator',cat:'yazilim',def:'Vektör tabanlı grafik tasarım yazılımı. Diyagram, analiz çizimi ve sunum paftası grafiklerinde kullanılır.',not:'AutoCAD DWG\'yi Illustrator\'a aktarıp vektörel düzenlemek yaygın bir workflow\'dur.'},
+  {tr:'BIM',en:'Building Information Modeling',cat:'yazilim',def:'Yapının tüm verilerini (geometri, malzeme, maliyet, zaman) tek bir dijital modelde toplayan tasarım ve yönetim yaklaşımı.',not:'Revit ve ArchiCAD BIM platformlarıdır. Sektörde giderek zorunlu hale geliyor.',ornek:'"BIM koordinasyonu olmadan çakışma tespit edilemez"'},
+  // KÜLTÜR
+  {tr:'Jüri',en:'Jury / Crit',cat:'kultur',def:'Mimarlık öğrencilerinin projelerini akademisyen ve davetli mimarlara sunduğu değerlendirme toplantısı.',not:'Jüri seni yıkmak için değil, projeyi anlamak için orada. Bunu unutma.',ornek:'"Jüri yarın sabah 9\'da" — gece uyku uyumanın imkansız olduğu an'},
+  {tr:'Atölye / Stüdyo',en:'Studio',cat:'kultur',def:'Mimarlık eğitiminin merkezi. Hem fiziksel çalışma mekanı hem de proje dersi anlamında kullanılır.',not:'Atölye kültürü mimarlığı diğer bölümlerden ayırır. İlişkiler, rekabet, dayanışma hepsi burada.'},
+  {tr:'Brief',en:'Brief',cat:'kultur',def:'Projenin hedeflerini, sınırlarını, programını ve tasarım kriterlerini tanımlayan görev tanımı belgesi.',not:'Brief\'i dikkatlice oku. Hocanın istediği orada, başka yerde değil.',ornek:'"Brief\'te toplantı odası yazmıyor" — jüride savunma'},
+  {tr:'Maket',en:'Physical Model',cat:'kultur',def:'Projenin fiziksel olarak, belirli bir ölçekte üretilmiş üç boyutlu temsili.',not:'En iyi maket, fikri en net anlatan maket. Malzeme pahalılığı değil.',ornek:'"Maket bitirildi mi?" — teslim gecesi saat 3\'te'},
+  {tr:'Crit',en:'Critique / Crit',cat:'kultur',def:'Hoca veya misafir eleştirmenlerle yapılan gayri resmi tasarım değerlendirme toplantısı. Jüriden daha samimi.',not:'Crit\'te "doğru" cevap yoktur; önemli olan savunabilmek.'},
+  {tr:'Staj',en:'Internship',cat:'kultur',def:'Mimarlık öğrencilerinin profesyonel ofislerde edindikleri zorunlu veya gönüllü iş deneyimi.',not:'İlk stajında kahve yapacaksın. Ama nasıl çalışıldığını orada öğreneceksin.'},
+  {tr:'Portfolyo',en:'Portfolio',cat:'kultur',def:'Mimarlık öğrencisinin projelerini, çizimlerini ve tasarım süreçlerini sergileyen derlenmiş çalışma koleksiyonu.',not:'Portfolyo staj ve iş başvurularında CV\'den daha önemlidir.',ornek:'"Portfolyon hazır mı?" — her dönem sonu sorusu'},
+  {tr:'Charrette',en:'Charrette',cat:'kultur',def:'Kısa sürede yoğun, genellikle disiplinlerarası katılımla gerçekleştirilen tasarım sprint etkinliği.',not:'Fransızcada "araba" anlamına gelir — tasarımı son dakikaya taşıyan arabaya atıfla.'},
+  {tr:'Poche',en:'Poché',cat:'kultur',def:'Plan çizimlerinde katı yapı elemanlarının (duvar, kolon) dolgu rengi veya desen ile gösterilmesi geleneği.',ornek:'"Duvarları poche yap, masif okusun" — sunum tekniği'},
+  {tr:'Mimari Promenad',en:'Promenade Architecturale',cat:'kultur',def:'Le Corbusier\'in önerdiği, yapı içinde hareket eden bedenin mekansal deneyimini ön plana çıkaran tasarım yaklaşımı.',not:'Villa Savoye bunun en iyi örneğidir. Rampayı unutma.'},
+  {tr:'Brütalizm',en:'Brutalism',cat:'kultur',def:'Ham beton yüzeyleri, ağır kütleleri ve dürüst malzeme kullanımını ön plana çıkaran mimari akım (1950–70ler).',not:'Son yıllarda yeniden popüler. "Güzel mi? Hayır. Etkileyici mi? Evet."',ornek:'"Bu bina brütalist mi?" — her ham beton yapıya sorulan soru'},
+  {tr:'Modernizm',en:'Modernism',cat:'kultur',def:'"Form işlevi takip eder" ilkesiyle süslemeyi reddeden, endüstriyel malzemeyi benimseyen 20. yy mimari akımı.',not:'Le Corbusier, Mies van der Rohe, Walter Gropius modernizmin öncüleridir.'},
+  {tr:'Postmodernizm',en:'Postmodernism',cat:'kultur',def:'Modernizmin katı kurallarına tepki olarak tarihsel referansları, ironiyi ve çeşitliliği benimseyen mimari yaklaşım.',not:'Robert Venturi\'nin "az can sıkıcıdır" sözü modernizmin "az çoktur"una cevaptır.'},
+  {tr:'Dekonstruktivizm',en:'Deconstructivism',cat:'kultur',def:'Parçalanmış form, çarpık geometri ve kasıtlı kaosa dayanan 1980 sonrası mimari akım.',not:'Zaha Hadid, Frank Gehry, Rem Koolhaas bu akımın temsilcileridir.',ornek:'"Gehry\'nin o binası gerçekten dekonstruktivist mi, yoksa sadece pahalı mı?"'},
+  {tr:'Kritik Bölgeselcilik',en:'Critical Regionalism',cat:'kultur',def:'Küresel modernizme karşı yerel iklim, malzeme ve kültürü bilinçli biçimde tasarıma dahil eden yaklaşım.',not:'Kenneth Frampton\'ın geliştirdiği kavram. Tadao Ando ve Alvaro Siza bu anlayışın önemli isimleri.'},
+  {tr:'Genius Loci',en:'Genius Loci',cat:'kultur',def:'Latince "yerin ruhu". Bir mekanın kendine özgü kimliğini ve atmosferini tanımlayan fenomenolojik kavram.',not:'Christian Norberg-Schulz\'un mimarlık teorisindeki temel kavramı.'},
+  {tr:'Tescilli Yapı',en:'Listed Building',cat:'kultur',def:'Kültürel, tarihi veya mimari değeri nedeniyle koruma altına alınan ve izinsiz değişiklik yapılamayan yapı.',not:'Türkiye\'de Kültür Bakanlığı tescil kararı verir. Her değişiklik kurul onayı gerektirir.'},
+  {tr:'Bitirme Projesi',en:'Graduation Project / Thesis',cat:'kultur',def:'Mimarlık eğitiminin son adımı olarak hazırlanan, bağımsız tasarım araştırması ve projesi.',not:'5 yılın özeti. Konu seçimi hayatının en önemli mimarlık kararlarından biri.',ornek:'"Bitirme konunu buldun mu?" — 4. yıl sonundan itibaren her sohbetin açılışı'},
+  {tr:'Adaptif Yeniden Kullanım',en:'Adaptive Reuse',cat:'kultur',def:'Var olan bir yapıya yeni bir işlev kazandırarak dönüştürme ve yeniden hayata geçirme uygulaması.',not:'Sürdürülebilirlik açısından yıkıp yapmaktan çok daha değerlidir.',ornek:'"Fabrikayı kültür merkezine dönüştürdüler" — adaptif yeniden kullanımın klasik örneği'},
+  // TEKNİK (ek)
+  {tr:'Vaziyet Planı',en:'Site Plan',cat:'teknik',def:'Yapının arsa sınırları, komşu yapılar, yollar ve peyzajla ilişkisini gösteren kuşbakışı çizimi.',ornek:'"Vaziyet planında park yeri hesabını unutma"'},
+  {tr:'Konsol',en:'Cantilever',cat:'teknik',def:'Yalnızca bir ucundan mesnet alan, diğer ucu serbest kalan yapı elemanı veya çıkma.',not:'Ne kadar uzun konsol, o kadar büyük moment. Strüktür mühendisi olmadan karar verme.',ornek:'"5 metrelik konsol istemek hocanın gözünü korkutabilir"'},
+  {tr:'Kaba Yapı',en:'Shell / Rough Structure',cat:'teknik',def:'Yapının taşıyıcı sisteminden oluşan ilk inşaat aşaması. İnce yapı (kaplama, boya) henüz yapılmamış hali.',ornek:'"Bina kaba yapıda kaldı" — yatırımcı krizi haberi'},
+  {tr:'Isı Köprüsü',en:'Thermal Bridge',cat:'teknik',def:'Yapı kabuğunda ısı iletiminin yoğunlaştığı nokta veya bölge. Enerji kaybı ve yoğuşmaya yol açar.',not:'Doğru detaylandırılmamış her bağlantı potansiyel ısı köprüsüdür.'},
+  {tr:'Zemin Etüdü',en:'Soil Investigation / Geotechnical Survey',cat:'teknik',def:'Yapı inşaatından önce zeminin taşıma kapasitesi, sıkışma ve yeraltı suyu durumunu belirleyen araştırma.',not:'Zemin etüdü olmadan temel projesi yapılmaz. Türkiye gibi deprem kuşağındaki ülkelerde kritik.',ornek:'"Zemin zayıf çıktı, temel sistemi değiştirmek gerekiyor"'},
+  {tr:'Yangın Merdiveni',en:'Fire Escape Stair',cat:'teknik',def:'Yangın anında güvenli tahliyeyi sağlamak üzere tasarlanan, yangına dayanıklı kapalı merdiven hacmi.',not:'Belirli kat sayısının üzerindeki yapılarda zorunludur. Yönetmeliği iyi bil.'},
+  {tr:'Derz',en:'Joint',cat:'teknik',def:'İki yapı elemanı veya malzeme arasındaki birleşim çizgisi veya boşluğu. Hem teknik hem estetik önemi vardır.',not:'Genleşme derzini unutursan bina çatlar. Gerçekten.',ornek:'"Derz aralıklarını 6 metrede bir bırak"'},
+  // TASARIM (ek)
+  {tr:'Avlu',en:'Courtyard',cat:'tasarim',def:'Yapı kütlesiyle çevrili veya yarı çevrili açık ya da yarı açık dış mekan.',not:'Anadolu mimarisinin temel mekansal örgütleyicisidir.',ornek:'"Avluyu programın merkezi yap, tüm fonksiyonlar oraya baksın"'},
+  {tr:'Atrium',en:'Atrium',cat:'tasarim',def:'Birden fazla katta devam eden, üstten ışık alan büyük iç mekan boşluğu.',not:'Kamuya açık binalarda dramatik etki yaratır. Yangın yönetmeliğini de iyi incele.',ornek:'"Atrium kütüphanenin kalbine yerleştiriliyor"'},
+  {tr:'Grid Sistemi',en:'Grid System',cat:'tasarim',def:'Tasarımın düzenini ve modüler koordinasyonu sağlamak için kullanılan ızgara referans çerçevesi.',ornek:'"6x6 metrelik grid üzerine kurgulandı" — kolon yerleşimini de belirler'},
+  {tr:'Çift Kabuk Cephe',en:'Double Skin Façade',cat:'tasarim',def:'İki katmanlı, aralarında hava boşluğu olan cephe sistemi. Enerji verimliliği ve doğal havalandırma sağlar.',not:'Yapım maliyeti yüksek ama uzun vadede işletme maliyetini düşürür.'},
+  {tr:'Doğal Havalandırma',en:'Natural Ventilation',cat:'tasarim',def:'Mekanik sistemler olmadan rüzgar ve sıcaklık farkı ile hava sirkülasyonunu sağlayan pasif tasarım stratejisi.',not:'Sürdürülebilir mimarinin temel araçlarından biri. Baca etkisi en yaygın yöntemi.',ornek:'"Koridoru baca gibi çalıştır, üstten hava çeksin"'},
+  {tr:'Biyofillik Tasarım',en:'Biophilic Design',cat:'tasarim',def:'İnsanların doğayla bağlantısını güçlendirmek için doğal malzeme, ışık, bitki ve su ögelerini mimarlığa entegre eden yaklaşım.',not:'Araştırmalar biyofillik ortamların üretkenlik ve iyilik halini artırdığını gösteriyor.'},
+  {tr:'Pasif Güneş Tasarımı',en:'Passive Solar Design',cat:'tasarim',def:'Güneş enerjisini mekanik sistem olmadan ısıtma ve aydınlatma amacıyla kullanan bina tasarım stratejisi.',ornek:'"Güney cepheyi büyüt, kış güneşinden yararlan"'},
+  {tr:'Topografya',en:'Topography',cat:'tasarim',def:'Arazinin yüzey biçimini, eğim ve yükseklik farklarını tanımlayan fiziksel yapı.',not:'Topografyayı tasarımla entegre etmek yerine sıfırlamak genellikle yanlış bir karardır.',ornek:'"Eğimi bastırma, rampa olarak değerlendir"'},
+  // MALZEME (ek)
+  {tr:'CLT',en:'Cross Laminated Timber',cat:'malzeme',def:'Çapraz katmanlarda yapıştırılmış ahşap levhalardan üretilen yapısal ahşap sistem. Betonarmeni alternatifi.',not:'Karbon ayak izi düşük, hızlı montajlı. Sürdürülebilir yapılarda popülerleşiyor.',ornek:'"CLT ile 10 katlı yapı mümkün" — endüstriyel ahşap mimarisinin geleceği'},
+  {tr:'Terrakota',en:'Terracotta',cat:'malzeme',def:'Pişirilmiş kil esaslı, cephe kaplama ve seramik ürünü. Hem geleneksel hem çağdaş cephelerde kullanılır.',not:'Uzun ömürlü, bakım gerektirmeyen sürdürülebilir bir seçenek.',ornek:'"Terrakota panel cephe hem estetik hem de iklime dayanıklı"'},
+  {tr:'Mikrobeton',en:'Microcement',cat:'malzeme',def:'İnce katmanlarda uygulanan, pürüzsüz ve derzsiz beton görünümlü kaplama malzemesi.',ornek:'"Zemine mikrobeton döktürdük, endüstriyel his verdi"'},
+  {tr:'Akustik Panel',en:'Acoustic Panel',cat:'malzeme',def:'Ses yansımasını azaltmak ve akustik konforu artırmak için kullanılan yutucu yüzey malzemesi.',not:'Konser salonu, sinema, ofis gibi programlarda akustik tasarım ihmal edilemez.',ornek:'"Ahşap akustik panel hem fonksiyonel hem de estetik"'},
+  {tr:'Çelik Profil',en:'Steel Section / Profile',cat:'malzeme',def:'HEB, IPE, UPN gibi standart kesitlerde üretilen yapısal çelik eleman. Kolon, kiriş ve çatı sistemlerinde kullanılır.',not:'Çelik beton kadar ağır değil, hızlı monte edilir, geri dönüştürülebilir.',ornek:'"HEB200 yerine HEB240 kullanmak gerekiyor, moment fazla"'},
+  {tr:'Cam Yünü',en:'Glass Wool',cat:'malzeme',def:'Cam elyafından üretilen ısı ve ses yalıtım malzemesi. Duvar, tavan ve çatı uygulamalarında yaygın.',ornek:'"50mm cam yünü yeterli mi?" — enerji hesabı yapmadan cevap verilmez'},
+  {tr:'Tuğla',en:'Brick',cat:'malzeme',def:'Pişirilmiş ya da sıkıştırılmış kilden üretilen, duvar örgüsünde kullanılan geleneksel yapı elemanı.',not:'Hem taşıyıcı hem dolgu duvar olarak kullanılabilir. Düşük enerji değeri bir dezavantaj.'},
+];
+
+let sozlukCat='all';
+
+function setSozlukCat(cat,el){
+  sozlukCat=cat;
+  document.querySelectorAll('.sozluk-cat').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderSozluk();
+}
+
+function renderSozluk(){
+  const q=(document.getElementById('sozlukSearch')?.value||'').toLowerCase().trim();
+  let items=[...SOZLUK];
+  if(sozlukCat!=='all')items=items.filter(i=>i.cat===sozlukCat);
+  if(q)items=items.filter(i=>i.tr.toLowerCase().includes(q)||i.en.toLowerCase().includes(q)||i.def.toLowerCase().includes(q));
+  // alfabetik sırala
+  items.sort((a,b)=>a.tr.localeCompare(b.tr,'tr'));
+  const grid=document.getElementById('sozlukGrid');
+  const stats=document.getElementById('sozlukStats');
+  if(!grid)return;
+  stats.textContent=`${items.length} terim`+(sozlukCat!=='all'||q?' · filtrelendi':'');
+  if(!items.length){grid.innerHTML='<div class="sozluk-empty">// arama sonucu bulunamadı</div>';return;}
+  const catLabel={teknik:'teknik',tasarim:'tasarım',malzeme:'malzeme',yazilim:'yazılım',kultur:'kültür'};
+  grid.innerHTML=items.map((it,i)=>`
+    <div class="sozluk-item" id="sitem-${i}" onclick="toggleSozlukItem(this)">
+      <div class="sozluk-item-head">
+        <span class="sozluk-term">${esc(it.tr)}</span>
+        <span class="sozluk-en">${esc(it.en)}</span>
+        <span class="sozluk-cat-badge cat-${it.cat}">${catLabel[it.cat]||it.cat}</span>
+      </div>
+      <div class="sozluk-item-body">
+        <div class="sozluk-def">${esc(it.def)}</div>
+        ${it.not?`<div class="sozluk-note">${esc(it.not)}</div>`:''}
+        ${it.ornek?`<div class="sozluk-ornek">${esc(it.ornek)}</div>`:''}
+      </div>
+    </div>`).join('');
+}
+
+function toggleSozlukItem(el){el.classList.toggle('open');}
+
+// ── ÖLÇEK HESAPLAYICI ──
+function olcekHesapla(){
+  const gercek=parseFloat(document.getElementById('olcekGercek').value);
+  const olcek=parseInt(document.getElementById('olcekOlcek').value);
+  document.getElementById('olcekCizim').value='';
+  if(!gercek||gercek<=0){document.getElementById('olcekSonuc').classList.remove('show');return;}
+  const cizim=gercek/olcek;
+  renderOlcekSonuc(gercek,cizim,olcek);
+}
+function olcekTersHesapla(){
+  const cizim=parseFloat(document.getElementById('olcekCizim').value);
+  const olcek=parseInt(document.getElementById('olcekOlcek').value);
+  document.getElementById('olcekGercek').value='';
+  if(!cizim||cizim<=0){document.getElementById('olcekSonuc').classList.remove('show');return;}
+  const gercek=cizim*olcek;
+  renderOlcekSonuc(gercek,cizim,olcek);
+}
+function renderOlcekSonuc(gercek,cizim,olcek){
+  const el=document.getElementById('olcekSonucText');
+  const gStr=gercek>=1000?(gercek/1000).toFixed(3)+' m':gercek+' mm';
+  el.innerHTML=`<div class="olcek-sonuc-line">Gerçek boyut: <strong>${gStr}</strong></div><div class="olcek-sonuc-line">Çizimde (1:${olcek}): <strong>${cizim.toFixed(2)} mm &nbsp;/&nbsp; ${(cizim/10).toFixed(3)} cm</strong></div>`;
+  const olcekler=[20,50,100,200,500,1000];
+  document.getElementById('olcekTabloBody').innerHTML=olcekler.map(o=>`<tr style="${o===olcek?'background:var(--surface)':''}"><td>1:${o}</td><td>${(gercek/o).toFixed(2)}</td><td>${(gercek/o/10).toFixed(3)}</td></tr>`).join('');
+  document.getElementById('olcekSonuc').classList.add('show');
+}
+
+// ── ALAN PROGRAMI ──
+const ALAN_DATA={
+  konut:{note:'Tek aile konutu için tipik program. Büyüklük arsa ve bütçeye göre değişir.',mekanlar:[
+    {ad:'Giriş / Hol',min:6,oner:10,ac:'Dolaşım kurulumu için kritik'},
+    {ad:'Oturma Odası',min:20,oner:30,ac:'Günlük kullanım merkezi'},
+    {ad:'Mutfak + Yemek',min:18,oner:25,ac:'Açık plan akustik sorun yaratabilir'},
+    {ad:'Ana Yatak Odası',min:14,oner:20,ac:'Gardrop+banyo dahil değil'},
+    {ad:'Yatak Odası (x2)',min:10,oner:14,ac:'Her biri için'},
+    {ad:'Banyo (Ana)',min:6,oner:9,ac:'Duş+küvet+lavabo+WC'},
+    {ad:'WC',min:2.5,oner:4,ac:'Misafir tuvaleti'},
+    {ad:'Çamaşır / Depo',min:4,oner:8,ac:'Sıklıkla atlanan ama kritik'},
+    {ad:'Garaj / Otopark',min:16,oner:25,ac:'2 araç için'},
+    {ad:'Teknik Hacim',min:4,oner:6,ac:'Kazan, elektrik panosu vb.'},
+  ]},
+  kultur:{note:'Küçük/orta ölçekli kültür merkezi. Program büyüklüğe göre ölçeklenir.',mekanlar:[
+    {ad:'Giriş / Foyer',min:60,oner:100,ac:'Danışma ve silahlık dahil'},
+    {ad:'Çok Amaçlı Salon',min:150,oner:300,ac:'150 kişilik ~150m²'},
+    {ad:'Sergi Alanı',min:80,oner:150,ac:'Tavan min 3.5m önerilir'},
+    {ad:'Atölye (x2)',min:40,oner:70,ac:'Her biri için'},
+    {ad:'Kafe / Kantin',min:50,oner:100,ac:'Mutfak dahil'},
+    {ad:'İdari Ofis',min:20,oner:40,ac:'3-5 kişilik'},
+    {ad:'WC (Genel)',min:20,oner:35,ac:'Engelli WC dahil'},
+    {ad:'Depo / Teknik',min:30,oner:60,ac:'Sahne malzemesi için ekstra'},
+    {ad:'Dış Alan / Teras',min:80,oner:200,ac:'İklime göre değişir'},
+  ]},
+  egitim:{note:'İlk/orta öğretim okulu başına tipik değerler. Yönetmelik kontrol edilmeli.',mekanlar:[
+    {ad:'Derslik (30 kişi)',min:54,oner:63,ac:'Kişi başı 1.8-2.1m²'},
+    {ad:'Laboratuvar',min:60,oner:80,ac:'Kimya/Fen/Bilişim farklı gerektirir'},
+    {ad:'Spor Salonu',min:200,oner:450,ac:'Std basketbol: 28x15m'},
+    {ad:'Kütüphane',min:60,oner:120,ac:'Okuma+raf+bilgisayar'},
+    {ad:'Yönetim / Rehberlik',min:40,oner:80,ac:'Müdür, müd. yrd., rehberlik'},
+    {ad:'Öğretmenler Odası',min:30,oner:60,ac:'Öğretmen sayısına göre'},
+    {ad:'Yemekhane',min:100,oner:200,ac:'Mutfak dahil değil'},
+    {ad:'WC Blokları',min:30,oner:50,ac:'Kız/erkek ayrı, engelli dahil'},
+    {ad:'Depo / Teknik',min:20,oner:40,ac:''},
+  ]},
+  ofis:{note:'Açık plan ofis. Kişi başı net m² 8-12m² standart kabul görür.',mekanlar:[
+    {ad:'Resepsiyon / Lobi',min:20,oner:40,ac:'Şirket imajını temsil eder'},
+    {ad:'Açık Çalışma Alanı',min:8,oner:12,ac:'Kişi başı — x çalışan sayısıyla çarp'},
+    {ad:'Toplantı Odası (küçük)',min:16,oner:25,ac:'6-8 kişi için'},
+    {ad:'Toplantı Odası (büyük)',min:30,oner:50,ac:'12-16 kişi için'},
+    {ad:'Müdür Ofisi',min:16,oner:25,ac:'Ses yalıtımı kritik'},
+    {ad:'Kafe / Dinlenme',min:20,oner:50,ac:'Sosyal alan üretkenliği artırır'},
+    {ad:'Sunucu / Teknik Oda',min:10,oner:20,ac:'İklimlendirme gerekli'},
+    {ad:'WC',min:12,oner:20,ac:'Engelli dahil'},
+    {ad:'Depo',min:8,oner:15,ac:''},
+  ]},
+  saglik:{note:'Birinci basamak sağlık merkezi / küçük klinik. Yönetmelik esas alınmalı.',mekanlar:[
+    {ad:'Bekleme Salonu',min:20,oner:40,ac:'5-7m²/kişi önerilir'},
+    {ad:'Muayene Odası',min:12,oner:18,ac:'Her biri; doğal ışık önerilir'},
+    {ad:'Danışma / Kayıt',min:8,oner:15,ac:'Hasta mahremiyeti önemli'},
+    {ad:'Tıbbi Depo / Eczane',min:10,oner:20,ac:'Sıcaklık kontrolü gerekli'},
+    {ad:'Hemşire İstasyonu',min:8,oner:15,ac:'Merkezi konumda olmalı'},
+    {ad:'Sterilizasyon Odası',min:8,oner:12,ac:'Kirli-temiz ayrımı kritik'},
+    {ad:'WC (Hasta/Personel)',min:10,oner:20,ac:'Engelli WC zorunlu'},
+    {ad:'Personel Odası',min:10,oner:20,ac:'Dinlenme+soyunma'},
+    {ad:'Teknik / Temizlik',min:6,oner:12,ac:''},
+  ]}
+};
+let aktifAlanTip='konut';
+function setAlanTip(el,tip){
+  aktifAlanTip=tip;
+  document.querySelectorAll('.alan-tip').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderAlanProgram();
+}
+function renderAlanProgram(){
+  const data=ALAN_DATA[aktifAlanTip];
+  const wrap=document.getElementById('alanTabloWrap');
+  if(!wrap||!data)return;
+  const tMin=data.mekanlar.reduce((s,m)=>s+m.min,0);
+  const tOner=data.mekanlar.reduce((s,m)=>s+m.oner,0);
+  wrap.innerHTML=`<table class="alan-table">
+    <thead><tr><th>mekan</th><th>min m²</th><th>önerilen m²</th><th>not</th></tr></thead>
+    <tbody>
+      ${data.mekanlar.map(m=>`<tr><td>${esc(m.ad)}</td><td>${m.min}</td><td>${m.oner}</td><td>${esc(m.ac)}</td></tr>`).join('')}
+      <tr style="border-top:2px solid var(--border)"><td><strong>TOPLAM</strong></td><td><strong>${tMin}</strong></td><td><strong>${tOner}</strong></td><td></td></tr>
+    </tbody>
+  </table>
+  <div class="alan-note">// ${esc(data.note)}</div>`;
+}
+
+// ── BİNGO ──
+const BINGO_HAVUZ=[
+  'Bu çok komplike','Revize lazım','Neden eğik?','Işığı düşündün mü?','Bağlam ne?',
+  'Maket yok mu?','Ölçek sorunu var','Referansın ne?','Strüktür nasıl?','Çok dekoratif',
+  'Daha sade olsa','Bu fonksiyon nerede?','Giriş net değil','Program tutmuyor','Neden bu malzeme?',
+  'Akış şeması?','İnsan ölçeği kaybolmuş','Sürdürülebilirlik?','Bütçeyi düşündün mü?','Erişilebilirlik?',
+  'Genel dokudan kopuk','Bu form nereden geldi?','Konsept tutarsız','İyi başlangıç ama...','Daha cesur olabilirdin',
+  'Neden bu yönelim?','Harika fikir ama...','Tekrar düşün','Acele edilmiş gibi','Potansiyeli var',
+  'Yapılabilir mi?','Yönetmeliğe uygun mu?','Keşke daha erken gelseydin','Bu proje seni anlatıyor mu?','Projeyi sahiplen',
+];
+let bingoKart=[],bingoIsaretli=new Set();
+function newBingo(){
+  const k=[...BINGO_HAVUZ].sort(()=>Math.random()-.5).slice(0,24);
+  k.splice(12,0,'★ FREE');
+  bingoKart=k;
+  bingoIsaretli=new Set([12]);
+  renderBingo();
+}
+function toggleBingo(i){
+  if(i===12)return;
+  if(bingoIsaretli.has(i))bingoIsaretli.delete(i);
+  else bingoIsaretli.add(i);
+  renderBingo();
+}
+function checkBingo(){
+  const lines=[[0,1,2,3,4],[5,6,7,8,9],[10,11,12,13,14],[15,16,17,18,19],[20,21,22,23,24],[0,5,10,15,20],[1,6,11,16,21],[2,7,12,17,22],[3,8,13,18,23],[4,9,14,19,24],[0,6,12,18,24],[4,8,12,16,20]];
+  const bl=lines.filter(l=>l.every(i=>bingoIsaretli.has(i)));
+  return{bingo:bl.length>0,lines:new Set(bl.flat())};
+}
+function renderBingo(){
+  const grid=document.getElementById('bingoGrid');
+  const status=document.getElementById('bingoStatus');
+  if(!grid||!bingoKart.length)return;
+  const{bingo,lines}=checkBingo();
+  grid.innerHTML=bingoKart.map((cell,i)=>{
+    const free=i===12,line=lines.has(i),marked=bingoIsaretli.has(i);
+    const cls=free?'bingo-cell free':line?'bingo-cell bingo-line':marked?'bingo-cell marked':'bingo-cell';
+    return`<div class="${cls}" onclick="toggleBingo(${i})">${esc(cell)}</div>`;
+  }).join('');
+  status.textContent=bingo?'🎉 BİNGO! Jüriler tahmin edilebilir.':bingoIsaretli.size>1?`${bingoIsaretli.size-1} işaretli`:'';
+}
+
+// ── PROJE FİKİR ÜRETİCİ ──
+const FIKIR_DATA={
+  program:['Toplumsal mutfak','Kayıp nesneler müzesi','Gezici kütüphane','Dönüşüm atölyesi','Kent arşivi','Buluşma pavyonu','Küçük opera sahnesi','Çocuk bahçesi & atölye','Yaşlı aktivite merkezi','Kentsel tarım kulesi','Tamir kafe','Hafıza merkezi','Su üstü yapı','Yer altı parkı dönüşümü','Acil barınak','Açık hava sineması','Sokak kütüphanesi','Biyoçeşitlilik noktası'],
+  arazi:['Terk edilmiş fabrika','Köprü altı','Boş ada ortası','Eğimli kent parçası','Kıyı şeridi','Tarihi yapı bitişiği','Çatı katı','Metro çıkışı çevresi','Eski mezarlık','Terk edilmiş istasyon','Yıkılmak üzere bina','Sanayi bölgesi sınırı','Pazar yeri alanı','Su kenarı set','Tünel girişi','Otopark üstü','Boş köşe arsa'],
+  kisit:['Yalnızca ahşap malzeme','Mobil / sökülebilir','Minimal bütçe','Işık tek tasarım aracı','Tek malzeme cephe','Yer altında','Yerden 5m yukarıda','Kamuya tam şeffaf','Kullanıcı kendin yapabilmeli','Atık malzemeden','Hiç pencere yok','Yalnızca geri dönüştürülmüş','Sıfır sert zemin','Mevsimsel','Hiç kolon yok','24 saat açık','Sessiz yapı'],
+  kavram:['Geçicilik ve iz','Eşik ve geçiş','Sessizlik','Kolektif bellek','Saydamlık ve mahremiyet','Toprak ve köklenmek','Su ve akış','Işık ve gölge ritmi','Yoğunlaşma ve dağılma','Ağırlık ve hafiflik','Görünürlük ve saklanma','İç ve dışın bulanması','Zaman katmanları','Tamamlanmamışlık','Parça ve bütün','Tekrar ve ritim','Boşluk ve doluluk']
+};
+function projeUret(){
+  const rand=arr=>arr[Math.floor(Math.random()*arr.length)];
+  const s=[{l:'program',v:rand(FIKIR_DATA.program)},{l:'arazi',v:rand(FIKIR_DATA.arazi)},{l:'kısıt',v:rand(FIKIR_DATA.kisit)},{l:'kavram',v:rand(FIKIR_DATA.kavram)}];
+  document.getElementById('fikirdegerler').innerHTML=s.map(x=>`<div class="fikir-satir"><span class="fikir-label">// ${esc(x.l)}</span><span class="fikir-deger">${esc(x.v)}</span></div>`).join('');
+  document.getElementById('fikirkart').classList.add('show');
+}
+
+// ── ETKİNLİKLER ──
+const ETKINLIK_KEY='duvar_etkinlikler';
+let etkinlikFilter='all';
+function getEtkinlikler(){try{return JSON.parse(localStorage.getItem(ETKINLIK_KEY))||[];}catch{return[];}}
+function setEtkinlikFilter(f,el){
+  etkinlikFilter=f;
+  document.querySelectorAll('.etkinlik-filter').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderEtkinlikler();
+}
+function renderEtkinlikler(){
+  const all=getEtkinlikler().filter(e=>!e.arsiv);
+  const filtered=etkinlikFilter==='all'?all:all.filter(e=>e.tip===etkinlikFilter);
+  const grid=document.getElementById('etkinlikGrid');
+  const stats=document.getElementById('etkinlikStats');
+  if(!grid)return;
+  stats.textContent=`${filtered.length} etkinlik`+(etkinlikFilter!=='all'?' · filtrelendi':'');
+  if(!filtered.length){
+    grid.innerHTML='<div class="etkinlik-empty">// şu an duyuru yok · yeni etkinlikler eklendiğinde burada görünür</div>';
+    return;
+  }
+  const tipLabel={yarisma:'yarışma',festival:'festival',etkinlik:'etkinlik',workshop:'workshop',seminer:'seminer'};
+  const bugun=Date.now();
+  grid.innerHTML=[...filtered].reverse().map(e=>{
+    const etkinlikTarih=e.etkinlikTarih?new Date(e.etkinlikTarih):null;
+    const son=e.son?new Date(e.son):null;
+    const gecti=son&&son.getTime()<bugun;
+    return`<div class="etkinlik-card ${e.tip}">
+      <div class="etkinlik-head">
+        <div>
+          <div class="etkinlik-baslik">${esc(e.baslik)}</div>
+          ${e.organizator?`<div class="etkinlik-org">${esc(e.organizator)}</div>`:''}
+        </div>
+        <span class="etkinlik-tip-badge tip-${e.tip}">${tipLabel[e.tip]||e.tip}</span>
+      </div>
+      <div class="etkinlik-aciklama">${esc(e.aciklama)}</div>
+      <div class="etkinlik-meta">
+        ${e.sehir?`<span>📍 ${esc(e.sehir)}</span>`:''}
+        ${etkinlikTarih?`<span>📅 ${etkinlikTarih.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})}</span>`:''}
+        ${son?`<span style="${gecti?'color:var(--red)':''}">⏳ son başvuru: ${son.toLocaleDateString('tr-TR',{day:'numeric',month:'long'})}${gecti?' (sona erdi)':''}</span>`:''}
+      </div>
+      ${e.link?`<div class="etkinlik-link">→ ${esc(e.link)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ── İLANLAR ──
+const ILANLAR_KEY='duvar_ilanlar';
+let ilanFilter='all';
+function getIlanlar(){try{return JSON.parse(localStorage.getItem(ILANLAR_KEY))||[];}catch{return[];}}
+function setIlanFilter(f,el){
+  ilanFilter=f;
+  document.querySelectorAll('.ilan-filter').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+  renderIlanlar();
+}
+function renderIlanlar(){
+  const all=getIlanlar().filter(il=>!il.arsiv);
+  const filtered=ilanFilter==='all'?all:all.filter(il=>il.tip===ilanFilter);
+  const grid=document.getElementById('ilanlarGrid');
+  const stats=document.getElementById('ilanlarStats');
+  if(!grid)return;
+  stats.textContent=`${filtered.length} ilan`+(ilanFilter!=='all'?' · filtrelendi':'');
+  if(!filtered.length){
+    grid.innerHTML='<div class="ilan-empty">// şu an ilan yok · yeni ilanlar eklendiğinde burada görünür</div>';
+    return;
+  }
+  const tipLabel={staj:'staj',tam:'tam zamanlı',yari:'yarı zamanlı'};
+  const bugun=Date.now();
+  grid.innerHTML=[...filtered].reverse().map(il=>{
+    const son=il.son?new Date(il.son):null;
+    const gecti=son&&son.getTime()<bugun;
+    const sonStr=son?son.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}):'';
+    return`<div class="ilan-card ${il.tip}">
+      <div class="ilan-head">
+        <div>
+          <div class="ilan-ofis">${esc(il.ofis)}</div>
+          <div class="ilan-baslik">${esc(il.baslik)}</div>
+        </div>
+        <span class="ilan-tip-badge ilan-tip-${il.tip}">${tipLabel[il.tip]||il.tip}</span>
+      </div>
+      <div class="ilan-aciklama">${esc(il.aciklama)}</div>
+      <div class="ilan-meta">
+        ${il.sehir?`<span>📍 ${esc(il.sehir)}</span>`:''}
+        ${sonStr?`<span style="${gecti?'color:var(--red)':''}">⏳ son: ${sonStr}${gecti?' (sona erdi)':''}</span>`:''}
+        <span>📅 ${new Date(il.tarih).toLocaleDateString('tr-TR')}</span>
+      </div>
+      ${il.iletisim?`<div class="ilan-iletisim">→ ${esc(il.iletisim)}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ── GERİ BİLDİRİM ──
+const FEEDBACK_KEY='duvar_feedback';
+let feedbackType='oneri';
+function openFeedback(){document.getElementById('feedbackModal').classList.remove('hidden');document.getElementById('feedbackText').value='';}
+function closeFeedback(){document.getElementById('feedbackModal').classList.add('hidden');}
+function selectFeedbackType(el,type){
+  feedbackType=type;
+  document.querySelectorAll('.feedback-type').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+function submitFeedback(){
+  const text=document.getElementById('feedbackText').value.trim();
+  if(text.length<5){toast('// en az 5 karakter yaz');return;}
+  const feedback=JSON.parse(localStorage.getItem(FEEDBACK_KEY)||'[]');
+  feedback.push({id:Date.now(),type:feedbackType,text,time:new Date().toISOString(),nick:currentUser||'anonim'});
+  localStorage.setItem(FEEDBACK_KEY,JSON.stringify(feedback));
+  closeFeedback();
+  toast('// geri bildirim gönderildi, teşekkürler');
+}
+
+// ── INIT ──
+document.getElementById('mainInput').addEventListener('input',function(){
+  const l=500-this.value.length;
+  const el=document.getElementById('charCount');
+  el.textContent=l+' karakter kaldı';
+  el.classList.toggle('warn',l<50);
+});
+document.getElementById('mainInput').addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='Enter')addPost();});
+document.getElementById('authPass').addEventListener('keydown',e=>{if(e.key==='Enter')handleAuth();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeReport();closeTerms();closePanels();}});
+
+const session=getSession();
+if(session?.nick){const users=getUsers();if(users[session.nick]){loginSuccess(session.nick);}else{showWelcomeOrAuth();}}
+else{showWelcomeOrAuth();}
+
+function showWelcomeOrAuth(){
+  if(localStorage.getItem('duvar_welcomed')){document.getElementById('authModal').classList.remove('hidden');}
+  else{document.getElementById('welcomeScreen').classList.remove('hidden');}
+}
+
+// ── ÇOKLU SEKME SYNC ──
+window.addEventListener('storage',e=>{
+  if(e.key===POSTS_KEY){
+    posts=JSON.parse(e.newValue)||posts;
+    render();
+  }
+});
+
+// ── CANLI ZAMAN ──
+setInterval(()=>render(),60000);
+</script>
+</body>
+</html>
