@@ -14,6 +14,7 @@
 <meta property="og:image" content="https://duvar.app/og-image.png">
 <meta property="og:locale" content="tr_TR">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#0e0e0e;--surface:#1a1a1a;--surface2:#222;--border:#333;--border2:#444;--text:#f0f0f0;--text2:#c0c0c0;--muted:#777;--red:#8b1a1a;--red2:#a82020;--yellow:#f5c400;--white:#fff;--line:#1e1e1e}
@@ -1131,16 +1132,67 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
 </footer>
 
 <script>
-// ── STORAGE ──
-const USERS_KEY='duvar_users',POSTS_KEY='duvar_posts',SESSION_KEY='duvar_session',NOTIFS_KEY='duvar_notifs_';
+// ── SUPABASE ──
+const {createClient}=supabase;
+const sb=createClient('https://tnxflwddhucvlejmoihj.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRueGZsd2RkaHVjdmxlam1vaWhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjU5OTcsImV4cCI6MjA5MDA0MTk5N30.XFwCgn8lseNGsYDzigmHKDIBBRqByJ9gOpaPRmkT4Vs');
+
+// ── STORAGE (sadece yerel veriler) ──
+const USERS_KEY='duvar_users',SESSION_KEY='duvar_session',NOTIFS_KEY='duvar_notifs_';
+const POSTS_KEY='duvar_posts'; // geriye dönük uyumluluk için
 const getUsers=()=>{try{return JSON.parse(localStorage.getItem(USERS_KEY))||{};}catch{return{};}};
 const saveUsers=u=>localStorage.setItem(USERS_KEY,JSON.stringify(u));
-const getPosts=()=>{try{return JSON.parse(localStorage.getItem(POSTS_KEY))||null;}catch{return null;}};
-const savePosts=p=>localStorage.setItem(POSTS_KEY,JSON.stringify(p));
 const getSession=()=>{try{return JSON.parse(localStorage.getItem(SESSION_KEY))||null;}catch{return null;}};
 const saveSession=s=>localStorage.setItem(SESSION_KEY,JSON.stringify(s));
 const getNotifs=u=>{try{return JSON.parse(localStorage.getItem(NOTIFS_KEY+u))||[];}catch{return[];}};
 const saveNotifs=(u,n)=>localStorage.setItem(NOTIFS_KEY+u,JSON.stringify(n));
+
+// ── SUPABASE VERİ FONKSİYONLARI ──
+async function loadPosts(){
+  const {data,error}=await sb.from('posts').select('*, yorumlar(*)').eq('aktif',true).order('created_at',{ascending:false}).limit(200);
+  if(error){console.error('posts yüklenemedi:',error);return;}
+  posts=(data||[]).map(p=>({
+    ...p,time:p.created_at,fired:[],hugged:[],
+    comments:(p.yorumlar||[]).map(c=>({nick:c.nick,text:c.text,id:c.id}))
+  }));
+  if(currentUser){
+    const {data:likes}=await sb.from('begeni').select('post_id').eq('nick',currentUser);
+    const likedSet=new Set((likes||[]).map(l=>l.post_id));
+    posts.forEach(p=>{if(likedSet.has(p.id))p.fired=[currentUser];});
+  }
+  render();
+}
+
+async function sbAddPost(author,text,mood,type){
+  const {data,error}=await sb.from('posts').insert({author,text,mood,type}).select().single();
+  if(error){toast('// hata: gönderi kaydedilemedi');return null;}
+  return data;
+}
+
+async function sbReact(id,nick){
+  const liked=posts.find(p=>p.id===id)?.fired?.includes(nick);
+  if(liked){await sb.rpc('geri_al_begen',{p_id:id,p_nick:nick});}
+  else{await sb.rpc('artir_begen',{p_id:id,p_nick:nick});}
+  await loadPosts();
+}
+
+async function sbComment(postId,nick,text){
+  const {error}=await sb.from('yorumlar').insert({post_id:postId,nick,text});
+  if(error){toast('// hata: yorum kaydedilemedi');return false;}
+  await loadPosts();
+  return true;
+}
+
+async function sbReport(postId,sebep,bildiren){
+  await sb.from('raporlar').insert({post_id:postId,sebep,bildiren});
+}
+
+async function sbFeedback(tip,mesaj){
+  const {error}=await sb.from('feedback').insert({tip,mesaj});
+  return !error;
+}
+
+// Realtime: başka kullanıcı post atınca güncelle
+sb.channel('posts').on('postgres_changes',{event:'INSERT',schema:'public',table:'posts'},()=>loadPosts()).subscribe();
 
 // ── HASH ──
 async function hashPass(p){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p+'duvar_salt'));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}
@@ -1148,12 +1200,7 @@ async function hashPass(p){const b=await crypto.subtle.digest('SHA-256',new Text
 // ── STATE ──
 let currentUser=null,activeFilter={kind:'all',val:''},selectedMood=null,selectedType=null,activeAuthTab='login',activeSort='new';
 
-let posts=getPosts()||[
-  {id:1,author:'gece_studiocu',mood:'yorgun',type:'dert',text:"gece 4'te render alıyorum. sabah 9'da jüri. hocanın 'bu tasarım düşünülmemiş' demesi için.",time:'47 dk önce',fire:31,hug:12,fired:[],hugged:[],comments:[{nick:'sessiz_mimar',text:"'düşünülmemiş' = hoca sana dikkat ediyor. umursamadığı projeleri geçiştiriyor."},{nick:'koridordan',text:'sen yalnız değilsin. aynı masada bekliyorum.'}]},
-  {id:2,author:'dördüncü_yıl',mood:'yardim',type:'soru',text:"revit'te çatı eğimini otomatik hesaplamak mümkün mü? jüri yarın sabah.",time:'1 sa önce',fire:18,hug:9,fired:[],hugged:[],comments:[{nick:'mezun_biri',text:"architecture tab > roof by footprint > slope arrow. eğimi properties'ten değiştirirsin."}]},
-  {id:3,author:'staj_dönüşü',mood:'iyi',type:'kaynak',text:'dezeen ve archdaily dışında: failedarchitecture.com — başarısız projeleri analiz ediyor, jüride çok işe yaradı.',time:'3 sa önce',fire:44,hug:20,fired:[],hugged:[],comments:[]},
-  {id:4,author:'anonim_43',mood:'tesekkur',type:'dert',text:'bu siteyi açan kişi iyi biri. geçen hafta burada yazdım, cevaplar iyi geldi.',time:'1 gün önce',fire:103,hug:77,fired:[],hugged:[],comments:[]}
-];
+let posts=[];
 
 // ── THEME ──
 function toggleTheme(){
@@ -1329,43 +1376,39 @@ function selectType(el,type){
   selectedType=selectedType===type?null:type;
   if(selectedType)el.classList.add('active');
 }
-function addPost(){
+async function addPost(){
   if(!currentUser)return;
-  const banned=JSON.parse(localStorage.getItem('duvar_banned')||'[]');
-  if(banned.includes(currentUser)){toast('// hesabın askıya alınmış');logout();return;}
+  const {data:banRow}=await sb.from('kullanicilar').select('banli').eq('nick',currentUser).single();
+  if(banRow?.banli){toast('// hesabın askıya alınmış');logout();return;}
   const val=document.getElementById('mainInput').value.trim();
   if(!val)return;
-  posts.unshift({id:Date.now(),author:currentUser,text:val,mood:selectedMood,type:selectedType,time:new Date().toISOString(),fire:0,hug:0,fired:[],hugged:[],comments:[]});
-  savePosts(posts);
+  const newPost=await sbAddPost(currentUser,val,selectedMood,selectedType);
+  if(!newPost)return;
   document.getElementById('mainInput').value='';
   document.getElementById('charCount').textContent='500 karakter kaldı';
   selectedMood=null;selectedType=null;
   document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
-  render();toast('// duvara yazıldı');
+  toast('// duvara yazıldı');
+  await loadPosts();
 }
-function react(id,type){
+async function react(id,type){
   if(!currentUser)return;
-  const p=posts.find(x=>x.id===id);if(!p)return;
   if(type==='like'){
-    if(p.fired.includes(currentUser)){p.fired=p.fired.filter(x=>x!==currentUser);p.fire--;}
-    else{p.fired.push(currentUser);p.fire++;addNotif(p.author,currentUser,'❤️ gönderini beğendi');}
+    const p=posts.find(x=>x.id===id);
+    if(p&&!p.fired.includes(currentUser))addNotif(p.author,currentUser,'❤️ gönderini beğendi');
+    await sbReact(id,currentUser);
   }
-  savePosts(posts);render();
 }
 function toggleComments(id){document.getElementById('c-'+id).classList.toggle('open');}
-function sendComment(id){
+async function sendComment(id){
   if(!currentUser)return;
   const inp=document.getElementById('ci-'+id);
   const val=inp.value.trim();if(!val)return;
+  inp.value='';
   const p=posts.find(x=>x.id===id);
-  if(p){
-    p.comments.push({nick:currentUser,text:val});
-    savePosts(posts);
-    addNotif(p.author,currentUser,p.type==='soru'?'💬 sorunuzu cevapladı':'💬 yorum yaptı');
-    render();
-    document.getElementById('c-'+id).classList.add('open');
-    toast('// iletildi');
-  }
+  if(p)addNotif(p.author,currentUser,p.type==='soru'?'💬 sorunuzu cevapladı':'💬 yorum yaptı');
+  const ok=await sbComment(id,currentUser,val);
+  if(ok){document.getElementById('c-'+id)?.classList.add('open');toast('// iletildi');}
 }
 
 // ── BİLDİRİMLER ──
@@ -1430,12 +1473,10 @@ let reportTargetId=null,reportReason=null;
 function openReport(id){reportTargetId=id;reportReason=null;document.querySelectorAll('.report-opt').forEach(o=>o.classList.remove('selected'));document.getElementById('reportModal').classList.remove('hidden');}
 function closeReport(){document.getElementById('reportModal').classList.add('hidden');}
 function selectReason(el,r){document.querySelectorAll('.report-opt').forEach(o=>o.classList.remove('selected'));el.classList.add('selected');reportReason=r;}
-function submitReport(){
+async function submitReport(){
   if(!currentUser){toast('// şikayet için giriş yap');closeReport();showAuth();return;}
   if(!reportReason){toast('// bir neden seç');return;}
-  const reports=JSON.parse(localStorage.getItem('duvar_reports')||'[]');
-  reports.push({postId:reportTargetId,reason:reportReason,by:currentUser,time:new Date().toISOString()});
-  localStorage.setItem('duvar_reports',JSON.stringify(reports));
+  await sbReport(reportTargetId,reportReason,currentUser);
   closeReport();toast('// bildirim alındı');
 }
 
@@ -2037,15 +2078,15 @@ function projeUret(){
 // ── ETKİNLİKLER ──
 const ETKINLIK_KEY='duvar_etkinlikler';
 let etkinlikFilter='all';
-function getEtkinlikler(){try{return JSON.parse(localStorage.getItem(ETKINLIK_KEY))||[];}catch{return[];}}
 function setEtkinlikFilter(f,el){
   etkinlikFilter=f;
   document.querySelectorAll('.etkinlik-filter').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
   renderEtkinlikler();
 }
-function renderEtkinlikler(){
-  const all=getEtkinlikler().filter(e=>!e.arsiv);
+async function renderEtkinlikler(){
+  const {data}=await sb.from('etkinlikler').select('*').eq('aktif',true).order('created_at',{ascending:false});
+  const all=data||[];
   const filtered=etkinlikFilter==='all'?all:all.filter(e=>e.tip===etkinlikFilter);
   const grid=document.getElementById('etkinlikGrid');
   const stats=document.getElementById('etkinlikStats');
@@ -2081,17 +2122,16 @@ function renderEtkinlikler(){
 }
 
 // ── İLANLAR ──
-const ILANLAR_KEY='duvar_ilanlar';
 let ilanFilter='all';
-function getIlanlar(){try{return JSON.parse(localStorage.getItem(ILANLAR_KEY))||[];}catch{return[];}}
 function setIlanFilter(f,el){
   ilanFilter=f;
   document.querySelectorAll('.ilan-filter').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
   renderIlanlar();
 }
-function renderIlanlar(){
-  const all=getIlanlar().filter(il=>!il.arsiv);
+async function renderIlanlar(){
+  const {data}=await sb.from('ilanlar').select('*').eq('aktif',true).order('created_at',{ascending:false});
+  const all=data||[];
   const filtered=ilanFilter==='all'?all:all.filter(il=>il.tip===ilanFilter);
   const grid=document.getElementById('ilanlarGrid');
   const stats=document.getElementById('ilanlarStats');
@@ -2110,7 +2150,7 @@ function renderIlanlar(){
     return`<div class="ilan-card ${il.tip}">
       <div class="ilan-head">
         <div>
-          <div class="ilan-ofis">${esc(il.ofis)}</div>
+          <div class="ilan-ofis">${esc(il.sirket||il.ofis||'')}</div>
           <div class="ilan-baslik">${esc(il.baslik)}</div>
         </div>
         <span class="ilan-tip-badge ilan-tip-${il.tip}">${tipLabel[il.tip]||il.tip}</span>
@@ -2136,14 +2176,12 @@ function selectFeedbackType(el,type){
   document.querySelectorAll('.feedback-type').forEach(b=>b.classList.remove('active'));
   el.classList.add('active');
 }
-function submitFeedback(){
+async function submitFeedback(){
   const text=document.getElementById('feedbackText').value.trim();
   if(text.length<5){toast('// en az 5 karakter yaz');return;}
-  const feedback=JSON.parse(localStorage.getItem(FEEDBACK_KEY)||'[]');
-  feedback.push({id:Date.now(),type:feedbackType,text,time:new Date().toISOString(),nick:currentUser||'anonim'});
-  localStorage.setItem(FEEDBACK_KEY,JSON.stringify(feedback));
+  const ok=await sbFeedback(feedbackType,text);
   closeFeedback();
-  toast('// geri bildirim gönderildi, teşekkürler');
+  toast(ok?'// geri bildirim gönderildi, teşekkürler':'// hata oluştu, tekrar dene');
 }
 
 // ── INIT ──
@@ -2166,16 +2204,11 @@ function showWelcomeOrAuth(){
   else{document.getElementById('welcomeScreen').classList.remove('hidden');}
 }
 
-// ── ÇOKLU SEKME SYNC ──
-window.addEventListener('storage',e=>{
-  if(e.key===POSTS_KEY){
-    posts=JSON.parse(e.newValue)||posts;
-    render();
-  }
-});
-
 // ── CANLI ZAMAN ──
 setInterval(()=>render(),60000);
+
+// ── POSTLARI YÜKLE ──
+loadPosts();
 </script>
 </body>
 </html>

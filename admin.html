@@ -6,6 +6,7 @@
 <title>DUVAR // ADMIN</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -161,8 +162,12 @@ body::before {
     <div class="login-title">// ADMIN</div>
     <div class="login-sub">duvar · moderasyon paneli · yetkisiz giriş yasaktır</div>
     <div class="login-field">
-      <label>admin şifresi</label>
-      <input type="password" id="adminPass" placeholder="••••••••" maxlength="50" autofocus>
+      <label>e-posta</label>
+      <input type="email" id="adminEmail" placeholder="admin@duvar.app" maxlength="100" autofocus>
+    </div>
+    <div class="login-field">
+      <label>şifre</label>
+      <input type="password" id="adminPass" placeholder="••••••••" maxlength="50">
     </div>
     <div class="login-err" id="loginErr"></div>
     <button class="login-btn" onclick="adminLogin()">GİRİŞ</button>
@@ -278,64 +283,40 @@ body::before {
 </div>
 
 <script>
-// ── ADMIN ŞIFRESI ──
-// Şifreyi değiştirmek için: https://emn178.github.io/online-tools/sha256.html
-// adresine git, yeni şifreni gir ve hash'i buraya yapıştır.
-// Varsayılan şifre: "duvar2025"
-const ADMIN_PASS_HASH = 'bba7ab482faeb26ed4faec5f89029c70f23580b59a2618a215eb1b68dc5fe15e';
+// ── SUPABASE ──
+const {createClient} = supabase;
+const sb = createClient('https://tnxflwddhucvlejmoihj.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRueGZsd2RkaHVjdmxlam1vaWhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjU5OTcsImV4cCI6MjA5MDA0MTk5N30.XFwCgn8lseNGsYDzigmHKDIBBRqByJ9gOpaPRmkT4Vs');
 
-// ── STORAGE ──
-const USERS_KEY = 'duvar_users';
-const POSTS_KEY = 'duvar_posts';
-const REPORTS_KEY = 'duvar_reports';
-const BANNED_KEY = 'duvar_banned';
-const PINNED_KEY = 'duvar_pinned';
-const RESOLVED_KEY = 'duvar_resolved';
-const FEEDBACK_KEY = 'duvar_feedback';
-const FEEDBACK_READ_KEY = 'duvar_feedback_read';
-const ILANLAR_KEY = 'duvar_ilanlar';
-const ETKINLIK_KEY = 'duvar_etkinlikler';
+// ── VERİ FONKSİYONLARI ──
+async function getPosts() { const {data} = await sb.from('posts').select('*, yorumlar(*)').eq('aktif',true).order('created_at',{ascending:false}); return data||[]; }
+async function getReports() { const {data} = await sb.from('raporlar').select('*').order('created_at',{ascending:false}); return data||[]; }
+async function getFeedback() { const {data} = await sb.from('feedback').select('*').order('created_at',{ascending:false}); return data||[]; }
+async function getIlanlar() { const {data} = await sb.from('ilanlar').select('*').order('created_at',{ascending:false}); return data||[]; }
+async function getEtkinlikler() { const {data} = await sb.from('etkinlikler').select('*').order('created_at',{ascending:false}); return data||[]; }
+async function getBanned() { const {data} = await sb.from('kullanicilar').select('nick').eq('banli',true); return (data||[]).map(u=>u.nick); }
+function getUsers() { try { return JSON.parse(localStorage.getItem('duvar_users'))||{}; } catch { return {}; } }
 
-function getUsers() { try { return JSON.parse(localStorage.getItem(USERS_KEY)) || {}; } catch { return {}; } }
-function getPosts() { try { return JSON.parse(localStorage.getItem(POSTS_KEY)) || []; } catch { return []; } }
-function savePosts(p) { localStorage.setItem(POSTS_KEY, JSON.stringify(p)); }
-function getReports() { try { return JSON.parse(localStorage.getItem(REPORTS_KEY)) || []; } catch { return []; } }
-function saveReports(r) { localStorage.setItem(REPORTS_KEY, JSON.stringify(r)); }
-function getBanned() { try { return JSON.parse(localStorage.getItem(BANNED_KEY)) || []; } catch { return []; } }
-function saveBanned(b) { localStorage.setItem(BANNED_KEY, JSON.stringify(b)); }
-function getPinned() { try { return JSON.parse(localStorage.getItem(PINNED_KEY)) || []; } catch { return []; } }
-function savePinned(p) { localStorage.setItem(PINNED_KEY, JSON.stringify(p)); }
-function getResolved() { try { return JSON.parse(localStorage.getItem(RESOLVED_KEY)) || []; } catch { return []; } }
-function saveResolved(r) { localStorage.setItem(RESOLVED_KEY, JSON.stringify(r)); }
-function getFeedback() { try { return JSON.parse(localStorage.getItem(FEEDBACK_KEY)) || []; } catch { return []; } }
-function saveFeedback(f) { localStorage.setItem(FEEDBACK_KEY, JSON.stringify(f)); }
-function getFeedbackRead() { try { return JSON.parse(localStorage.getItem(FEEDBACK_READ_KEY)) || []; } catch { return []; } }
-function saveFeedbackRead(r) { localStorage.setItem(FEEDBACK_READ_KEY, JSON.stringify(r)); }
-function getIlanlar() { try { return JSON.parse(localStorage.getItem(ILANLAR_KEY)) || []; } catch { return []; } }
-function saveIlanlar(i) { localStorage.setItem(ILANLAR_KEY, JSON.stringify(i)); }
-function getEtkinlikler() { try { return JSON.parse(localStorage.getItem(ETKINLIK_KEY)) || []; } catch { return []; } }
-function saveEtkinlikler(e) { localStorage.setItem(ETKINLIK_KEY, JSON.stringify(e)); }
-
-// ── AUTH ──
+// ── AUTH (Supabase Email) ──
 let isAdmin = false;
 
 async function adminLogin() {
+  const email = document.getElementById('adminEmail')?.value || document.getElementById('adminPass')?.dataset?.email || '';
   const pass = document.getElementById('adminPass').value;
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pass));
-  const hash = Array.from(new Uint8Array(buf)).map(x => x.toString(16).padStart(2,'0')).join('');
-  if (hash === ADMIN_PASS_HASH) {
-    isAdmin = true;
-    sessionStorage.setItem('duvar_admin', '1');
-    document.getElementById('loginScreen').classList.add('hidden');
-    initPanel();
-  } else {
-    document.getElementById('loginErr').textContent = '// şifre yanlış';
+  const err = document.getElementById('loginErr');
+  err.textContent = '// giriş yapılıyor...';
+  const {data, error} = await sb.auth.signInWithPassword({email, password: pass});
+  if (error) {
+    err.textContent = '// hata: ' + (error.message === 'Invalid login credentials' ? 'e-posta veya şifre yanlış' : error.message);
     document.getElementById('adminPass').value = '';
+    return;
   }
+  isAdmin = true;
+  document.getElementById('loginScreen').classList.add('hidden');
+  initPanel();
 }
 
-function adminLogout() {
-  sessionStorage.removeItem('duvar_admin');
+async function adminLogout() {
+  await sb.auth.signOut();
   location.reload();
 }
 
@@ -344,8 +325,8 @@ document.getElementById('adminPass').addEventListener('keydown', e => {
 });
 
 // ── INIT ──
-function initPanel() {
-  updateStats();
+async function initPanel() {
+  await updateStats();
   renderReports();
   renderPosts();
   renderUsers();
@@ -355,14 +336,18 @@ function initPanel() {
   document.getElementById('adminMeta').textContent = `// giriş yapıldı · ${new Date().toLocaleString('tr-TR')}`;
 }
 
-function updateStats() {
-  const posts = getPosts();
+// Oturum kontrolü
+(async () => {
+  const {data:{session}} = await sb.auth.getSession();
+  if (session) { isAdmin = true; document.getElementById('loginScreen').classList.add('hidden'); initPanel(); }
+})();
+
+async function updateStats() {
+  const [posts, reports, feedback, banned] = await Promise.all([getPosts(), getReports(), getFeedback(), getBanned()]);
   const users = getUsers();
-  const reports = getReports();
-  const banned = getBanned();
-  const resolved = getResolved();
-  const pending = reports.filter(r => !resolved.includes(r.postId + '_' + r.time)).length;
+  const pending = reports.length;
   const acil = posts.filter(p => p.type === 'acil').length;
+  const feedbackPending = feedback.filter(f => !f.okundu).length;
 
   document.getElementById('statPosts').textContent = posts.length;
   document.getElementById('statUsers').textContent = Object.keys(users).length;
@@ -370,10 +355,7 @@ function updateStats() {
   document.getElementById('statBanned').textContent = banned.length;
   document.getElementById('statAcil').textContent = acil;
   document.getElementById('reportBadge').textContent = pending;
-  const feedbackAll = getFeedback();
-  const feedbackRead = new Set(getFeedbackRead());
-  const feedbackPending = feedbackAll.filter(f => !feedbackRead.has(f.id)).length;
-  document.getElementById('statFeedback').textContent = feedbackAll.length;
+  document.getElementById('statFeedback').textContent = feedback.length;
   document.getElementById('feedbackBadge').textContent = feedbackPending;
 }
 
@@ -386,10 +368,8 @@ function switchTab(tab) {
 }
 
 // ── REPORTS ──
-function renderReports() {
-  const reports = getReports();
-  const resolved = getResolved();
-  const posts = getPosts();
+async function renderReports() {
+  const [reports, allPosts] = await Promise.all([getReports(), getPosts()]);
   const el = document.getElementById('reportsList');
 
   if (!reports.length) {
@@ -398,43 +378,34 @@ function renderReports() {
   }
 
   const reasonLabels = { hakaret: 'hakaret / aşağılama', tehdit: 'tehdit / taciz', kisisel_veri: 'kişisel bilgi ifşası', zarar: 'zarar verici içerik', diger: 'diğer' };
-  const resolvedKeys = new Set(resolved);
 
-  el.innerHTML = [...reports].reverse().map((r, i) => {
-    const key = r.postId + '_' + r.time;
-    const isResolved = resolvedKeys.has(key);
-    const post = posts.find(p => p.id === r.postId);
+  el.innerHTML = reports.map((r) => {
+    const post = allPosts.find(p => p.id === r.post_id);
     const preview = post ? post.text.slice(0, 120) + (post.text.length > 120 ? '...' : '') : '[gönderi silinmiş]';
     return `
-    <div class="report-card ${isResolved ? 'resolved' : ''}">
-      <div class="report-reason">⚑ ${reasonLabels[r.reason] || r.reason}</div>
-      <div class="report-meta">bildiren: @${esc(r.by || '?')} · ${new Date(r.time).toLocaleString('tr-TR')}</div>
+    <div class="report-card">
+      <div class="report-reason">⚑ ${reasonLabels[r.sebep] || r.sebep || '?'}</div>
+      <div class="report-meta">bildiren: @${esc(r.bildiren || '?')} · ${new Date(r.created_at).toLocaleString('tr-TR')}</div>
       <div class="report-post-preview">"${esc(preview)}"</div>
       <div class="item-actions">
-        ${!isResolved ? `
-          <button class="action-btn warn" onclick="resolveReport('${key}')">✓ çözüldü işaretle</button>
-          ${post ? `<button class="action-btn danger" onclick="confirmDeletePost(${r.postId})">gönderiyi sil</button>` : ''}
-          ${post ? `<button class="action-btn danger" onclick="confirmBan('${post.author}')">@${esc(post?.author||'?')} banla</button>` : ''}
-        ` : '<span style="font-family:Space Mono,monospace;font-size:0.6rem;color:#333;letter-spacing:0.08em">// çözüldü</span>'}
+        <button class="action-btn warn" onclick="resolveReport(${r.id})">✓ çözüldü / sil</button>
+        ${post ? `<button class="action-btn danger" onclick="confirmDeletePost(${r.post_id})">gönderiyi sil</button>` : ''}
+        ${post ? `<button class="action-btn danger" onclick="confirmBan('${post.author}')">@${esc(post?.author||'?')} banla</button>` : ''}
       </div>
     </div>`;
   }).join('');
 }
 
-function resolveReport(key) {
-  const resolved = getResolved();
-  if (!resolved.includes(key)) resolved.push(key);
-  saveResolved(resolved);
-  updateStats();
+async function resolveReport(id) {
+  await sb.from('raporlar').delete().eq('id', id);
+  await updateStats();
   renderReports();
-  toast('// şikayet çözüldü olarak işaretlendi');
+  toast('// şikayet silindi');
 }
 
 // ── POSTS ──
-function renderPosts() {
-  const posts = getPosts();
-  const banned = getBanned();
-  const pinned = getPinned();
+async function renderPosts() {
+  const [posts, banned] = await Promise.all([getPosts(), getBanned()]);
   const q = (document.getElementById('postSearch')?.value || '').toLowerCase();
   const el = document.getElementById('postsList');
 
@@ -452,53 +423,41 @@ function renderPosts() {
 
   el.innerHTML = filtered.map(p => {
     const isBanned = banned.includes(p.author);
-    const isPinned = pinned.includes(p.id);
-    const reports = getReports().filter(r => r.postId === p.id).length;
     return `
-    <div class="item-card ${isPinned ? 'pinned' : ''} ${isBanned ? 'banned' : ''} ${p.type === 'acil' ? 'flagged' : ''}">
+    <div class="item-card ${p.pinned ? 'pinned' : ''} ${isBanned ? 'banned' : ''} ${p.type === 'acil' ? 'flagged' : ''}">
       <div>
         <div class="item-meta">
           <span class="author">@${esc(p.author)}</span>
-          <span class="time">${p.time}</span>
+          <span class="time">${new Date(p.created_at).toLocaleString('tr-TR')}</span>
           ${p.type ? `<span class="type-badge">${typeLabels[p.type]||p.type}</span>` : ''}
           ${p.mood ? `<span class="type-badge">${moodLabels[p.mood]||p.mood}</span>` : ''}
-          ${isPinned ? '<span style="color:#4ade80;border:1px solid #1a3a1a;padding:0.1rem 0.4rem">📌 sabitlendi</span>' : ''}
+          ${p.pinned ? '<span style="color:#4ade80;border:1px solid #1a3a1a;padding:0.1rem 0.4rem">📌 sabitlendi</span>' : ''}
         </div>
         <div class="item-text">${esc(p.text)}</div>
         <div class="item-actions">
-          <button class="action-btn ${isPinned ? 'success' : 'success'}" onclick="togglePin(${p.id})">${isPinned ? '📌 sabiti kaldır' : '📌 sabitle (acil)'}</button>
+          <button class="action-btn success" onclick="togglePin(${p.id},${p.pinned})">${p.pinned ? '📌 sabiti kaldır' : '📌 sabitle'}</button>
           <button class="action-btn danger" onclick="confirmDeletePost(${p.id})">🗑 sil</button>
           <button class="action-btn danger" onclick="confirmBan('${p.author}')">🚫 @${esc(p.author)} banla</button>
         </div>
       </div>
       <div class="item-right">
-        ${reports > 0 ? `<div class="report-count">⚑ ${reports} şikayet</div>` : ''}
-        <div style="font-family:Space Mono,monospace;font-size:0.58rem;color:#333">↳ ${p.comments?.length||0} yorum</div>
-        <div style="font-family:Space Mono,monospace;font-size:0.58rem;color:#333">⚡ ${p.fire||0} · ◎ ${p.hug||0}</div>
+        <div style="font-family:Space Mono,monospace;font-size:0.58rem;color:#333">↳ ${p.yorumlar?.length||0} yorum</div>
+        <div style="font-family:Space Mono,monospace;font-size:0.58rem;color:#333">⚡ ${p.fire||0}</div>
       </div>
     </div>`;
   }).join('');
 }
 
-function togglePin(id) {
-  const pinned = getPinned();
-  const idx = pinned.indexOf(id);
-  if (idx > -1) pinned.splice(idx, 1);
-  else pinned.push(id);
-  savePinned(pinned);
-  // Ana sitede de göster
-  const posts = getPosts();
-  const post = posts.find(p => p.id === id);
-  if (post) { post.pinned = !post.pinned; savePosts(posts); }
+async function togglePin(id, currentPinned) {
+  await sb.from('posts').update({ pinned: !currentPinned }).eq('id', id);
   renderPosts();
-  toast(pinned.includes(id) ? '// gönderi sabitlendi' : '// sabit kaldırıldı');
+  toast(!currentPinned ? '// gönderi sabitlendi' : '// sabit kaldırıldı');
 }
 
 // ── USERS ──
 function renderUsers() {
   const users = getUsers();
-  const banned = getBanned();
-  const posts = getPosts();
+  const [banned, posts] = await Promise.all([getBanned(), getPosts()]);
   const q = (document.getElementById('userSearch')?.value || '').toLowerCase();
   const el = document.getElementById('usersList');
 
@@ -512,22 +471,17 @@ function renderUsers() {
   el.innerHTML = nickList.map(nick => {
     const isBanned = banned.includes(nick);
     const postCount = posts.filter(p => p.author === nick).length;
-    const reportCount = getReports().filter(r => {
-      const p = posts.find(x => x.id === r.postId);
-      return p && p.author === nick;
-    }).length;
     return `
     <div class="user-card ${isBanned ? 'banned-user' : ''}">
       <div>
         <div class="user-nick-display">${esc(nick)}</div>
         <div class="user-stats-row">
           <span>${postCount} gönderi</span>
-          ${reportCount > 0 ? `<span style="color:var(--yellow)">⚑ ${reportCount} şikayet</span>` : ''}
           ${isBanned ? '<span style="color:var(--red)">🚫 banlı</span>' : ''}
         </div>
       </div>
       <div class="item-actions">
-        <button class="action-btn ${isBanned ? 'success' : 'danger'}" onclick="toggleBan('${nick}')">
+        <button class="action-btn ${isBanned ? 'success' : 'danger'}" onclick="toggleBan('${nick}',${isBanned})">
           ${isBanned ? '✓ banı kaldır' : '🚫 banla'}
         </button>
       </div>
@@ -537,45 +491,32 @@ function renderUsers() {
 
 // ── ACTIONS ──
 function confirmDeletePost(id) {
-  openConfirm(
-    'GÖNDERİYİ SİL',
-    '// bu gönderi kalıcı olarak silinecek. geri alınamaz.',
-    () => deletePost(id)
-  );
+  openConfirm('GÖNDERİYİ SİL', '// bu gönderi kalıcı olarak silinecek. geri alınamaz.', () => deletePost(id));
 }
 
-function confirmBan(nick) {
-  const banned = getBanned();
-  if (banned.includes(nick)) {
-    toggleBan(nick); return;
-  }
-  openConfirm(
-    `@${nick.toUpperCase()} BANLA`,
-    `// bu kullanıcı platforma erişemeyecek. şifresi geçersiz sayılacak.`,
-    () => toggleBan(nick)
-  );
+async function confirmBan(nick) {
+  const banned = await getBanned();
+  if (banned.includes(nick)) { toggleBan(nick, true); return; }
+  openConfirm(`@${nick.toUpperCase()} BANLA`, `// bu kullanıcı platforma erişemeyecek.`, () => toggleBan(nick, false));
 }
 
-function deletePost(id) {
-  const posts = getPosts().filter(p => p.id !== id);
-  savePosts(posts);
-  updateStats();
+async function deletePost(id) {
+  await sb.from('posts').update({ aktif: false }).eq('id', id);
+  await updateStats();
   renderPosts();
   renderReports();
   toast('// gönderi silindi');
 }
 
-function toggleBan(nick) {
-  const banned = getBanned();
-  const idx = banned.indexOf(nick);
-  if (idx > -1) { banned.splice(idx, 1); toast(`// @${nick} ban kaldırıldı`); }
-  else { banned.push(nick); toast(`// @${nick} banlı`); }
-  saveBanned(banned);
-  // Users tablosuna da işaretle
-  const users = getUsers();
-  if (users[nick]) { users[nick].banned = !users[nick].banned; }
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-  updateStats();
+async function toggleBan(nick, isBanned) {
+  if (isBanned) {
+    await sb.from('kullanicilar').delete().eq('nick', nick);
+    toast(`// @${nick} ban kaldırıldı`);
+  } else {
+    await sb.from('kullanicilar').upsert({ nick, banli: true });
+    toast(`// @${nick} banlı`);
+  }
+  await updateStats();
   renderUsers();
   renderPosts();
 }
@@ -598,88 +539,76 @@ document.getElementById('confirmOk').onclick = () => {
 };
 
 // ── FEEDBACK ──
-function renderFeedback() {
-  const items = getFeedback();
-  const readIds = new Set(getFeedbackRead());
+async function renderFeedback() {
+  const items = await getFeedback();
   const el = document.getElementById('feedbackList');
   if (!items.length) {
     el.innerHTML = '<div class="empty-msg">// henüz geri bildirim yok</div>';
     return;
   }
   const typeLabel = { oneri: '💡 öneri', sikayet: '⚑ şikayet' };
-  el.innerHTML = [...items].reverse().map(f => {
-    const isRead = readIds.has(f.id);
-    return `<div class="report-card ${isRead ? 'resolved' : ''}">
-      <div class="report-reason">${typeLabel[f.type] || f.type}</div>
-      <div class="report-meta">@${esc(f.nick)} · ${new Date(f.time).toLocaleString('tr-TR')}</div>
-      <div class="item-text" style="margin:0.5rem 0">${esc(f.text)}</div>
+  el.innerHTML = items.map(f => {
+    return `<div class="report-card ${f.okundu ? 'resolved' : ''}">
+      <div class="report-reason">${typeLabel[f.tip] || f.tip}</div>
+      <div class="report-meta">${new Date(f.created_at).toLocaleString('tr-TR')}</div>
+      <div class="item-text" style="margin:0.5rem 0">${esc(f.mesaj)}</div>
       <div class="item-actions">
-        ${!isRead ? `<button class="action-btn warn" onclick="markFeedbackRead(${f.id})">✓ okundu</button>` : '<span style="font-family:Space Mono,monospace;font-size:0.6rem;color:#333;letter-spacing:0.08em">// okundu</span>'}
+        ${!f.okundu ? `<button class="action-btn warn" onclick="markFeedbackRead(${f.id})">✓ okundu</button>` : '<span style="font-family:Space Mono,monospace;font-size:0.6rem;color:#333;letter-spacing:0.08em">// okundu</span>'}
         <button class="action-btn danger" onclick="deleteFeedback(${f.id})">🗑 sil</button>
       </div>
     </div>`;
   }).join('');
 }
-function markFeedbackRead(id) {
-  const read = getFeedbackRead();
-  if (!read.includes(id)) read.push(id);
-  saveFeedbackRead(read);
-  updateStats();
+async function markFeedbackRead(id) {
+  await sb.from('feedback').update({ okundu: true }).eq('id', id);
+  await updateStats();
   renderFeedback();
   toast('// okundu işaretlendi');
 }
 // ── ETKİNLİKLER ──
-function etkinlikEkle() {
+async function etkinlikEkle() {
   const baslik = document.getElementById('etkinlikBaslik').value.trim();
-  const organizator = document.getElementById('etkinlikOrg').value.trim();
+  const yer = document.getElementById('etkinlikOrg').value.trim();
   const aciklama = document.getElementById('etkinlikAciklama').value.trim();
-  const sehir = document.getElementById('etkinlikSehir').value.trim();
+  const tarih = document.getElementById('etkinlikTarih').value;
   const tip = document.getElementById('etkinlikTip').value;
-  const etkinlikTarih = document.getElementById('etkinlikTarih').value;
-  const son = document.getElementById('etkinlikSon').value;
   const link = document.getElementById('etkinlikLink').value.trim();
-  if (!baslik || !aciklama) { toast('// başlık ve açıklama zorunlu'); return; }
-  const liste = getEtkinlikler();
-  liste.push({ id: Date.now(), baslik, organizator, aciklama, sehir, tip, etkinlikTarih, son, link, eklenme: new Date().toISOString(), arsiv: false });
-  saveEtkinlikler(liste);
-  ['etkinlikBaslik','etkinlikOrg','etkinlikAciklama','etkinlikSehir','etkinlikTarih','etkinlikSon','etkinlikLink'].forEach(id => document.getElementById(id).value = '');
+  if (!baslik) { toast('// başlık zorunlu'); return; }
+  const {error} = await sb.from('etkinlikler').insert({ baslik, yer, aciklama, tarih, tip, link });
+  if (error) { toast('// hata: ' + error.message); return; }
+  ['etkinlikBaslik','etkinlikOrg','etkinlikAciklama','etkinlikTarih','etkinlikLink'].forEach(id => document.getElementById(id) && (document.getElementById(id).value = ''));
   renderEtkinlikAdmin();
   toast('// etkinlik yayınlandı');
 }
-function etkinlikSil(id) {
-  saveEtkinlikler(getEtkinlikler().filter(e => e.id !== id));
+async function etkinlikSil(id) {
+  await sb.from('etkinlikler').delete().eq('id', id);
   renderEtkinlikAdmin();
   toast('// etkinlik silindi');
 }
-function etkinlikArsiv(id) {
-  const liste = getEtkinlikler();
-  const e = liste.find(x => x.id === id);
-  if (e) e.arsiv = !e.arsiv;
-  saveEtkinlikler(liste);
+async function etkinlikArsiv(id, aktif) {
+  await sb.from('etkinlikler').update({ aktif: !aktif }).eq('id', id);
   renderEtkinlikAdmin();
-  toast(e?.arsiv ? '// arşivlendi' : '// yeniden yayınlandı');
+  toast(!aktif ? '// yeniden yayınlandı' : '// arşivlendi');
 }
-function renderEtkinlikAdmin() {
-  const liste = getEtkinlikler();
+async function renderEtkinlikAdmin() {
+  const liste = await getEtkinlikler();
   const el = document.getElementById('etkinlikAdminList');
   if (!liste.length) { el.innerHTML = '<div class="empty-msg">// henüz etkinlik yok</div>'; return; }
   const tipLabel = { yarisma: 'yarışma', festival: 'festival', etkinlik: 'etkinlik', workshop: 'workshop', seminer: 'seminer' };
-  el.innerHTML = [...liste].reverse().map(e => `
-    <div class="item-card ${e.arsiv ? 'banned' : ''}">
+  el.innerHTML = liste.map(e => `
+    <div class="item-card ${!e.aktif ? 'banned' : ''}">
       <div>
         <div class="item-meta">
           <span class="author">${esc(e.baslik)}</span>
           <span class="type-badge">${tipLabel[e.tip]||e.tip}</span>
-          ${e.organizator ? `<span>${esc(e.organizator)}</span>` : ''}
-          ${e.sehir ? `<span>${esc(e.sehir)}</span>` : ''}
-          ${e.etkinlikTarih ? `<span>📅 ${new Date(e.etkinlikTarih).toLocaleDateString('tr-TR')}</span>` : ''}
-          ${e.son ? `<span>⏳ son: ${new Date(e.son).toLocaleDateString('tr-TR')}</span>` : ''}
-          ${e.arsiv ? '<span style="color:#555">arşiv</span>' : ''}
+          ${e.yer ? `<span>${esc(e.yer)}</span>` : ''}
+          ${e.tarih ? `<span>📅 ${new Date(e.tarih).toLocaleDateString('tr-TR')}</span>` : ''}
+          ${!e.aktif ? '<span style="color:#555">arşiv</span>' : ''}
         </div>
-        <div class="item-text">${esc(e.aciklama.slice(0,120))}${e.aciklama.length>120?'...':''}</div>
+        <div class="item-text">${esc((e.aciklama||'').slice(0,120))}${(e.aciklama||'').length>120?'...':''}</div>
         ${e.link ? `<div style="font-family:Space Mono,monospace;font-size:0.62rem;color:#c084fc;margin-bottom:0.5rem">${esc(e.link)}</div>` : ''}
         <div class="item-actions">
-          <button class="action-btn warn" onclick="etkinlikArsiv(${e.id})">${e.arsiv ? '↺ yeniden yayınla' : '📦 arşivle'}</button>
+          <button class="action-btn warn" onclick="etkinlikArsiv(${e.id},${e.aktif})">${!e.aktif ? '↺ yeniden yayınla' : '📦 arşivle'}</button>
           <button class="action-btn danger" onclick="etkinlikSil(${e.id})">🗑 sil</button>
         </div>
       </div>
@@ -687,65 +616,57 @@ function renderEtkinlikAdmin() {
 }
 
 // ── İLANLAR ──
-function ilanEkle() {
-  const ofis = document.getElementById('ilanOfis').value.trim();
+async function ilanEkle() {
+  const sirket = document.getElementById('ilanOfis').value.trim();
   const baslik = document.getElementById('ilanBaslik').value.trim();
   const aciklama = document.getElementById('ilanAciklama').value.trim();
   const sehir = document.getElementById('ilanSehir').value.trim();
   const tip = document.getElementById('ilanTip').value;
-  const son = document.getElementById('ilanSon').value;
-  const iletisim = document.getElementById('ilanIletisim').value.trim();
-  if (!ofis || !baslik || !aciklama) { toast('// ofis adı, başlık ve açıklama zorunlu'); return; }
-  const ilanlar = getIlanlar();
-  ilanlar.push({ id: Date.now(), ofis, baslik, aciklama, sehir, tip, son, iletisim, tarih: new Date().toISOString(), arsiv: false });
-  saveIlanlar(ilanlar);
-  ['ilanOfis','ilanBaslik','ilanAciklama','ilanSehir','ilanSon','ilanIletisim'].forEach(id => document.getElementById(id).value = '');
+  const link = document.getElementById('ilanIletisim').value.trim();
+  if (!sirket || !baslik) { toast('// ofis adı ve başlık zorunlu'); return; }
+  const {error} = await sb.from('ilanlar').insert({ sirket, baslik, aciklama, sehir, tip, link });
+  if (error) { toast('// hata: ' + error.message); return; }
+  ['ilanOfis','ilanBaslik','ilanAciklama','ilanSehir','ilanIletisim'].forEach(id => document.getElementById(id) && (document.getElementById(id).value = ''));
   renderIlanlarAdmin();
   toast('// ilan yayınlandı');
 }
-function ilanSil(id) {
-  saveIlanlar(getIlanlar().filter(il => il.id !== id));
+async function ilanSil(id) {
+  await sb.from('ilanlar').delete().eq('id', id);
   renderIlanlarAdmin();
   toast('// ilan silindi');
 }
-function ilanArsiv(id) {
-  const ilanlar = getIlanlar();
-  const il = ilanlar.find(x => x.id === id);
-  if (il) il.arsiv = !il.arsiv;
-  saveIlanlar(ilanlar);
+async function ilanArsiv(id, aktif) {
+  await sb.from('ilanlar').update({ aktif: !aktif }).eq('id', id);
   renderIlanlarAdmin();
-  toast(il?.arsiv ? '// ilan arşivlendi' : '// ilan yeniden yayınlandı');
+  toast(!aktif ? '// ilan yeniden yayınlandı' : '// ilan arşivlendi');
 }
-function renderIlanlarAdmin() {
-  const ilanlar = getIlanlar();
+async function renderIlanlarAdmin() {
+  const ilanlar = await getIlanlar();
   const el = document.getElementById('ilanlarAdminList');
   if (!ilanlar.length) { el.innerHTML = '<div class="empty-msg">// henüz ilan yok</div>'; return; }
-  const tipLabel = { staj: 'staj', tam: 'tam zamanlı', yari: 'yarı zamanlı' };
-  el.innerHTML = [...ilanlar].reverse().map(il => `
-    <div class="item-card ${il.arsiv ? 'banned' : ''}">
+  const tipLabel = { staj: 'staj', tam: 'tam zamanlı', yari: 'yarı zamanlı', is: 'iş ilanı' };
+  el.innerHTML = ilanlar.map(il => `
+    <div class="item-card ${!il.aktif ? 'banned' : ''}">
       <div>
         <div class="item-meta">
-          <span class="author">${esc(il.ofis)}</span>
+          <span class="author">${esc(il.sirket||il.ofis||'')}</span>
           <span class="type-badge">${tipLabel[il.tip]||il.tip}</span>
           ${il.sehir ? `<span>${esc(il.sehir)}</span>` : ''}
-          ${il.son ? `<span>son: ${new Date(il.son).toLocaleDateString('tr-TR')}</span>` : ''}
-          ${il.arsiv ? '<span style="color:#555">arşiv</span>' : ''}
+          ${!il.aktif ? '<span style="color:#555">arşiv</span>' : ''}
         </div>
-        <div class="item-text">${esc(il.baslik)} — ${esc(il.aciklama.slice(0,100))}${il.aciklama.length>100?'...':''}</div>
-        ${il.iletisim ? `<div style="font-family:Space Mono,monospace;font-size:0.62rem;color:var(--yellow);margin-bottom:0.5rem">${esc(il.iletisim)}</div>` : ''}
+        <div class="item-text">${esc(il.baslik)} — ${esc((il.aciklama||'').slice(0,100))}${(il.aciklama||'').length>100?'...':''}</div>
+        ${il.link ? `<div style="font-family:Space Mono,monospace;font-size:0.62rem;color:var(--yellow);margin-bottom:0.5rem">${esc(il.link)}</div>` : ''}
         <div class="item-actions">
-          <button class="action-btn warn" onclick="ilanArsiv(${il.id})">${il.arsiv ? '↺ yeniden yayınla' : '📦 arşivle'}</button>
+          <button class="action-btn warn" onclick="ilanArsiv(${il.id},${il.aktif})">${!il.aktif ? '↺ yeniden yayınla' : '📦 arşivle'}</button>
           <button class="action-btn danger" onclick="ilanSil(${il.id})">🗑 sil</button>
         </div>
       </div>
     </div>`).join('');
 }
 
-function deleteFeedback(id) {
-  saveFeedback(getFeedback().filter(f => f.id !== id));
-  const read = getFeedbackRead().filter(x => x !== id);
-  saveFeedbackRead(read);
-  updateStats();
+async function deleteFeedback(id) {
+  await sb.from('feedback').delete().eq('id', id);
+  await updateStats();
   renderFeedback();
   toast('// geri bildirim silindi');
 }
@@ -760,12 +681,6 @@ function toast(msg) {
   setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ── AUTO LOGIN (session) ──
-if (sessionStorage.getItem('duvar_admin') === '1') {
-  isAdmin = true;
-  document.getElementById('loginScreen').classList.add('hidden');
-  initPanel();
-}
 </script>
 </body>
 </html>
