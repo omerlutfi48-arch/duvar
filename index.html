@@ -1177,7 +1177,7 @@ async function loadPosts(){
   const {data,error}=await sb.from('posts').select('*, yorumlar(*)').eq('aktif',true).order('created_at',{ascending:false}).limit(200);
   if(error){console.error('posts yüklenemedi:',error);return;}
   posts=(data||[]).map(p=>({
-    ...p,time:p.created_at,fired:[],hugged:[],
+    ...p,time:p.created_at,fired:[],
     comments:(p.yorumlar||[]).map(c=>({nick:c.nick,text:c.text,id:c.id}))
   }));
   if(currentUser){
@@ -1209,7 +1209,9 @@ async function sbComment(postId,nick,text){
 }
 
 async function sbReport(postId,sebep,bildiren){
-  await sb.from('raporlar').insert({post_id:postId,sebep,bildiren});
+  const {error}=await sb.from('raporlar').insert({post_id:postId,sebep,bildiren});
+  if(error)console.error('rapor hatası:',error);
+  return !error;
 }
 
 async function sbFeedback(tip,mesaj){
@@ -1430,7 +1432,7 @@ function render(){
           <button class="rxn${mF?' on':''}"onclick="react(${p.id},'like')" title="beğen">${mF?'❤️':'🤍'} ${p.fire||0}</button>
           <button class="rxn"onclick="toggleComments(${p.id})" title="yorum yap">💬 ${p.comments.length}</button>
           ${!isMine?`<button class="rxn report-btn"onclick="openReport(${p.id})"title="şikayet">···</button>`:''}
-          ${isModerator?`<button class="rxn"onclick="modDeletePost(${p.id})"title="sil"style="color:#c0392b">🗑</button><button class="rxn"onclick="modPin(${p.id},${!!p.pinned})"title="${p.pinned?'sabiti kaldır':'sabitle'}"style="color:var(--yellow)">${p.pinned?'📌':'📍'}</button><button class="rxn"onclick="modBan('${p.author}')"title="banla"style="color:#c0392b">🚫</button>`:''}
+          ${isModerator?`<button class="rxn"onclick="modDeletePost(${p.id})"title="sil"style="color:#c0392b">🗑</button><button class="rxn"onclick="modPin(${p.id},${!!p.pinned})"title="${p.pinned?'sabiti kaldır':'sabitle'}"style="color:var(--yellow)">${p.pinned?'📌':'📍'}</button><button class="rxn"data-nick="${esc(p.author)}"onclick="modBan(this.dataset.nick)"title="banla"style="color:#c0392b">🚫</button>`:''}
         </div>
       </div>
       <div class="comments-wrap"id="c-${p.id}">
@@ -1457,7 +1459,8 @@ function selectType(el,type){
 }
 async function addPost(){
   if(!currentUser)return;
-  const {data:banRow}=await sb.from('kullanicilar').select('banli').eq('nick',currentUser).single();
+  const {data:banRow,error:banErr}=await sb.from('kullanicilar').select('banli').eq('nick',currentUser).maybeSingle();
+  if(banErr){toast('// bağlantı hatası, tekrar dene');return;}
   if(banRow?.banli){toast('// hesabın askıya alınmış');logout();return;}
   const val=document.getElementById('mainInput').value.trim();
   if(!val)return;

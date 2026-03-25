@@ -390,7 +390,7 @@ async function renderReports() {
     const preview = post ? post.text.slice(0, 120) + (post.text.length > 120 ? '...' : '') : '[gönderi silinmiş]';
     return `
     <div class="report-card">
-      <div class="report-reason">⚑ ${reasonLabels[r.sebep] || r.sebep || '?'}</div>
+      <div class="report-reason">⚑ ${esc(reasonLabels[r.sebep] || r.sebep || '?')}</div>
       <div class="report-meta">bildiren: @${esc(r.bildiren || '?')} · ${new Date(r.created_at).toLocaleString('tr-TR')}</div>
       <div class="report-post-preview">"${esc(preview)}"</div>
       <div class="item-actions">
