@@ -461,7 +461,7 @@ async function togglePin(id, currentPinned) {
 }
 
 // ── USERS ──
-function renderUsers() {
+async function renderUsers() {
   const users = getUsers();
   const [banned, posts] = await Promise.all([getBanned(), getPosts()]);
   const q = (document.getElementById('userSearch')?.value || '').toLowerCase();
