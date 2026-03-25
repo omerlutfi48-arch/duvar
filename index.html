@@ -59,6 +59,8 @@ body::before{content:'';position:fixed;inset:0;background-image:repeating-linear
 .modal-note{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--muted);margin-top:1rem;line-height:1.6}
 .guest-btn{display:block;width:100%;margin-top:.8rem;background:transparent;border:1px solid var(--border);color:var(--muted);font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.1em;padding:.55rem;cursor:pointer;transition:all .15s;text-align:center}
 .guest-btn:hover{border-color:var(--border2);color:var(--text)}
+.preq{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.06em;color:var(--muted);transition:color .15s}
+.preq.ok{color:#4caf50}
 
 /* HEADER */
 header{position:relative;z-index:10;padding:2rem 2rem 1.5rem;border-bottom:2px solid var(--red);max-width:900px;margin:0 auto}
@@ -631,7 +633,12 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
     </div>
     <div class="modal-err" id="authErr"></div>
     <div class="field"><label>nickname</label><input type="text" id="authNick" placeholder="ör: gece_studiocu" maxlength="20" autocomplete="off"></div>
-    <div class="field"><label>şifre</label><input type="password" id="authPass" placeholder="en az 4 karakter" maxlength="50"></div>
+    <div class="field"><label>şifre</label><input type="password" id="authPass" placeholder="en az 8 karakter" maxlength="50" oninput="checkPassStrength(this.value)"></div>
+    <div class="hidden" id="passReqs" style="margin:-0.6rem 0 1rem;display:flex;flex-direction:column;gap:.25rem">
+      <span class="preq" id="preq-len">✗ en az 8 karakter</span>
+      <span class="preq" id="preq-num">✗ en az 1 rakam</span>
+      <span class="preq" id="preq-upper">✗ en az 1 büyük harf</span>
+    </div>
     <div class="field hidden" id="authConfirmField"><label>şifre tekrar</label><input type="password" id="authPassConfirm" placeholder="şifreni tekrar yaz" maxlength="50"></div>
     <button class="modal-btn" id="authBtn" onclick="handleAuth()">GİRİŞ YAP</button>
     <div class="modal-note" id="authForgotNote">// şifreni unuttuysan yeni hesap açman gerekiyor — anonim platform, kurtarma yok.</div>
@@ -1302,26 +1309,38 @@ function toggleTheme(){
 const esc=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 
 // ── AUTH ──
+function checkPassStrength(val){
+  const set=(id,ok)=>{const el=document.getElementById(id);if(!el)return;el.classList.toggle('ok',ok);el.textContent=(ok?'✓ ':'✗ ')+el.textContent.slice(2);}
+  set('preq-len', val.length>=8);
+  set('preq-num', /\d/.test(val));
+  set('preq-upper', /[A-ZÇĞİÖŞÜ]/.test(val));
+}
 function switchAuthTab(tab){
   activeAuthTab=tab;
   document.querySelectorAll('.modal-tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&tab==='login')||(i===1&&tab==='register')));
   document.getElementById('authBtn').textContent=tab==='login'?'GİRİŞ YAP':'KAYIT OL';
   document.getElementById('authErr').textContent='';
   document.getElementById('authConfirmField').classList.toggle('hidden',tab==='login');
+  document.getElementById('passReqs').classList.toggle('hidden',tab==='login');
   document.getElementById('authForgotNote').classList.toggle('hidden',tab==='register');
   document.getElementById('authRegisterNote').classList.toggle('hidden',tab==='login');
   if(tab==='register')document.getElementById('authPassConfirm').value='';
+  checkPassStrength(document.getElementById('authPass').value);
 }
 async function handleAuth(){
   const nick=document.getElementById('authNick').value.trim().toLowerCase().replace(/\s+/g,'_');
   const pass=document.getElementById('authPass').value;
   const err=document.getElementById('authErr');
   if(nick.length<2){err.textContent='// nickname en az 2 karakter';return;}
-  if(pass.length<4){err.textContent='// şifre en az 4 karakter';return;}
   if(!/^[a-zA-Z0-9_çğıöşüÇĞİÖŞÜ]+$/.test(nick)){err.textContent='// sadece harf, rakam ve _';return;}
   if(activeAuthTab==='register'){
+    if(pass.length<8){err.textContent='// şifre en az 8 karakter';return;}
+    if(!/\d/.test(pass)){err.textContent='// şifre en az 1 rakam içermeli';return;}
+    if(!/[A-ZÇĞİÖŞÜ]/.test(pass)){err.textContent='// şifre en az 1 büyük harf içermeli';return;}
     const confirm=document.getElementById('authPassConfirm').value;
     if(pass!==confirm){err.textContent='// şifreler eşleşmiyor';return;}
+  } else {
+    if(pass.length<4){err.textContent='// şifre en az 4 karakter';return;}
   }
   const hash=await hashPass(pass);
   const users=getUsers();
