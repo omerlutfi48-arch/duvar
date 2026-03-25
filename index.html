@@ -715,8 +715,7 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
     <div class="header-controls">
       <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="tema">◑</button>
       <button class="icon-btn" onclick="openNotifs()" id="notifBtn" title="bildirimler" style="display:none">◉<span class="notif-dot" id="notifDot"></span></button>
-      <button class="icon-btn" onclick="openProfile()" id="profileBtn" title="profil" style="display:none">⊙</button>
-      <span class="user-nick" id="userNickDisplay" style="display:none"></span>
+      <span class="user-nick" id="userNickDisplay" style="display:none;cursor:pointer" onclick="openProfile()" title="profil"></span>
       <button class="icon-btn" onclick="showAuth()" id="loginBtn" title="giriş yap / kayıt ol" style="border-color:var(--red);color:var(--red)">GİR →</button>
     </div>
   </div>
@@ -1368,7 +1367,6 @@ function loginSuccess(nick){
   document.getElementById('writeAsNick').textContent=nick;
   document.getElementById('writeBox').classList.remove('locked');
   document.getElementById('lockNotice').classList.remove('show');
-  document.getElementById('profileBtn').style.display='';
   document.getElementById('notifBtn').style.display='';
   document.getElementById('loginBtn').style.display='none';
   checkNotifDot();render();
@@ -1379,7 +1377,6 @@ function enterAsGuest(){
   document.getElementById('writeBox').classList.add('locked');
   document.getElementById('lockNotice').classList.add('show');
   document.getElementById('userNickDisplay').style.display='none';
-  document.getElementById('profileBtn').style.display='none';
   document.getElementById('notifBtn').style.display='none';
   document.getElementById('loginBtn').style.display='';
   render();
@@ -1399,7 +1396,6 @@ async function deleteAccount(){
   // Çıkış yap
   currentUser=null;
   document.getElementById('userNickDisplay').style.display='none';
-  document.getElementById('profileBtn').style.display='none';
   document.getElementById('notifBtn').style.display='none';
   document.getElementById('loginBtn').style.display='';
   document.getElementById('writeBox').classList.add('locked');
@@ -1411,7 +1407,6 @@ async function deleteAccount(){
 function logout(){
   currentUser=null;localStorage.removeItem(SESSION_KEY);
   document.getElementById('userNickDisplay').style.display='none';
-  document.getElementById('profileBtn').style.display='none';
   document.getElementById('notifBtn').style.display='none';
   document.getElementById('loginBtn').style.display='';
   document.getElementById('writeBox').classList.add('locked');
