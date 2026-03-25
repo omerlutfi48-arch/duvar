@@ -631,8 +631,10 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
     <div class="modal-err" id="authErr"></div>
     <div class="field"><label>nickname</label><input type="text" id="authNick" placeholder="ör: gece_studiocu" maxlength="20" autocomplete="off"></div>
     <div class="field"><label>şifre</label><input type="password" id="authPass" placeholder="en az 4 karakter" maxlength="50"></div>
+    <div class="field hidden" id="authConfirmField"><label>şifre tekrar</label><input type="password" id="authPassConfirm" placeholder="şifreni tekrar yaz" maxlength="50"></div>
     <button class="modal-btn" id="authBtn" onclick="handleAuth()">GİRİŞ YAP</button>
-    <div class="modal-note">// gerçek isim girme. şifren bu cihazda saklanır.</div>
+    <div class="modal-note" id="authForgotNote">// şifreni unuttuysan yeni hesap açman gerekiyor — anonim platform, kurtarma yok.</div>
+    <div class="modal-note hidden" id="authRegisterNote">// gerçek isim girme. nickname bir kez alınır, başkası alamaz.</div>
     <button class="guest-btn" onclick="enterAsGuest()">sadece okumak istiyorum →</button>
   </div>
 </div>
@@ -706,6 +708,7 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
       <button class="icon-btn" onclick="openNotifs()" id="notifBtn" title="bildirimler" style="display:none">◉<span class="notif-dot" id="notifDot"></span></button>
       <button class="icon-btn" onclick="openProfile()" id="profileBtn" title="profil" style="display:none">⊙</button>
       <span class="user-nick" id="userNickDisplay" style="display:none"></span>
+      <button class="icon-btn" onclick="showAuth()" id="loginBtn" title="giriş yap / kayıt ol" style="border-color:var(--red);color:var(--red)">GİR →</button>
     </div>
   </div>
   <div class="site-subtitle">mim okulu · yardımlaşma & dayanışma · <span>anonim</span></div>
@@ -1300,6 +1303,10 @@ function switchAuthTab(tab){
   document.querySelectorAll('.modal-tab').forEach((t,i)=>t.classList.toggle('active',(i===0&&tab==='login')||(i===1&&tab==='register')));
   document.getElementById('authBtn').textContent=tab==='login'?'GİRİŞ YAP':'KAYIT OL';
   document.getElementById('authErr').textContent='';
+  document.getElementById('authConfirmField').classList.toggle('hidden',tab==='login');
+  document.getElementById('authForgotNote').classList.toggle('hidden',tab==='register');
+  document.getElementById('authRegisterNote').classList.toggle('hidden',tab==='login');
+  if(tab==='register')document.getElementById('authPassConfirm').value='';
 }
 async function handleAuth(){
   const nick=document.getElementById('authNick').value.trim().toLowerCase().replace(/\s+/g,'_');
@@ -1308,6 +1315,10 @@ async function handleAuth(){
   if(nick.length<2){err.textContent='// nickname en az 2 karakter';return;}
   if(pass.length<4){err.textContent='// şifre en az 4 karakter';return;}
   if(!/^[a-zA-Z0-9_çğıöşüÇĞİÖŞÜ]+$/.test(nick)){err.textContent='// sadece harf, rakam ve _';return;}
+  if(activeAuthTab==='register'){
+    const confirm=document.getElementById('authPassConfirm').value;
+    if(pass!==confirm){err.textContent='// şifreler eşleşmiyor';return;}
+  }
   const hash=await hashPass(pass);
   const users=getUsers();
   const banned=JSON.parse(localStorage.getItem('duvar_banned')||'[]');
@@ -1331,6 +1342,7 @@ function loginSuccess(nick){
   document.getElementById('lockNotice').classList.remove('show');
   document.getElementById('profileBtn').style.display='';
   document.getElementById('notifBtn').style.display='';
+  document.getElementById('loginBtn').style.display='none';
   checkNotifDot();render();
 }
 function enterAsGuest(){
@@ -1341,6 +1353,7 @@ function enterAsGuest(){
   document.getElementById('userNickDisplay').style.display='none';
   document.getElementById('profileBtn').style.display='none';
   document.getElementById('notifBtn').style.display='none';
+  document.getElementById('loginBtn').style.display='';
   render();
 }
 function showAuth(){document.getElementById('authModal').classList.remove('hidden');}
@@ -1349,6 +1362,7 @@ function logout(){
   document.getElementById('userNickDisplay').style.display='none';
   document.getElementById('profileBtn').style.display='none';
   document.getElementById('notifBtn').style.display='none';
+  document.getElementById('loginBtn').style.display='';
   document.getElementById('writeBox').classList.add('locked');
   document.getElementById('lockNotice').classList.add('show');
   closePanels();showAuth();render();
@@ -2277,6 +2291,14 @@ document.getElementById('mainInput').addEventListener('keydown',e=>{if(e.ctrlKey
 document.getElementById('modPass').addEventListener('keydown',e=>{if(e.key==='Enter')modLogin();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModLogin();});
 document.getElementById('authPass').addEventListener('keydown',e=>{if(e.key==='Enter')handleAuth();});
+document.getElementById('authPassConfirm').addEventListener('keydown',e=>{if(e.key==='Enter')handleAuth();});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey&&e.target.classList.contains('comment-input')){
+    e.preventDefault();
+    const id=e.target.id.replace('ci-','');
+    sendComment(id);
+  }
+});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeReport();closeTerms();closePanels();}});
 
 const session=getSession();
