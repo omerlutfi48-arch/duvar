@@ -300,19 +300,25 @@ function getUsers() { try { return JSON.parse(localStorage.getItem('duvar_users'
 let isAdmin = false;
 
 async function adminLogin() {
-  const email = document.getElementById('adminEmail')?.value || document.getElementById('adminPass')?.dataset?.email || '';
+  const email = (document.getElementById('adminEmail')?.value || '').trim();
   const pass = document.getElementById('adminPass').value;
   const err = document.getElementById('loginErr');
+  if (!email) { err.textContent = '// e-posta boş'; return; }
+  if (!pass) { err.textContent = '// şifre boş'; return; }
   err.textContent = '// giriş yapılıyor...';
-  const {data, error} = await sb.auth.signInWithPassword({email, password: pass});
-  if (error) {
-    err.textContent = '// hata: ' + (error.message === 'Invalid login credentials' ? 'e-posta veya şifre yanlış' : error.message);
-    document.getElementById('adminPass').value = '';
-    return;
+  try {
+    const {data, error} = await sb.auth.signInWithPassword({email, password: pass});
+    if (error) {
+      err.textContent = '// ' + (error.message === 'Invalid login credentials' ? 'e-posta veya şifre yanlış' : error.message);
+      document.getElementById('adminPass').value = '';
+      return;
+    }
+    isAdmin = true;
+    document.getElementById('loginScreen').classList.add('hidden');
+    initPanel();
+  } catch(e) {
+    err.textContent = '// bağlantı hatası: ' + e.message;
   }
-  isAdmin = true;
-  document.getElementById('loginScreen').classList.add('hidden');
-  initPanel();
 }
 
 async function adminLogout() {
