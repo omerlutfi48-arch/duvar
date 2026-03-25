@@ -1232,9 +1232,9 @@ async function sbFeedback(tip,mesaj){
 
 // Realtime: yeni post, güncelleme, yorum gelince otomatik yükle
 sb.channel('duvar-realtime')
-  .on('postgres_changes',{event:'*',schema:'public',table:'posts'},()=>loadPosts())
-  .on('postgres_changes',{event:'INSERT',schema:'public',table:'yorumlar'},()=>loadPosts())
-  .subscribe();
+  .on('postgres_changes',{event:'*',schema:'public',table:'posts'},()=>{console.log('[realtime] posts değişti');loadPosts();})
+  .on('postgres_changes',{event:'INSERT',schema:'public',table:'yorumlar'},()=>{console.log('[realtime] yorum geldi');loadPosts();})
+  .subscribe(status=>console.log('[realtime] durum:',status));
 
 // ── MODERATÖR ──
 function openModLogin(){document.getElementById('modLoginModal').classList.remove('hidden');document.getElementById('modEmail').focus();}
