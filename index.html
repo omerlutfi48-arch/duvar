@@ -1222,8 +1222,11 @@ async function sbFeedback(tip,mesaj){
   return !error;
 }
 
-// Realtime: başka kullanıcı post atınca güncelle
-sb.channel('posts').on('postgres_changes',{event:'INSERT',schema:'public',table:'posts'},()=>loadPosts()).subscribe();
+// Realtime: yeni post, güncelleme, yorum gelince otomatik yükle
+sb.channel('duvar-realtime')
+  .on('postgres_changes',{event:'*',schema:'public',table:'posts'},()=>loadPosts())
+  .on('postgres_changes',{event:'INSERT',schema:'public',table:'yorumlar'},()=>loadPosts())
+  .subscribe();
 
 // ── MODERATÖR ──
 function openModLogin(){document.getElementById('modLoginModal').classList.remove('hidden');document.getElementById('modEmail').focus();}
@@ -1413,6 +1416,7 @@ const typeL={dert:'// dert',soru:'? soru',kaynak:'↗ kaynak',acil:'! acil'};
 
 function render(){
   const grid=document.getElementById('postsGrid');
+  const savedScroll=window.scrollY;
   const q=(document.getElementById('searchInput')?.value||'').toLowerCase().trim();
   let filtered=[...posts];
   if(activeFilter.kind!=='all'){filtered=filtered.filter(p=>p[activeFilter.kind]===activeFilter.val);}
@@ -1458,6 +1462,7 @@ function render(){
       </div>
     </div>`;
   }).join('');
+  requestAnimationFrame(()=>window.scrollTo(0,savedScroll));
 }
 
 // ── ACTIONS ──

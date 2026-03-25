@@ -313,6 +313,11 @@ async function adminLogin() {
       document.getElementById('adminPass').value = '';
       return;
     }
+    if (data.user.email !== ADMIN_EMAIL) {
+      await sb.auth.signOut();
+      err.textContent = '// bu hesabın admin yetkisi yok';
+      return;
+    }
     isAdmin = true;
     document.getElementById('loginScreen').classList.add('hidden');
     initPanel();
@@ -342,10 +347,18 @@ async function initPanel() {
   document.getElementById('adminMeta').textContent = `// giriş yapıldı · ${new Date().toLocaleString('tr-TR')}`;
 }
 
-// Oturum kontrolü
+const ADMIN_EMAIL = 'omerlutfi48@gmail.com';
+
+// Oturum kontrolü — sadece admin e-postası kabul edilir
 (async () => {
   const {data:{session}} = await sb.auth.getSession();
-  if (session) { isAdmin = true; document.getElementById('loginScreen').classList.add('hidden'); initPanel(); }
+  if (session && session.user.email === ADMIN_EMAIL) {
+    isAdmin = true;
+    document.getElementById('loginScreen').classList.add('hidden');
+    initPanel();
+  } else if (session) {
+    await sb.auth.signOut(); // mod oturumunu temizle
+  }
 })();
 
 async function updateStats() {
