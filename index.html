@@ -600,6 +600,9 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
 .footer-left{font-family:'Space Mono',monospace;font-size:.68rem;color:var(--muted);letter-spacing:.08em}
 .terms-link{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--muted);background:transparent;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .terms-link:hover{color:var(--text)}
+/* FEEDBACK FLOAT BTN */
+.feedback-float{position:fixed;bottom:1.5rem;left:1.5rem;z-index:400;font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.08em;background:var(--surface);border:1px solid var(--yellow);color:var(--yellow);padding:.5rem 1rem;cursor:pointer;transition:all .2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)}
+.feedback-float:hover{background:var(--yellow);color:#000}
 
 /* EMPTY */
 .empty-state{text-align:center;padding:3rem 1rem}
@@ -1168,6 +1171,9 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
     <div class="ilanlar-grid" id="ilanlarGrid"></div>
   </div>
 </main>
+
+<!-- FEEDBACK FLOAT -->
+<button class="feedback-float" onclick="openFeedback()" title="öneri & şikayet">💬 öneri / şikayet</button>
 
 <!-- GERİ BİLDİRİM MODAL -->
 <div class="feedback-modal hidden" id="feedbackModal">
