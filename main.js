@@ -529,6 +529,147 @@ function _renderPaletData(data){
   });
 }
 
+// ── YAPAY ZEKA İPUÇLARI ──
+const AI_DATA={
+  konsept:[
+    {baslik:'Konsept Üretimi',arac:'ChatGPT / Claude',prompts:[
+      '"[fonksiyon] için 5 farklı kavramsal yaklaşım öner. Her birini 2 cümleyle açıkla."',
+      '"[konsept kelimesi] kavramını mimarlığa nasıl çevirebilirim? Somut mekansal öneriler ver."',
+      '"Bu konsepti jüri diline çevir: [kendi cümlelerinle yazdığın konsept]"',
+      '"[proje programı] için zıt iki konsept geliştir. Hangisi daha güçlü ve neden?"'
+    ]},
+    {baslik:'Referans Bulma',arac:'ChatGPT / Perplexity',prompts:[
+      '"[fonksiyon + bağlam] için 5 ilham verici yapı öner. Mimar, yıl ve öne çıkan özelliğini belirt."',
+      '"[mimar adı] bu projeyi nasıl ele alırdı? Onun dilinde bir konsept yaz."',
+      '"[malzeme] kullanan ödüllü yapılar? Archdaily veya Dezeen\'den örnekler."'
+    ]},
+    {baslik:'Program & Bağlam Analizi',arac:'Claude / ChatGPT',prompts:[
+      '"[arsa büyüklüğü] m² arsaya [fonksiyon listesi] sığdır, oran ve hiyerarşi öner."',
+      '"[kent / mahalle] bağlamında yapılacak [fonksiyon] için sosyal ve kültürel analiz yap."'
+    ]}
+  ],
+  gorsel:[
+    {baslik:'Midjourney Promptları',arac:'Midjourney',prompts:[
+      '"architectural concept sketch, [stil], black pen on white paper, minimalist --ar 16:9"',
+      '"[malzeme] facade, [iklim] climate, natural light, architectural photography --ar 3:2"',
+      '"[fonksiyon] interior, [atmosfer], warm light, material study, photorealistic --ar 16:9"',
+      '"site plan diagram, [bağlam], aerial view, minimal color palette, architectural drawing"'
+    ]},
+    {baslik:'DALL-E / Adobe Firefly',arac:'ChatGPT / Adobe',prompts:[
+      '"Bir mimarlık stüdyosu için concept board: [tema], [renk paleti], kolaj tarzı"',
+      '"[proje adı] için logo tasarımı: geometrik, [iki renk], modern, mimari tema"',
+      '"[malzeme] doku çalışması, makro fotoğraf kalitesinde, sunum için"'
+    ]},
+    {baslik:'Stable Diffusion İpuçları',arac:'Stable Diffusion',prompts:[
+      '"img2img: eskiz çizimini render\'a çevirmek için kendi çizimini yükle"',
+      '"ControlNet + depth map: 3D modelinden fotoğrafçı render üret"',
+      '"inpaint: renderdaki belirli bir bölümü (pencere, cephe, peyzaj) değiştir"'
+    ]}
+  ],
+  sunum:[
+    {baslik:'Jüri Hazırlığı',arac:'Claude / ChatGPT',prompts:[
+      '"Bu projeyi 2 dakikada anlatacak sunum metni yaz: [proje özeti]"',
+      '"Jüri bana [konu] hakkında soru sorabilir. Güçlü 3 cevap hazırla."',
+      '"Tasarım kararlarımı eleştir: [kararlar]. Jüri ne sorabilir?"',
+      '"Bu metni akademik ve özgüvenli jüri diline çevir: [metin]"'
+    ]},
+    {baslik:'Sunum Düzeni',arac:'ChatGPT / Claude',prompts:[
+      '"A0 paftam için içerik hiyerarşisi öner: [ne var elimde]. Hangi sırayla dizmeliyim?"',
+      '"Bu projenin 8 slaytlık sunum iskeletini oluştur: [proje adı ve özeti]"',
+      '"Başlık, alt başlık ve açıklama metinlerini kısalt, paftaya sığdır: [metinler]"'
+    ]},
+    {baslik:'Diyagram & Şema',arac:'ChatGPT',prompts:[
+      '"Sirkülasyon diyagramı için hangi semboller kullanılmalı? SVG kodu ver."',
+      '"[kavram] için mimari diyagram nasıl çizilir? Adım adım anlat."'
+    ]}
+  ],
+  arastirma:[
+    {baslik:'Literatür & Yapı Analizi',arac:'Perplexity / Claude',prompts:[
+      '"[yapı adı, mimar] projesinin tasarım sürecini ve ana kararlarını analiz et."',
+      '"[dönem veya akım] mimarisinin temel ilkeleri neler? Akademik kaynaklarla açıkla."',
+      '"[ülke/bölge] geleneksel mimarlığında [konu: iklim, malzeme, avlu] nasıl çözülmüş?"'
+    ]},
+    {baslik:'Yönetmelik & Teknik',arac:'ChatGPT / Claude',prompts:[
+      '"Türkiye\'de [fonksiyon] yapısı için imar yönetmeliği şartları neler?"',
+      '"LEED / BREEAM sertifikası almak için tasarım aşamasında nelere dikkat edilmeli?"',
+      '"[yapı türü] için yangın yönetmeliği gereklilikleri: çıkış, merdiven, koridorlar."'
+    ]},
+    {baslik:'Kaynak & Okuma',arac:'Perplexity / Consensus',prompts:[
+      '"[konu] üzerine mimarlık teorisi alanında temel okunacak 5 kitap öner."',
+      '"[mimar] hakkında peer-reviewed makale var mı? Kısaca özetle."',
+      '"Archdaily\'de [fonksiyon + bağlam] filtresiyle arama stratejisi öner."'
+    ]}
+  ],
+  teknik:[
+    {baslik:'Grasshopper / Rhino Scripting',arac:'ChatGPT / GitHub Copilot',prompts:[
+      '"Bu Grasshopper bileşeni neden hata veriyor? [hata mesajı veya ekran görüntüsü]"',
+      '"Parametrik [form] oluşturmak için Grasshopper mantığını adım adım anlat."',
+      '"RhinoScript ile [işlem] yapmak istiyorum. Python kodu yaz."'
+    ]},
+    {baslik:'AutoCAD / Revit Makroları',arac:'ChatGPT',prompts:[
+      '"AutoCAD\'de tüm [layer] nesnelerini seçip [işlem] yapan LISP kodu yaz."',
+      '"Revit API ile [işlem] otomatikleştiren Python kodu yaz."',
+      '"DXF dosyasını Python ile okuyup [veri] çıkaran kod yaz."'
+    ]},
+    {baslik:'Yapısal & Mekanik Hesap',arac:'ChatGPT / Wolfram',prompts:[
+      '"[açıklık] m kirişin ön boyutlandırması için basit kural öner (betonarme/çelik)."',
+      '"[iklim] için güneş kırıcı boyutlandırması nasıl yapılır? Formül ver."',
+      '"[hacim] m³ ofis için mekanik tesisat ön hesabı: havalandırma debisi ve kanal boyutu."'
+    ]}
+  ],
+  rapor:[
+    {baslik:'Rapor Yazımı',arac:'Claude / ChatGPT',prompts:[
+      '"Bu tasarım açıklamama akademik ton kat: [metin]. Türkçe, 1. çoğul şahıs kullan."',
+      '"[proje] için 500 kelimelik tasarım raporu giriş bölümü yaz. Bağlam + problem + yaklaşım."',
+      '"Bu cümleleri birleştir, tekrarı kaldır, akıcı hale getir: [metin]"'
+    ]},
+    {baslik:'Çeviri & Dil',arac:'DeepL / ChatGPT',prompts:[
+      '"Bu mimari metni Türkçe\'den İngilizce\'ye çevir, teknik terimler doğru olsun: [metin]"',
+      '"Abstract için 150 kelimelik İngilizce özet yaz: [proje açıklaması]"',
+      '"Bu İngilizce reddiyeyi Türkçe\'ye çevir ve ana argümanları listele: [metin]"'
+    ]},
+    {baslik:'Dipnot & Kaynak',arac:'Claude / Zotero + ChatGPT',prompts:[
+      '"Bu alıntı için APA 7 formatında kaynak oluştur: [yazar, başlık, yıl, yayınevi]"',
+      '"[konu] üzerine akademik kaynak ararken Google Scholar\'da nasıl filtre kullanırım?"',
+      '"Bu metinde kullandığım alıntıları tespit et ve kaynak listesi oluştur: [metin]"'
+    ]}
+  ]
+};
+let aktifAi='konsept';
+function switchAiTab(tab){
+  aktifAi=tab;
+  document.querySelectorAll('#aiTablar .yazilim-tab').forEach(b=>b.classList.toggle('active',b.dataset.ai===tab));
+  renderAi(tab);
+}
+function renderAi(tab){
+  aktifAi=tab;
+  document.querySelectorAll('#aiTablar .yazilim-tab').forEach(b=>b.classList.toggle('active',b.dataset.ai===tab));
+  const el=document.getElementById('aiContent');
+  if(!el)return;
+  const kategoriler=AI_DATA[tab]||[];
+  let html='<div class="yazilim-kategoriler">';
+  kategoriler.forEach(function(kat){
+    html+='<div class="yazilim-kat">'
+      +'<div class="yazilim-kat-baslik">'+kat.baslik+' <span style="font-size:.58rem;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">// '+kat.arac+'</span></div>'
+      +'<div class="yazilim-komutlar">';
+    kat.prompts.forEach(function(p){
+      html+='<div class="ai-prompt" data-prompt="'+p.replace(/"/g,'&quot;')+'">'
+        +'<div class="ai-prompt-text">'+p+'</div>'
+        +'<button class="ai-kopyala-btn" title="kopyala">⎘</button>'
+        +'</div>';
+    });
+    html+='</div></div>';
+  });
+  html+='</div>';
+  el.innerHTML=html;
+  el.querySelectorAll('.ai-prompt').forEach(function(card){
+    card.querySelector('.ai-kopyala-btn').addEventListener('click',function(){
+      const text=card.dataset.prompt.replace(/&quot;/g,'"');
+      navigator.clipboard.writeText(text).then(function(){toast('// prompt kopyalandı');}).catch(function(){toast('// kopyalanamadı');});
+    });
+  });
+}
+
 // ── CV ŞABLONU ──
 function renderCvPreview(){
   const g=id=>document.getElementById(id)?.value||'';
@@ -1283,7 +1424,7 @@ function dismissWelcome(){
 
 // ── ARAÇLAR: ALT SEKME ──
 function switchArac(tab){
-  ['sayac','juri','olcek','alan','bingo','fikir','yazilim','program2','palet','cv'].forEach(t=>{
+  ['sayac','juri','olcek','alan','bingo','fikir','yazilim','program2','palet','cv','ai'].forEach(t=>{
     document.getElementById('arac-'+t).classList.toggle('active',t===tab);
     document.getElementById('arac-tab-'+t).classList.toggle('active',t===tab);
   });
@@ -1294,6 +1435,7 @@ function switchArac(tab){
   if(tab==='program2')renderProgramSonuc();
   if(tab==='palet')renderPalet();
   if(tab==='cv')renderCvPreview();
+  if(tab==='ai')renderAi('konsept');
 }
 
 // ── TESLİM SAYACI ──
@@ -2242,6 +2384,9 @@ if(programKat)programKat.addEventListener('input',renderProgramSonuc);
 document.querySelectorAll('.palet-kat[data-palet]').forEach(b=>b.addEventListener('click',()=>setPalet(b.dataset.palet)));
 const paletUretBtn=document.getElementById('paletUretBtn');
 if(paletUretBtn)paletUretBtn.addEventListener('click',renderPalet);
+
+// Araç: Yapay Zeka
+document.querySelectorAll('#aiTablar .yazilim-tab[data-ai]').forEach(b=>b.addEventListener('click',()=>switchAiTab(b.dataset.ai)));
 
 // Araç: CV şablonu
 document.querySelectorAll('.cv-input,.cv-textarea').forEach(el=>el.addEventListener('input',renderCvPreview));

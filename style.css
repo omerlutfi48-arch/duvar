@@ -750,3 +750,10 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
 .cvp-tags{display:flex;flex-wrap:wrap;gap:.3rem}
 .cvp-tag{font-size:.62rem;background:#f0f0f0;color:#333;padding:.1rem .4rem;border-radius:2px}
 @media(max-width:700px){.cv-layout{grid-template-columns:1fr}.cv-preview-col{position:static}}
+
+/* YAPAY ZEKA İPUÇLARI */
+.ai-prompt{display:flex;align-items:flex-start;gap:.5rem;padding:.5rem .6rem;background:var(--surface2);border-left:2px solid var(--border2);margin-bottom:.4rem;cursor:default;transition:border-color .15s}
+.ai-prompt:hover{border-color:var(--yellow)}
+.ai-prompt-text{font-family:var(--ff-mono);font-size:.67rem;color:var(--text2);line-height:1.6;flex:1}
+.ai-kopyala-btn{font-size:.75rem;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.1rem .4rem;cursor:pointer;flex-shrink:0;transition:all .15s;font-family:var(--ff-mono)}
+.ai-kopyala-btn:hover{border-color:var(--yellow);color:var(--yellow)}
