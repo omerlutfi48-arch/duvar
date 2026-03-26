@@ -1746,7 +1746,45 @@ function logout(){
 }
 
 // ── NAV ──
-function switchNav(tab){
+const NAV_META={
+  duvar:{
+    title:'DUVAR — Mimarlık Öğrencileri için Anonim Yardımlaşma',
+    desc:'Mimarlık öğrencileri için anonim yardımlaşma platformu. Dert anlat, soru sor, kaynak paylaş. Hoca yok, yargı yok.',
+    url:'https://duvar.app/'
+  },
+  rehber:{
+    title:'Mimarlık Öğrenci Rehberi — DUVAR',
+    desc:'Mimarlık öğrencileri için stüdyo ipuçları, proje süreci, teslim hazırlığı ve dayanışma kaynakları.',
+    url:'https://duvar.app/#rehber'
+  },
+  sozluk:{
+    title:'Mimarlık Sözlüğü — DUVAR',
+    desc:'Mimarlık terimleri sözlüğü. Charrette, form, mekan, yapı sistemi, cephe, plan ve yüzlerce mimarlık kavramı.',
+    url:'https://duvar.app/#sozluk'
+  },
+  araclar:{
+    title:'Mimarlık Araçları — Alan & Ölçek Hesaplayıcı — DUVAR',
+    desc:'Mimarlık öğrencileri için online araçlar: alan hesaplayıcı, ölçek dönüştürücü, program sayacı.',
+    url:'https://duvar.app/#araclar'
+  },
+  mimarlar:{
+    title:'Dünyadan Önemli Mimarlar — DUVAR',
+    desc:'Tarihin ve günümüzün önemli mimarları: Le Corbusier, Zaha Hadid, Frank Lloyd Wright ve daha fazlası.',
+    url:'https://duvar.app/#mimarlar'
+  },
+  ilanlar:{
+    title:'Mimarlık Staj ve İş İlanları — DUVAR',
+    desc:'Mimarlık ofislerinden öğrencilere yönelik staj ve iş ilanları. Güncel fırsatlar.',
+    url:'https://duvar.app/#ilanlar'
+  },
+  etkinlik:{
+    title:'Mimarlık Etkinlikleri & Yarışmalar — DUVAR',
+    desc:'Mimarlık öğrencilerine yönelik etkinlikler, workshoplar, seminerler ve yarışmalar.',
+    url:'https://duvar.app/#etkinlik'
+  }
+};
+
+function switchNav(tab,pushState=true){
   document.getElementById('section-duvar').style.display=tab==='duvar'?'block':'none';
   ['rehber','sozluk','araclar','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('section-'+t).classList.toggle('active',t===tab));
   ['duvar','rehber','sozluk','araclar','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active',t===tab));
@@ -1755,7 +1793,32 @@ function switchNav(tab){
   if(tab==='araclar')renderSayac();
   if(tab==='ilanlar')renderIlanlar();
   if(tab==='etkinlik')renderEtkinlikler();
+  // URL + meta güncelle
+  const m=NAV_META[tab]||NAV_META.duvar;
+  if(pushState)history.pushState({tab},m.title,tab==='duvar'?location.pathname:'#'+tab);
+  document.title=m.title;
+  document.querySelector('meta[name="description"]').setAttribute('content',m.desc);
+  document.querySelector('link[rel="canonical"]').setAttribute('href',m.url);
+  document.querySelector('meta[property="og:title"]').setAttribute('content',m.title);
+  document.querySelector('meta[property="og:description"]').setAttribute('content',m.desc);
+  document.querySelector('meta[property="og:url"]').setAttribute('content',m.url);
+  document.querySelector('meta[name="twitter:title"]').setAttribute('content',m.title);
+  document.querySelector('meta[name="twitter:description"]').setAttribute('content',m.desc);
 }
+
+// Hash'ten sekmeye git
+window.addEventListener('popstate',e=>{
+  const tab=(e.state?.tab)||(location.hash.replace('#',''))||'duvar';
+  const valid=['duvar','rehber','sozluk','araclar','mimarlar','ilanlar','etkinlik'];
+  switchNav(valid.includes(tab)?tab:'duvar',false);
+});
+
+// İlk yüklemede hash kontrolü
+(()=>{
+  const hash=location.hash.replace('#','');
+  const valid=['rehber','sozluk','araclar','mimarlar','ilanlar','etkinlik'];
+  if(valid.includes(hash))switchNav(hash,false);
+})();
 
 // ── FILTER ──
 function setFilter(val,el,kind='all'){
