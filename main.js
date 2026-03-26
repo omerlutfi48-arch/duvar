@@ -2037,5 +2037,9 @@ if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');l
   await loadPosts();
   handlePermalink();
   restoreDraft();
+  // ziyaret kaydı — bot/crawler hariç
+  if(!navigator.userAgent.match(/bot|crawl|spider|slurp|facebook|twitter/i)){
+    sb.from('page_views').insert({}).then(()=>{});
+  }
 })();
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}

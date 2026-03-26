@@ -52,26 +52,23 @@ document.getElementById('adminPass').addEventListener('keydown', e => {
 
 // ── AKTİVİTE GRAFİĞİ ──
 async function renderActivityChart(){
-  // tek sorguda son 7 günün tüm postlarını çek
   const now = new Date();
   const since = new Date(now);
   since.setDate(since.getDate() - 6);
   since.setHours(0, 0, 0, 0);
 
-  const { data } = await sb.from('posts')
+  const { data } = await sb.from('page_views')
     .select('created_at')
     .gte('created_at', since.toISOString());
 
-  // her günü YYYY-MM-DD (local tz) anahtarıyla say
+  // UTC → local tarih anahtarıyla say
   const dayMap = {};
   (data || []).forEach(row => {
     const d = new Date(row.created_at);
-    // UTC→local offset düzeltmesi
     const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     dayMap[key] = (dayMap[key] || 0) + 1;
   });
 
-  // son 7 günün etiket + sayılarını oluştur
   const labels = [], counts = [];
   for(let i = 6; i >= 0; i--){
     const d = new Date(now);
@@ -86,7 +83,7 @@ async function renderActivityChart(){
   el.innerHTML = counts.map((c, i) => `
     <div class="chart-col">
       <div class="chart-val">${c}</div>
-      <div class="chart-bar" style="height:${Math.max(Math.round(c/max*70), c > 0 ? 8 : 2)}px${c === 0 ? ';opacity:0.3' : ''}" title="${labels[i]}: ${c} gönderi"></div>
+      <div class="chart-bar" style="height:${Math.max(Math.round(c/max*70), c > 0 ? 8 : 2)}px${c === 0 ? ';opacity:0.3' : ''}" title="${labels[i]}: ${c} ziyaret"></div>
       <div class="chart-day">${labels[i]}</div>
     </div>`).join('');
 }
