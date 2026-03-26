@@ -498,21 +498,35 @@ let aktifPalet='beton';
 function setPalet(palet){
   aktifPalet=palet;
   document.querySelectorAll('.palet-kat').forEach(b=>b.classList.toggle('active',b.dataset.palet===palet));
+  _renderPaletData(PALET_DATA[palet]);
 }
 function renderPalet(){
-  const data=PALET_DATA[aktifPalet];
+  // Rastgele palet seç
+  const keys=Object.keys(PALET_DATA);
+  const key=keys[Math.floor(Math.random()*keys.length)];
+  aktifPalet=key;
+  document.querySelectorAll('.palet-kat').forEach(b=>b.classList.toggle('active',b.dataset.palet===key));
+  _renderPaletData(PALET_DATA[key]);
+}
+function _renderPaletData(data){
   const el=document.getElementById('paletSonuc');
   if(!el||!data)return;
-  el.innerHTML=`
-  <div class="palet-sonuc-label">${esc(data.label)}</div>
-  <div class="palet-renkler">${data.renkler.map(r=>`
-    <div class="palet-renk" onclick="navigator.clipboard.writeText('${r.hex}').then(()=>toast('// ${r.hex} kopyalandı'))" title="Tıkla → kopyala">
-      <div class="palet-renk-swatch" style="background:${r.hex}"></div>
-      <div class="palet-renk-hex">${r.hex}</div>
-      <div class="palet-renk-ad">${esc(r.ad)}</div>
-    </div>`).join('')}
-  </div>
-  <div class="palet-not">// herhangi bir renk kutusuna tıkla → hex kodunu kopyalar</div>`;
+  let html='<div class="palet-sonuc-label">'+data.label+'</div><div class="palet-renkler">';
+  data.renkler.forEach(function(r){
+    html+='<div class="palet-renk" data-hex="'+r.hex+'" title="Tıkla → kopyala">'
+      +'<div class="palet-renk-swatch" style="background:'+r.hex+'"></div>'
+      +'<div class="palet-renk-hex">'+r.hex+'</div>'
+      +'<div class="palet-renk-ad">'+r.ad+'</div>'
+      +'</div>';
+  });
+  html+='</div><div class="palet-not">// herhangi bir renk kutusuna tıkla → hex kodunu kopyalar</div>';
+  el.innerHTML=html;
+  el.querySelectorAll('.palet-renk[data-hex]').forEach(function(card){
+    card.addEventListener('click',function(){
+      var hex=card.dataset.hex;
+      navigator.clipboard.writeText(hex).then(function(){toast('// '+hex+' kopyalandı');}).catch(function(){toast('// '+hex);});
+    });
+  });
 }
 
 // ── CV ŞABLONU ──
@@ -2225,7 +2239,7 @@ const programKat=document.getElementById('programKat');
 if(programKat)programKat.addEventListener('input',renderProgramSonuc);
 
 // Araç: Renk paleti
-document.querySelectorAll('.palet-kat[data-palet]').forEach(b=>b.addEventListener('click',()=>{setPalet(b.dataset.palet);renderPalet();}));
+document.querySelectorAll('.palet-kat[data-palet]').forEach(b=>b.addEventListener('click',()=>setPalet(b.dataset.palet)));
 const paletUretBtn=document.getElementById('paletUretBtn');
 if(paletUretBtn)paletUretBtn.addEventListener('click',renderPalet);
 
