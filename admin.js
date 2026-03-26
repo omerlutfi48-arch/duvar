@@ -90,6 +90,7 @@ async function renderActivityChart(){
 
 // ── INIT ──
 async function initPanel() {
+  autoCleanIfNeeded(); // 7 günde bir page_views temizle (arka planda)
   await updateStats();
   renderActivityChart();
   renderTagAnalytics();
@@ -190,6 +191,27 @@ async function cleanOldFeedback() {
   if(error){el.textContent='// hata: '+error.message;el.style.color='#c0392b';}
   else{el.textContent=`// ${count??0} çözülmüş bildirim silindi`;el.style.color='#4caf50';}
   await updateStats();
+}
+
+async function cleanPageViews(auto=false) {
+  const cutoff = new Date(Date.now() - 30*24*60*60*1000).toISOString();
+  const {count,error} = await sb.from('page_views').delete({count:'exact'}).lt('created_at',cutoff);
+  localStorage.setItem('duvar_pv_cleanup', Date.now().toString());
+  if(!auto){
+    const el = document.getElementById('cleanResult');
+    if(error){el.textContent='// hata: '+error.message;el.style.color='#c0392b';}
+    else{el.textContent=`// ${count??0} eski ziyaret kaydı silindi`;el.style.color='#4caf50';}
+    await updateStats();
+  }
+}
+
+async function autoCleanIfNeeded() {
+  const last = parseInt(localStorage.getItem('duvar_pv_cleanup')||'0');
+  const yediGun = 7*24*60*60*1000;
+  if(Date.now() - last > yediGun){
+    await cleanPageViews(true);
+    console.log('[admin] page_views otomatik temizlendi');
+  }
 }
 
 // ── TABS ──
