@@ -64,6 +64,7 @@
     <div class="stat-box"><div class="stat-num" id="statYorumlar">—</div><div class="stat-label">toplam yorum</div></div>
     <div class="stat-box"><div class="stat-num" id="statMesajlar">—</div><div class="stat-label">dm mesajı</div></div>
     <div class="stat-box"><div class="stat-num" id="statBegeni">—</div><div class="stat-label">beğeni</div></div>
+    <div class="stat-box"><div class="stat-num green" id="statActive">—</div><div class="stat-label">aktif (30 dk)</div></div>
   </div>
   <div style="margin-bottom:2rem;display:flex;gap:.6rem;flex-wrap:wrap">
     <button class="action-btn warn" onclick="cleanOldDMs()">🧹 90+ günlük DM'leri sil</button>
@@ -71,10 +72,16 @@
     <div id="cleanResult" style="font-family:'Space Mono',monospace;font-size:.65rem;color:#4caf50;align-self:center"></div>
   </div>
 
-  <!-- AKTİVİTE GRAFİĞİ -->
-  <div class="chart-wrap">
-    <div class="chart-title">// son 7 gün · ziyaretçi aktivitesi</div>
-    <div class="chart-bars" id="activityChart"></div>
+  <!-- AKTİVİTE GRAFİĞİ + TAG ANALİTİKLERİ -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem;flex-wrap:wrap">
+    <div class="chart-wrap" style="margin-bottom:0">
+      <div class="chart-title">// son 7 gün · ziyaretçi aktivitesi</div>
+      <div class="chart-bars" id="activityChart"></div>
+    </div>
+    <div class="chart-wrap" style="margin-bottom:0">
+      <div class="chart-title">// en çok kullanılan taglar</div>
+      <div id="tagAnalytics" style="padding:.5rem 0"></div>
+    </div>
   </div>
 
   <!-- TABS -->

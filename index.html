@@ -664,6 +664,25 @@
   ⚡ MOD MODU AKTİF · postların üzerinde yönetim butonları görünür · <button id="modBarLogoutBtn" style="background:transparent;border:none;color:var(--yellow);font-family:inherit;font-size:inherit;cursor:pointer;text-decoration:underline">çıkış yap</button>
 </div>
 
+<!-- MOBİL BOTTOM NAV -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="bnav-btn active" id="bnav-duvar" onclick="switchNav('duvar');updateBottomNav('duvar')">
+    <span class="bnav-icon">⬚</span>duvar
+  </button>
+  <button class="bnav-btn" id="bnav-ilanlar" onclick="switchNav('ilanlar');updateBottomNav('ilanlar')">
+    <span class="bnav-icon">💼</span>ilanlar
+  </button>
+  <button class="bnav-btn" id="bnav-etkinlik" onclick="switchNav('etkinlik');updateBottomNav('etkinlik')">
+    <span class="bnav-icon">📅</span>etkinlik
+  </button>
+  <button class="bnav-btn" id="bnav-notif" onclick="openNotifs()">
+    <span class="bnav-notif bnav-icon">◉<span class="bnav-dot" id="bnavNotifDot"></span></span>bildirim
+  </button>
+  <button class="bnav-btn" id="bnav-profil" onclick="currentUser?openProfile():showAuth()">
+    <span class="bnav-icon">◎</span>profil
+  </button>
+</nav>
+
 <script src="utils.js"></script>
 <script src="main.js"></script>
 </body>

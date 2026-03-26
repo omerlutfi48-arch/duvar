@@ -230,6 +230,8 @@ async function modBan(nick){
 // ── STATE ──
 let currentUser=null,activeFilter={kind:'all',val:''},selectedMood=null,selectedType=null,activeAuthTab='login',activeSort='new',isModerator=false;
 let activeTag=null;
+let visibleCount=20;
+const PAGE_SIZE=20;
 
 let posts=[];
 let bookmarks=JSON.parse(localStorage.getItem('duvar_bookmarks')||'[]');
@@ -237,7 +239,7 @@ let reportedPosts=new Set(JSON.parse(localStorage.getItem('duvar_reported')||'[]
 let anketOpen=false;
 
 // ── TAG ──
-function setTagFilter(tag){activeTag=activeTag===tag?null:tag;render();}
+function setTagFilter(tag){activeTag=activeTag===tag?null:tag;visibleCount=PAGE_SIZE;render();}
 
 // ── DRAFT ──
 let draftTimer=null;
@@ -319,27 +321,44 @@ function toggleBookmark(id){
 }
 
 // ── THEME ──
+const THEME_CYCLE=['dark','warm','light'];
+const THEME_ICON={dark:'◑',warm:'◕',light:'◐'};
 function toggleTheme(){
-  const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
-  document.documentElement.setAttribute('data-theme',t);
-  localStorage.setItem('duvar_theme',t);
-  document.getElementById('themeBtn').textContent=t==='dark'?'◑':'◐';
+  const curr=document.documentElement.getAttribute('data-theme')||'dark';
+  const next=THEME_CYCLE[(THEME_CYCLE.indexOf(curr)+1)%THEME_CYCLE.length];
+  document.documentElement.setAttribute('data-theme',next);
+  localStorage.setItem('duvar_theme',next);
+  document.getElementById('themeBtn').textContent=THEME_ICON[next]||'◑';
 }
 (()=>{
   const saved=localStorage.getItem('duvar_theme');
   const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
   const t=saved||sys;
   document.documentElement.setAttribute('data-theme',t);
-  document.getElementById('themeBtn').textContent=t==='dark'?'◑':'◐';
+  document.getElementById('themeBtn').textContent=THEME_ICON[t]||'◑';
   if(!saved){
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',e=>{
       if(localStorage.getItem('duvar_theme'))return;
       const nt=e.matches?'dark':'light';
       document.documentElement.setAttribute('data-theme',nt);
-      document.getElementById('themeBtn').textContent=nt==='dark'?'◑':'◐';
+      document.getElementById('themeBtn').textContent=THEME_ICON[nt]||'◑';
     });
   }
 })();
+
+// ── BOTTOM NAV ──
+function updateBottomNav(active){
+  ['duvar','ilanlar','etkinlik'].forEach(id=>{
+    document.getElementById('bnav-'+id)?.classList.toggle('active',id===active);
+  });
+  ['bnav-notif','bnav-profil'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+}
+// Bildirim dot'unu bottom nav ile senkronize et
+function syncBnavDot(){
+  const dot=document.getElementById('bnavNotifDot');
+  const src=document.getElementById('notifDot');
+  if(dot&&src)dot.classList.toggle('show',src.classList.contains('show'));
+}
 
 // ── ESC + TOAST → utils.js tarafından sağlanır ──
 
@@ -552,6 +571,7 @@ function switchNav(tab,pushState=true){
   document.getElementById('section-duvar').style.display=tab==='duvar'?'block':'none';
   ['rehber','sozluk','araclar','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('section-'+t).classList.toggle('active',t===tab));
   ['duvar','rehber','sozluk','araclar','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active',t===tab));
+  updateBottomNav(tab);
   if(tab==='sozluk')renderSozluk();
   if(tab==='mimarlar')renderMimarlar();
   if(tab==='araclar')renderSayac();
@@ -588,14 +608,14 @@ window.addEventListener('popstate',e=>{
 function setFilter(val,el,kind='all'){
   activeFilter={kind,val};
   document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');render();
+  el.classList.add('active');visibleCount=PAGE_SIZE;render();
 }
 
 // ── SORT ──
 function setSort(s,el){
   activeSort=s;
   document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');render();
+  el.classList.add('active');visibleCount=PAGE_SIZE;render();
 }
 
 // ── RELATIVE TIME ──
@@ -639,7 +659,8 @@ function render(){
     return esc(t).replace(/#([\wçğışöüÇĞİŞÖÜ]+)/g,(m,tag)=>`<span class="tag-link" data-tag="${esc(tag)}">${m}</span>`);
   }
 
-  grid.innerHTML=filtered.map((p,i)=>{
+  const toShow=filtered.slice(0,visibleCount);
+  grid.innerHTML=toShow.map((p,i)=>{
     const isMine=p.author===currentUser;
     const mF=p.fired&&p.fired.includes(currentUser);
     const isBkm=bookmarks.includes(p.id);
@@ -693,6 +714,16 @@ function render(){
       </div>
     </div>`;
   }).join('');
+  // "Daha fazla yükle" butonu
+  if(filtered.length>visibleCount){
+    const rem=filtered.length-visibleCount;
+    const btn=document.createElement('button');
+    btn.className='load-more-btn';
+    btn.textContent=`// ${rem} mesaj daha yükle`;
+    btn.onclick=()=>{visibleCount+=PAGE_SIZE;render();};
+    grid.appendChild(btn);
+  }
+  syncBnavDot();
   requestAnimationFrame(()=>window.scrollTo(0,savedScroll));
 }
 

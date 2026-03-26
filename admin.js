@@ -92,6 +92,7 @@ async function renderActivityChart(){
 async function initPanel() {
   await updateStats();
   renderActivityChart();
+  renderTagAnalytics();
   renderReports();
   renderPosts();
   renderUsers();
@@ -99,6 +100,11 @@ async function initPanel() {
   renderIlanlarAdmin();
   renderEtkinlikAdmin();
   document.getElementById('adminMeta').textContent = `// giriş yapıldı · ${new Date().toLocaleString('tr-TR')}`;
+  // Her 60 sn aktif kullanıcı güncelle
+  setInterval(async()=>{
+    const n = await getActiveUsers();
+    document.getElementById('statActive').textContent = n;
+  }, 60000);
 }
 
 const ADMIN_EMAIL = 'omerlutfi48@gmail.com';
@@ -115,13 +121,41 @@ const ADMIN_EMAIL = 'omerlutfi48@gmail.com';
   }
 })();
 
+async function getActiveUsers() {
+  const since = new Date(Date.now() - 30*60*1000).toISOString();
+  const {count} = await sb.from('page_views').select('id',{count:'exact',head:true}).gte('created_at',since);
+  return count || 0;
+}
+
+async function renderTagAnalytics() {
+  const posts = await getPosts();
+  const tagCounts = {};
+  posts.forEach(p => {
+    const tags = (p.text.match(/#([\wçğışöüÇĞİŞÖÜ]+)/gi) || []).map(t => t.toLowerCase());
+    tags.forEach(t => { tagCounts[t] = (tagCounts[t]||0) + 1; });
+  });
+  const sorted = Object.entries(tagCounts).sort((a,b) => b[1]-a[1]).slice(0,15);
+  const el = document.getElementById('tagAnalytics');
+  if (!sorted.length) { el.innerHTML = '<div class="empty-msg">// henüz tag kullanılmamış</div>'; return; }
+  const max = sorted[0][1];
+  el.innerHTML = sorted.map(([tag, count]) => `
+    <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.55rem">
+      <span style="font-family:'Space Mono',monospace;font-size:.7rem;color:#f5c400;width:130px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis">${esc(tag)}</span>
+      <div style="flex:1;height:6px;background:#1a1a1a;border-radius:2px">
+        <div style="height:100%;width:${Math.round(count/max*100)}%;background:#8b1a1a;border-radius:2px;transition:width .4s"></div>
+      </div>
+      <span style="font-family:'Space Mono',monospace;font-size:.65rem;color:#555;width:28px;text-align:right">${count}</span>
+    </div>`).join('');
+}
+
 async function updateStats() {
   const [posts, reports, feedback, banned, users,
-         yorumlarRes, mesajlarRes, begeniRes] = await Promise.all([
+         yorumlarRes, mesajlarRes, begeniRes, activeUsers] = await Promise.all([
     getPosts(), getReports(), getFeedback(), getBanned(), getUsers(),
     sb.from('yorumlar').select('id',{count:'exact',head:true}),
     sb.from('mesajlar').select('id',{count:'exact',head:true}),
-    sb.from('begeni').select('id',{count:'exact',head:true})
+    sb.from('begeni').select('id',{count:'exact',head:true}),
+    getActiveUsers()
   ]);
   const pending = reports.length;
   const acil = posts.filter(p => p.type === 'acil').length;
@@ -138,6 +172,7 @@ async function updateStats() {
   document.getElementById('statYorumlar').textContent = yorumlarRes.count ?? '—';
   document.getElementById('statMesajlar').textContent = mesajlarRes.count ?? '—';
   document.getElementById('statBegeni').textContent = begeniRes.count ?? '—';
+  document.getElementById('statActive').textContent = activeUsers;
 }
 
 async function cleanOldDMs() {
