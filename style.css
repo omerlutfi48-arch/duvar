@@ -757,3 +757,21 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
 .ai-prompt-text{font-family:var(--ff-mono);font-size:.67rem;color:var(--text2);line-height:1.6;flex:1}
 .ai-kopyala-btn{font-size:.75rem;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.1rem .4rem;cursor:pointer;flex-shrink:0;transition:all .15s;font-family:var(--ff-mono)}
 .ai-kopyala-btn:hover{border-color:var(--yellow);color:var(--yellow)}
+
+/* RADYO */
+.radio-float-btn{position:fixed;bottom:5rem;right:1.2rem;z-index:900;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:1.3rem;width:2.8rem;height:2.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)}
+.radio-float-btn:hover{border-color:var(--yellow);background:var(--surface)}
+.radio-player{position:fixed;bottom:9rem;right:1.2rem;z-index:901;width:320px;background:var(--surface);border:1px solid var(--border2);display:none;flex-direction:column}
+.radio-player.open{display:flex}
+.radio-header{display:flex;align-items:center;gap:.5rem;padding:.5rem .7rem;border-bottom:1px solid var(--border);background:var(--surface2)}
+.radio-title{font-family:var(--ff-mono);font-size:.65rem;letter-spacing:.08em;color:var(--yellow);flex-shrink:0}
+.radio-tab-bar{display:flex;gap:.3rem;flex:1;justify-content:center}
+.radio-tab{font-family:var(--ff-mono);font-size:.6rem;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.2rem .6rem;cursor:pointer;transition:all .15s}
+.radio-tab.active{border-color:var(--yellow);color:var(--yellow)}
+.radio-close-btn{font-family:var(--ff-mono);font-size:.7rem;background:transparent;border:none;color:var(--muted);cursor:pointer;padding:0 .2rem;flex-shrink:0}
+.radio-close-btn:hover{color:var(--text)}
+.radio-body{position:relative}
+.radio-panel{display:none}
+.radio-panel.active{display:block}
+.radio-note{font-family:var(--ff-mono);font-size:.58rem;color:var(--muted);padding:.4rem .7rem;border-top:1px solid var(--border)}
+@media(max-width:600px){.radio-float-btn{bottom:5.5rem}.radio-player{width:calc(100vw - 2.4rem);right:1.2rem;bottom:9.5rem}}

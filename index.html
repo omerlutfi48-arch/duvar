@@ -865,6 +865,42 @@
   </button>
 </nav>
 
+<!-- TESLİM GECESİ RADYOSU -->
+<button class="radio-float-btn" id="radioFloatBtn" title="Teslim Gecesi Radyosu">📻</button>
+
+<div class="radio-player" id="radioPlayer">
+  <div class="radio-header">
+    <div class="radio-title">📻 TESLİM GECESİ RADYOSU</div>
+    <div class="radio-tab-bar">
+      <button class="radio-tab active" data-radio="youtube">Lo-Fi YouTube</button>
+      <button class="radio-tab" data-radio="spotify">Spotify</button>
+    </div>
+    <button class="radio-close-btn" id="radioCloseBtn">✕</button>
+  </div>
+  <div class="radio-body">
+    <div class="radio-panel active" id="radio-youtube">
+      <iframe
+        src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&controls=1&rel=0"
+        allow="autoplay; encrypted-media"
+        allowfullscreen
+        style="width:100%;height:200px;border:none;display:block"
+        title="Lo-Fi Radio">
+      </iframe>
+      <div class="radio-note">// lofi girl · 24/7 · yetiştirme müziği</div>
+    </div>
+    <div class="radio-panel" id="radio-spotify">
+      <iframe
+        src="https://open.spotify.com/embed/playlist/37i9dQZF1DX8Uebhn9wzrS?utm_source=generator&theme=0"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"
+        style="width:100%;height:200px;border:none;border-radius:0;display:block"
+        title="Lo-Fi Spotify">
+      </iframe>
+      <div class="radio-note">// spotify · teslim gecesi playlist · <a href="https://open.spotify.com/playlist/37i9dQZF1DX8Uebhn9wzrS" target="_blank" style="color:var(--yellow)">aç →</a></div>
+    </div>
+  </div>
+</div>
+
 <script src="utils.js"></script>
 <script src="main.js"></script>
 </body>

@@ -2404,6 +2404,24 @@ document.querySelectorAll('.etkinlik-filter[data-etkinlik-filter]').forEach(b=>b
 // İlan filter
 document.querySelectorAll('.ilan-filter[data-ilan-filter]').forEach(b=>b.addEventListener('click',()=>setIlanFilter(b.dataset.ilanFilter,b)));
 
+// Radyo
+(function(){
+  const floatBtn=document.getElementById('radioFloatBtn');
+  const player=document.getElementById('radioPlayer');
+  const closeBtn=document.getElementById('radioCloseBtn');
+  if(!floatBtn||!player)return;
+  floatBtn.addEventListener('click',()=>player.classList.toggle('open'));
+  closeBtn.addEventListener('click',()=>player.classList.remove('open'));
+  document.querySelectorAll('.radio-tab[data-radio]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.radio-tab').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.radio-panel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('radio-'+btn.dataset.radio).classList.add('active');
+    });
+  });
+})();
+
 
 document.getElementById('mainInput').addEventListener('input',function(){
   const l=500-this.value.length;
