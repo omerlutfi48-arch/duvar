@@ -1346,6 +1346,9 @@ function nickToEmail(nick){
   return s+'.u@duvar.app';
 }
 
+// ── MOD YETKİLİ E-POSTALAR ──
+const MOD_EMAILS=['omerlutfi48@gmail.com'];
+
 // ── SUPABASE VERİ FONKSİYONLARI ──
 async function loadPosts(){
   const {data,error}=await sb.from('posts').select('*, yorumlar(*)').eq('aktif',true).order('created_at',{ascending:false}).limit(200);
@@ -1438,6 +1441,11 @@ async function modLogin(){
   try{
     const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
     if(error){err.textContent='// '+( error.message==='Invalid login credentials'?'e-posta veya şifre yanlış':error.message);return;}
+    if(!MOD_EMAILS.includes(data.user.email)){
+      await sb.auth.signOut();
+      err.textContent='// bu hesabın moderatör yetkisi yok';
+      return;
+    }
     setModeratorMode(true);
     closeModLogin();
     document.getElementById('modPass').value='';
