@@ -404,6 +404,10 @@
       <button class="arac-tab" id="arac-tab-alan" data-arac="alan">📋 alan programı</button>
       <button class="arac-tab" id="arac-tab-bingo" data-arac="bingo">🎯 bingo</button>
       <button class="arac-tab" id="arac-tab-fikir" data-arac="fikir">🎲 proje fikir</button>
+      <button class="arac-tab" id="arac-tab-yazilim" data-arac="yazilim">⌨ yazılım rehberi</button>
+      <button class="arac-tab" id="arac-tab-program2" data-arac="program2">🏛 program hesap</button>
+      <button class="arac-tab" id="arac-tab-palet" data-arac="palet">🎨 renk paleti</button>
+      <button class="arac-tab" id="arac-tab-cv" data-arac="cv">📄 cv şablonu</button>
     </div>
 
     <!-- TESLİM SAYACI -->
@@ -521,6 +525,165 @@
       <div class="fikir-kart" id="fikirkart">
         <div class="fikir-satirlar" id="fikirdegerler"></div>
         <div class="fikir-footer">// bu kombinasyonla bir tasarım egzersizi yapabilirsin.</div>
+      </div>
+    </div>
+
+    <!-- YAZILIM REHBERİ -->
+    <div class="arac-section" id="arac-yazilim">
+      <div class="sayac-header">
+        <div class="sayac-title">YAZILIM REHBERİ</div>
+        <div class="sayac-sub">// mimar yazılımları için kısa yol ve komut kartları. yazılım seç, kategoriye göz at.</div>
+      </div>
+      <div class="yazilim-tabs" id="yazilimTablar">
+        <button class="yazilim-tab active" data-yazilim="autocad">AutoCAD</button>
+        <button class="yazilim-tab" data-yazilim="rhino">Rhino 3D</button>
+        <button class="yazilim-tab" data-yazilim="revit">Revit</button>
+        <button class="yazilim-tab" data-yazilim="sketchup">SketchUp</button>
+        <button class="yazilim-tab" data-yazilim="photoshop">Photoshop</button>
+      </div>
+      <div id="yazilimContent"></div>
+    </div>
+
+    <!-- PROGRAM HESAPLAYICI 2.0 -->
+    <div class="arac-section" id="arac-program2">
+      <div class="sayac-header">
+        <div class="sayac-title">PROGRAM HESAPLAYICI</div>
+        <div class="sayac-sub">// toplam inşaat alanı ve kullanım türüne göre teknik gereksinimler (Türk yönetmelikleri).</div>
+      </div>
+      <div class="program-form">
+        <div class="program-row">
+          <div class="program-field">
+            <label>Toplam İnşaat Alanı (m²)</label>
+            <input type="number" id="programAlan" placeholder="örn: 5000" min="0" step="50">
+          </div>
+          <div class="program-field">
+            <label>Kullanım Türü</label>
+            <select id="programTur">
+              <option value="konut">Konut</option>
+              <option value="ofis">Ofis / İdari Bina</option>
+              <option value="ticaret">Ticaret / AVM</option>
+              <option value="egitim">Eğitim</option>
+              <option value="saglik">Sağlık</option>
+              <option value="otel">Otel</option>
+              <option value="kultur">Kültür / Eğlence</option>
+            </select>
+          </div>
+          <div class="program-field">
+            <label>Kat Sayısı (Toplam)</label>
+            <input type="number" id="programKat" placeholder="örn: 5" min="1" max="80" value="5">
+          </div>
+        </div>
+        <button class="sayac-add-btn" id="programHesaplaBtn" style="margin-top:1rem">HESAPLA →</button>
+      </div>
+      <div id="programSonuc"></div>
+    </div>
+
+    <!-- RENK PALETİ ÜRETİCİ -->
+    <div class="arac-section" id="arac-palet">
+      <div class="sayac-header">
+        <div class="sayac-title">RENK PALETİ ÜRETİCİ</div>
+        <div class="sayac-sub">// sunum ve maket için malzeme/stil bazlı renk kombinasyonları. rengi tıkla → hex kopyala.</div>
+      </div>
+      <div class="palet-controls">
+        <div class="palet-kat-label">// malzeme · stil · atmosfer</div>
+        <div class="palet-katlar" id="paletKatlar">
+          <button class="palet-kat active" data-palet="beton">beton + cam</button>
+          <button class="palet-kat" data-palet="ahsap">ahşap + taş</button>
+          <button class="palet-kat" data-palet="endustri">endüstriyel</button>
+          <button class="palet-kat" data-palet="minimal">minimal + beyaz</button>
+          <button class="palet-kat" data-palet="toprak">toprak + pişmiş</button>
+          <button class="palet-kat" data-palet="deniz">akdeniz</button>
+          <button class="palet-kat" data-palet="nordic">nordic + doğal</button>
+          <button class="palet-kat" data-palet="gece">gece + karanlık</button>
+          <button class="palet-kat" data-palet="pastel">pastel + yumuşak</button>
+          <button class="palet-kat" data-palet="retro">retro + toprak</button>
+        </div>
+        <button class="juri-btn" id="paletUretBtn" style="margin-top:1rem">PALET ÜRET</button>
+      </div>
+      <div id="paletSonuc"></div>
+    </div>
+
+    <!-- CV ŞABLONU -->
+    <div class="arac-section" id="arac-cv">
+      <div class="sayac-header">
+        <div class="sayac-title">CV ŞABLONU</div>
+        <div class="sayac-sub">// bilgileri gir, önizlemeyi gör. "yazdır / pdf al" ile indir.</div>
+      </div>
+      <div class="cv-layout">
+        <div class="cv-form-col">
+          <div class="cv-form-section">
+            <div class="cv-form-label">// KİŞİSEL BİLGİLER</div>
+            <input class="cv-input" id="cvAd" placeholder="Ad Soyad" maxlength="50">
+            <input class="cv-input" id="cvUnvan" placeholder="Unvan (ör: Mimarlık Öğrencisi)" maxlength="60">
+            <input class="cv-input" id="cvEmail" placeholder="E-posta" maxlength="60">
+            <input class="cv-input" id="cvTelefon" placeholder="Telefon" maxlength="20">
+            <input class="cv-input" id="cvSehir" placeholder="Şehir" maxlength="30">
+            <input class="cv-input" id="cvLinkedin" placeholder="LinkedIn / Portfolio URL" maxlength="80">
+          </div>
+          <div class="cv-form-section">
+            <div class="cv-form-label">// HAKKIMDA</div>
+            <textarea class="cv-textarea" id="cvBio" placeholder="Kısa tanıtım metni (2-3 cümle)" maxlength="300" rows="3"></textarea>
+          </div>
+          <div class="cv-form-section">
+            <div class="cv-form-label">// EĞİTİM</div>
+            <input class="cv-input" id="cvEgitim1Okul" placeholder="Üniversite adı" maxlength="60">
+            <input class="cv-input" id="cvEgitim1Bolum" placeholder="Bölüm (ör: Mimarlık)" maxlength="50">
+            <input class="cv-input" id="cvEgitim1Tarih" placeholder="Yıllar (ör: 2020 – devam)" maxlength="30">
+            <input class="cv-input" id="cvEgitim2Okul" placeholder="Lise adı (isteğe bağlı)" maxlength="60">
+            <input class="cv-input" id="cvEgitim2Tarih" placeholder="Mezuniyet yılı" maxlength="20">
+          </div>
+          <div class="cv-form-section">
+            <div class="cv-form-label">// DENEYİM</div>
+            <input class="cv-input" id="cvDeneyim1Firma" placeholder="Firma / Ofis adı" maxlength="60">
+            <input class="cv-input" id="cvDeneyim1Pozisyon" placeholder="Pozisyon (ör: Stajyer Mimar)" maxlength="50">
+            <input class="cv-input" id="cvDeneyim1Tarih" placeholder="Tarih aralığı" maxlength="30">
+            <input class="cv-input" id="cvDeneyim2Firma" placeholder="2. iş yeri (isteğe bağlı)" maxlength="60">
+            <input class="cv-input" id="cvDeneyim2Pozisyon" placeholder="Pozisyon" maxlength="50">
+            <input class="cv-input" id="cvDeneyim2Tarih" placeholder="Tarih aralığı" maxlength="30">
+          </div>
+          <div class="cv-form-section">
+            <div class="cv-form-label">// YAZILIMLAR</div>
+            <input class="cv-input" id="cvYazilimlar" placeholder="AutoCAD, Rhino, Revit, SketchUp, Photoshop..." maxlength="150">
+          </div>
+          <div class="cv-form-section">
+            <div class="cv-form-label">// BECERİLER</div>
+            <input class="cv-input" id="cvBeceriler" placeholder="Maket yapımı, Fotoğrafçılık, Teknik çizim..." maxlength="150">
+          </div>
+          <div class="cv-form-section">
+            <div class="cv-form-label">// DİLLER</div>
+            <input class="cv-input" id="cvDiller" placeholder="Türkçe (ana dil), İngilizce (B2)..." maxlength="100">
+          </div>
+          <button class="sayac-add-btn" id="cvYazdir" style="margin-top:1rem;width:100%">🖨 YAZDIR / PDF AL</button>
+        </div>
+        <div class="cv-preview-col" id="cvPreview">
+          <div class="cv-preview-inner" id="cvPreviewInner">
+            <div class="cvp-name" id="cvpAd">Ad Soyad</div>
+            <div class="cvp-title" id="cvpUnvan">Mimarlık Öğrencisi</div>
+            <div class="cvp-contact" id="cvpContact"></div>
+            <div class="cvp-divider"></div>
+            <div class="cvp-bio" id="cvpBio"></div>
+            <div class="cvp-section" id="cvpEgitimWrap">
+              <div class="cvp-section-title">EĞİTİM</div>
+              <div id="cvpEgitim"></div>
+            </div>
+            <div class="cvp-section" id="cvpDeneyimWrap">
+              <div class="cvp-section-title">DENEYİM</div>
+              <div id="cvpDeneyim"></div>
+            </div>
+            <div class="cvp-section" id="cvpYazilimWrap">
+              <div class="cvp-section-title">YAZILIMLAR</div>
+              <div class="cvp-tags" id="cvpYazilimlar"></div>
+            </div>
+            <div class="cvp-section" id="cvpBeceriWrap">
+              <div class="cvp-section-title">BECERİLER</div>
+              <div class="cvp-tags" id="cvpBeceriler"></div>
+            </div>
+            <div class="cvp-section" id="cvpDilWrap">
+              <div class="cvp-section-title">DİLLER</div>
+              <div class="cvp-tags" id="cvpDiller"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

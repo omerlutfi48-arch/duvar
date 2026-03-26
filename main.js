@@ -360,6 +360,218 @@ function syncBnavDot(){
   if(dot&&src)dot.classList.toggle('show',src.classList.contains('show'));
 }
 
+// ── YAZILIM REHBERİ ──
+const YAZILIM_DATA={
+  autocad:{label:'AutoCAD',kategoriler:[
+    {baslik:'// temel komutlar',komutlar:[{ks:'L',acik:'Line — çizgi'},{ks:'PL',acik:'Polyline — polçizgi'},{ks:'REC',acik:'Rectangle — dikdörtgen'},{ks:'C',acik:'Circle — daire'},{ks:'A',acik:'Arc — yay'},{ks:'H',acik:'Hatch — tarama'},{ks:'T',acik:'Mtext — yazı ekle'},{ks:'DIM',acik:'Dimension — ölçülendirme'},{ks:'B',acik:'Block — blok oluştur'},{ks:'I',acik:'Insert — blok ekle'}]},
+    {baslik:'// düzenleme',komutlar:[{ks:'M',acik:'Move — taşı'},{ks:'CO',acik:'Copy — kopyala'},{ks:'RO',acik:'Rotate — döndür'},{ks:'SC',acik:'Scale — ölçekle'},{ks:'MI',acik:'Mirror — aynala'},{ks:'TR',acik:'Trim — kırp'},{ks:'EX',acik:'Extend — uzat'},{ks:'O',acik:'Offset — paralel kopyala'},{ks:'F',acik:'Fillet — yuvarla (R=0 köşe)'},{ks:'E',acik:'Erase — sil'},{ks:'AR',acik:'Array — dizi kopyala'}]},
+    {baslik:'// görünüm & sunum',komutlar:[{ks:'Z+E',acik:'Zoom Extents — tüm çizim'},{ks:'Z+W',acik:'Zoom Window — alan seç'},{ks:'REGEN',acik:'Ekranı yenile'},{ks:'LA',acik:'Layer — katman yöneticisi'},{ks:'LTSCALE',acik:'Kesik çizgi ölçeği'},{ks:'PLOT',acik:'Yazdır / PDF'},{ks:'LAYOUT',acik:'Kağıt alanı'}]},
+    {baslik:'// klavye kısayolları',komutlar:[{ks:'Ctrl+Z',acik:'Geri al'},{ks:'Ctrl+Y',acik:'Yinele'},{ks:'Ctrl+S',acik:'Kaydet'},{ks:'F3',acik:'Osnap aç/kapat'},{ks:'F8',acik:'Ortho aç/kapat'},{ks:'Esc',acik:'Komutu iptal et'},{ks:'Space/Enter',acik:'Son komutu tekrarla'}]}
+  ]},
+  rhino:{label:'Rhino 3D',kategoriler:[
+    {baslik:'// temel çizim',komutlar:[{ks:'Line',acik:'Çizgi'},{ks:'Polyline',acik:'Kırık çizgi'},{ks:'Circle',acik:'Daire'},{ks:'Rectangle',acik:'Dikdörtgen'},{ks:'Curve',acik:'Serbest eğri (NURBS)'},{ks:'InterpCrv',acik:'Noktalardan eğri'},{ks:'Arc',acik:'Yay'}]},
+    {baslik:'// yüzey & katı',komutlar:[{ks:'ExtrudeCrv',acik:'Eğriyi hacme çek'},{ks:'Loft',acik:'Eğrilerden yüzey'},{ks:'Sweep1',acik:'Profili ray üzerinde süpür'},{ks:'Revolve',acik:'Döndürerek yüzey'},{ks:'PlanarSrf',acik:'Düzlemsel yüzey'},{ks:'BooleanUnion',acik:'Birleştir'},{ks:'BooleanDifference',acik:'Çıkar'},{ks:'BooleanIntersection',acik:'Kesişim al'}]},
+    {baslik:'// düzenleme',komutlar:[{ks:'Move',acik:'Taşı'},{ks:'Copy',acik:'Kopyala'},{ks:'Rotate',acik:'Döndür'},{ks:'Mirror',acik:'Aynala'},{ks:'Trim',acik:'Kırp'},{ks:'Join',acik:'Birleştir'},{ks:'Explode',acik:'Parçala'},{ks:'Offset',acik:'Paralel kopyala'}]},
+    {baslik:'// sunum',komutlar:[{ks:'Make2D',acik:'Planı çıkar (2D)'},{ks:'Render',acik:'Render al'},{ks:'ViewCaptureToFile',acik:'Görünümü kaydet'},{ks:'Layout',acik:'Sayfa düzeni'}]}
+  ]},
+  revit:{label:'Revit',kategoriler:[
+    {baslik:'// temel araçlar',komutlar:[{ks:'WA',acik:'Wall — duvar'},{ks:'DR',acik:'Door — kapı'},{ks:'WN',acik:'Window — pencere'},{ks:'FL',acik:'Floor — döşeme'},{ks:'RP',acik:'Roof — çatı'},{ks:'CL',acik:'Column — kolon'},{ks:'BM',acik:'Beam — kiriş'},{ks:'CM',acik:'Component — bileşen ekle'},{ks:'DI',acik:'Dimension — ölçü'}]},
+    {baslik:'// görünümler',komutlar:[{ks:'VG',acik:'Visibility/Graphics (görünürlük)'},{ks:'ZA',acik:'Zoom All'},{ks:'EL',acik:'Elevation — cephe'},{ks:'SC',acik:'Section — kesit'},{ks:'PP',acik:'Properties paneli'},{ks:'WT',acik:'Tile Views'}]},
+    {baslik:'// düzenleme',komutlar:[{ks:'MV',acik:'Move — taşı'},{ks:'CO',acik:'Copy — kopyala'},{ks:'RO',acik:'Rotate — döndür'},{ks:'MM',acik:'Mirror'},{ks:'AR',acik:'Array'},{ks:'TR',acik:'Trim/Extend'},{ks:'GP',acik:'Group'},{ks:'SA',acik:'Select All Instances'}]},
+    {baslik:'// kısayollar',komutlar:[{ks:'Ctrl+Z',acik:'Geri al'},{ks:'Ctrl+S',acik:'Kaydet'},{ks:'HH',acik:'Hide Element'},{ks:'HR',acik:'Reset Hidden'}]}
+  ]},
+  sketchup:{label:'SketchUp',kategoriler:[
+    {baslik:'// temel araçlar',komutlar:[{ks:'L',acik:'Line — çizgi'},{ks:'R',acik:'Rectangle — dikdörtgen'},{ks:'C',acik:'Circle — daire'},{ks:'P',acik:'Push/Pull — hacme çek'},{ks:'F',acik:'Follow Me — süpür'},{ks:'Q',acik:'Rotate — döndür'},{ks:'S',acik:'Scale — ölçekle'},{ks:'T',acik:'Tape Measure'},{ks:'D',acik:'Dimension'}]},
+    {baslik:'// düzenleme',komutlar:[{ks:'M',acik:'Move — taşı'},{ks:'E',acik:'Eraser — sil'},{ks:'O',acik:'Offset — paralel'},{ks:'G',acik:'Make Group'},{ks:'Ctrl+G',acik:'Make Component'},{ks:'Space',acik:'Select aracı'}]},
+    {baslik:'// kamera & görünüm',komutlar:[{ks:'Scroll',acik:'Zoom in/out'},{ks:'Orta tuş',acik:'Döndür (orbit)'},{ks:'Shift+Orta',acik:'Pan'},{ks:'K',acik:'Back Edges'},{ks:'Ctrl+Z',acik:'Geri al'},{ks:'Ctrl+S',acik:'Kaydet'}]}
+  ]},
+  photoshop:{label:'Photoshop',kategoriler:[
+    {baslik:'// sunum hazırlama',komutlar:[{ks:'Ctrl+T',acik:'Free Transform'},{ks:'Ctrl+J',acik:'Katmanı çoğalt'},{ks:'Ctrl+G',acik:'Katmanları grupla'},{ks:'Ctrl+E',acik:'Katmanı birleştir'},{ks:'Ctrl+M',acik:'Curves — kontrast'},{ks:'Ctrl+U',acik:'Hue/Saturation'},{ks:'Ctrl+L',acik:'Levels — ışık düzenle'}]},
+    {baslik:'// render post-production',komutlar:[{ks:'Ctrl+Alt+G',acik:'Create Clipping Mask'},{ks:'W',acik:'Quick Selection'},{ks:'Ctrl+D',acik:'Seçimi kaldır'},{ks:'Ctrl+Shift+N',acik:'Yeni katman'},{ks:'I',acik:'Eyedropper — renk al'},{ks:'B',acik:'Brush aracı'}]},
+    {baslik:'// kısayollar',komutlar:[{ks:'Ctrl+Z',acik:'Geri al'},{ks:'Ctrl+0',acik:'Fit to Screen'},{ks:'Ctrl+P',acik:'Yazdır'},{ks:'Space+Sürükle',acik:'Pan (el aracı)'},{ks:'Ctrl+Shift+Alt+S',acik:'Web için dışa aktar'}]}
+  ]}
+};
+
+let aktifYazilim='autocad';
+function switchYazilim(yazilim){
+  aktifYazilim=yazilim;
+  document.querySelectorAll('.yazilim-tab').forEach(b=>b.classList.toggle('active',b.dataset.yazilim===yazilim));
+  renderYazilim(yazilim);
+}
+function renderYazilim(yazilim){
+  const data=YAZILIM_DATA[yazilim||aktifYazilim];
+  const el=document.getElementById('yazilimContent');
+  if(!el||!data)return;
+  el.innerHTML=`<div class="yazilim-kategoriler">${data.kategoriler.map(kat=>`
+    <div class="yazilim-kat">
+      <div class="yazilim-kat-baslik">${esc(kat.baslik)}</div>
+      <div class="yazilim-komutlar">${kat.komutlar.map(k=>`
+        <div class="yazilim-komut">
+          <span class="yazilim-ks">${esc(k.ks)}</span>
+          <span class="yazilim-acik">${esc(k.acik)}</span>
+        </div>`).join('')}
+      </div>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ── PROGRAM HESAPLAYICI 2.0 ──
+const PROGRAM_PARAMS={
+  konut:{label:'Konut',otopark:'1 araç / 120 m² brüt alan',otoparkFn:a=>Math.ceil(a/120),yangin:{kat4:'1 yangın merdiveni (≥4 kat)',kat7:'2 yangın merdiveni (≥7 kat)'},asansor:'4+ katta zorunlu (her 2000 m² için 1)',sigınak:'%3 oranında sığınak alanı önerilir',engelli:'Her katta 1 engelli WC, giriş rampa zorunlu',not:'TBDY 2018 ve Planlama Yönetmeliği esas alınmıştır.'},
+  ofis:{label:'Ofis / İdari',otopark:'1 araç / 50 m² brüt alan',otoparkFn:a=>Math.ceil(a/50),yangin:{kat4:'1 yangın merdiveni (≥4 kat)',kat7:'2 yangın merdiveni (≥7 kat)'},asansor:'3+ katta zorunlu',sigınak:'Zorunlu değil (bölgeye bağlı)',engelli:'Her katta 1 engelli WC, asansör zorunlu',not:'Binanın niteliğine göre yerel yönetmelik uygulanır.'},
+  ticaret:{label:'Ticaret / AVM',otopark:'1 araç / 40 m² satış alanı',otoparkFn:a=>Math.ceil(a*0.6/40),yangin:{kat4:'2 yangın merdiveni (kaçış uzaklığı ≤25 m)',kat7:'2+ yangın merdiveni + basınçlandırma'},asansor:'2+ katta zorunlu, yürüyen merdiven önerilir',sigınak:'Zorunlu değil',engelli:'Her katta ≥1 engelli WC, branda yeri',not:'İtfaiye Yönetmeliği ve AVM yönetmeliği esas alınır.'},
+  egitim:{label:'Eğitim',otopark:'1 araç / 5 öğretmen (kapasite bağlı)',otoparkFn:a=>Math.ceil(a/200),yangin:{kat4:'1 yangın merdiveni, sınıftan ≤15 m mesafe',kat7:'2 yangın merdiveni'},asansor:'3+ katta zorunlu',sigınak:'Sığınak zorunlu (öğrenci kapasitesine göre)',engelli:'Rampa, engelli WC, uyarı bantları zorunlu',not:'MEB standartları ve Binaların Yangından Korunması Yönetmeliği.'},
+  saglik:{label:'Sağlık',otopark:'1 araç / 3 yatak veya 50 m²',otoparkFn:a=>Math.ceil(a/50),yangin:{kat4:'Her katta en az 2 yangın merdiveni, yangın koridoru',kat7:'Sprinkler sistemi zorunlu'},asansor:'Yatak katlı binalarda zorunlu, 2+ ameliyathane için ayrı',sigınak:'Zorunlu değil (acil bölüm korunaklı tasarlanmalı)',engelli:'Tüm alanlarda tam engelli erişimi zorunlu',not:'Sağlık Yapıları İnşaat ve Onarım Yönetmeliği.'},
+  otel:{label:'Otel',otopark:'1 araç / 2-3 oda (yıldıza göre)',otoparkFn:a=>Math.ceil(a/80),yangin:{kat4:'Yangın merdiveni + koridorda duman bariyeri',kat7:'Sprinkler + sesli alarm + acil aydınlatma'},asansor:'3+ katta zorunlu, VIP kat için ayrı önerilir',sigınak:'Zorunlu değil',engelli:'%5 oda engelli uyumlu, lobi tam erişimli',not:'Turizm Tesislerinin Belgelendirilmesine Yönelik Yönetmelik.'},
+  kultur:{label:'Kültür / Eğlence',otopark:'1 araç / 3 koltuk veya 20 m²',otoparkFn:a=>Math.ceil(a/20),yangin:{kat4:'1-2 yangın çıkışı (kapasite ≥500 kişi = 2+)',kat7:'Sprinkler + sahne için özel yangın perdesi'},asansor:'2+ katta önerilir, engelli erişim asansörü zorunlu',sigınak:'Zorunlu değil',engelli:'%2 engelli koltuk, sahne erişimi',not:'Kalabalık binalara özel İtfaiye Yönetmeliği maddeleri.'}
+};
+
+function renderProgramSonuc(){
+  const alanEl=document.getElementById('programAlan');
+  const turEl=document.getElementById('programTur');
+  const katEl=document.getElementById('programKat');
+  if(!alanEl)return;
+  const alan=parseFloat(alanEl.value)||0;
+  const tur=turEl?turEl.value:'konut';
+  const kat=parseInt(katEl?katEl.value:5)||5;
+  const el=document.getElementById('programSonuc');
+  if(!el)return;
+  if(alan<=0){el.innerHTML='';return;}
+  const p=PROGRAM_PARAMS[tur];
+  if(!p)return;
+  const otoparkSayisi=p.otoparkFn(alan);
+  const yanginMer=kat>=7?p.yangin.kat7:kat>=4?p.yangin.kat4:'Zorunlu değil (≤3 kat)';
+  const asansorZorunlu=tur==='konut'?kat>=4:tur==='ofis'?kat>=3:kat>=2;
+  el.innerHTML=`
+  <div class="program-sonuc-grid">
+    <div class="prog-kart">
+      <div class="prog-kart-ikon">🚗</div>
+      <div class="prog-kart-baslik">Otopark</div>
+      <div class="prog-kart-deger">${otoparkSayisi} araç</div>
+      <div class="prog-kart-not">${esc(p.otopark)}</div>
+    </div>
+    <div class="prog-kart">
+      <div class="prog-kart-ikon">🪜</div>
+      <div class="prog-kart-baslik">Yangın Merdiveni</div>
+      <div class="prog-kart-deger">${kat>=7?'2+':kat>=4?'1':'—'}</div>
+      <div class="prog-kart-not">${esc(yanginMer)}</div>
+    </div>
+    <div class="prog-kart">
+      <div class="prog-kart-ikon">🛗</div>
+      <div class="prog-kart-baslik">Asansör</div>
+      <div class="prog-kart-deger">${asansorZorunlu?'Zorunlu':'Önerilir'}</div>
+      <div class="prog-kart-not">${esc(p.asansor)}</div>
+    </div>
+    <div class="prog-kart">
+      <div class="prog-kart-ikon">♿</div>
+      <div class="prog-kart-baslik">Engelli Erişimi</div>
+      <div class="prog-kart-deger">Zorunlu</div>
+      <div class="prog-kart-not">${esc(p.engelli)}</div>
+    </div>
+    <div class="prog-kart">
+      <div class="prog-kart-ikon">🏰</div>
+      <div class="prog-kart-baslik">Sığınak</div>
+      <div class="prog-kart-deger">${p.sigınak.startsWith('Z')?'Zorunlu Değil':'Gerekli'}</div>
+      <div class="prog-kart-not">${esc(p.sigınak)}</div>
+    </div>
+    <div class="prog-kart prog-kart-full">
+      <div class="prog-kart-not" style="font-size:.65rem;color:var(--muted)">⚠ ${esc(p.not)} Proje aşamasında ilgili yönetmelikler uzman danışmanlığıyla kontrol edilmelidir.</div>
+    </div>
+  </div>`;
+}
+
+// ── RENK PALETİ ──
+const PALET_DATA={
+  beton:{label:'Beton + Cam',renkler:[{hex:'#E8E4DF',ad:'kaba sıva'},{hex:'#B0ABA5',ad:'beton gri'},{hex:'#6B6560',ad:'koyu beton'},{hex:'#2C2925',ad:'antrasit'},{hex:'#8FB5C8',ad:'cam mavi'},{hex:'#D4E4ED',ad:'açık cam'}]},
+  ahsap:{label:'Ahşap + Taş',renkler:[{hex:'#C4A882',ad:'meşe ahşap'},{hex:'#8B6914',ad:'koyu ahşap'},{hex:'#4A3728',ad:'wenge'},{hex:'#D4C9B8',ad:'kum taşı'},{hex:'#9E9187',ad:'gri taş'},{hex:'#F5F0E8',ad:'kireç beyazı'}]},
+  endustri:{label:'Endüstriyel',renkler:[{hex:'#2A2A2A',ad:'dökme demir'},{hex:'#4A4A4A',ad:'çelik gri'},{hex:'#8C8C8C',ad:'galvaniz'},{hex:'#C4A24A',ad:'sarı aksan'},{hex:'#8B3A3A',ad:'tuğla kırmızı'},{hex:'#F0EDE8',ad:'kireç sıva'}]},
+  minimal:{label:'Minimal + Beyaz',renkler:[{hex:'#FFFFFF',ad:'saf beyaz'},{hex:'#F5F5F3',ad:'kırık beyaz'},{hex:'#E8E6E1',ad:'krem'},{hex:'#C8C4BE',ad:'açık gri'},{hex:'#787268',ad:'orta gri'},{hex:'#2A2825',ad:'siyah'}]},
+  toprak:{label:'Toprak + Pişmiş',renkler:[{hex:'#C4622D',ad:'kiremit'},{hex:'#9E4A28',ad:'koyu terracotta'},{hex:'#D4A574',ad:'açık terracotta'},{hex:'#8B5E3C',ad:'koyu toprak'},{hex:'#D4B896',ad:'kum'},{hex:'#F0E8DC',ad:'bej'}]},
+  deniz:{label:'Akdeniz',renkler:[{hex:'#2B6CB0',ad:'akdeniz mavi'},{hex:'#63B3ED',ad:'açık mavi'},{hex:'#EDF2F7',ad:'köpük beyazı'},{hex:'#F6AD55',ad:'portakal'},{hex:'#276749',ad:'zeytin yeşil'},{hex:'#FFF5E6',ad:'sıcak krem'}]},
+  nordic:{label:'Nordic + Doğal',renkler:[{hex:'#F7F3EE',ad:'kar beyazı'},{hex:'#E8E0D5',ad:'açık krem'},{hex:'#C4A882',ad:'huş ahşap'},{hex:'#8B7355',ad:'çam gövde'},{hex:'#4A6741',ad:'orman yeşil'},{hex:'#2C3E50',ad:'gece mavi'}]},
+  gece:{label:'Gece + Karanlık',renkler:[{hex:'#0A0A0A',ad:'derin siyah'},{hex:'#1A1A2E',ad:'gece mavi'},{hex:'#16213E',ad:'lacivert'},{hex:'#0F3460',ad:'derin mavi'},{hex:'#E94560',ad:'neon kırmızı'},{hex:'#F5A623',ad:'sarı aksan'}]},
+  pastel:{label:'Pastel + Yumuşak',renkler:[{hex:'#FFE4E1',ad:'gül pembe'},{hex:'#E1F5FE',ad:'bebe mavisi'},{hex:'#F0FFF0',ad:'nane yeşil'},{hex:'#FFF9E6',ad:'vanilya'},{hex:'#EDE7F6',ad:'leylak'},{hex:'#FAFAFA',ad:'beyaz'}]},
+  retro:{label:'Retro + Toprak',renkler:[{hex:'#8B4513',ad:'kahve'},{hex:'#CD853F',ad:'peru'},{hex:'#D2691E',ad:'çikolata'},{hex:'#F4A460',ad:'kum sarısı'},{hex:'#556B2F',ad:'zeytin'},{hex:'#708090',ad:'arduvaz gri'}]}
+};
+
+let aktifPalet='beton';
+function setPalet(palet){
+  aktifPalet=palet;
+  document.querySelectorAll('.palet-kat').forEach(b=>b.classList.toggle('active',b.dataset.palet===palet));
+}
+function renderPalet(){
+  const data=PALET_DATA[aktifPalet];
+  const el=document.getElementById('paletSonuc');
+  if(!el||!data)return;
+  el.innerHTML=`
+  <div class="palet-sonuc-label">${esc(data.label)}</div>
+  <div class="palet-renkler">${data.renkler.map(r=>`
+    <div class="palet-renk" onclick="navigator.clipboard.writeText('${r.hex}').then(()=>toast('// ${r.hex} kopyalandı'))" title="Tıkla → kopyala">
+      <div class="palet-renk-swatch" style="background:${r.hex}"></div>
+      <div class="palet-renk-hex">${r.hex}</div>
+      <div class="palet-renk-ad">${esc(r.ad)}</div>
+    </div>`).join('')}
+  </div>
+  <div class="palet-not">// herhangi bir renk kutusuna tıkla → hex kodunu kopyalar</div>`;
+}
+
+// ── CV ŞABLONU ──
+function renderCvPreview(){
+  const g=id=>document.getElementById(id)?.value||'';
+  const s=id=>document.getElementById(id);
+  // Kişisel
+  if(s('cvpAd'))s('cvpAd').textContent=g('cvAd')||'Ad Soyad';
+  if(s('cvpUnvan'))s('cvpUnvan').textContent=g('cvUnvan')||'Mimarlık Öğrencisi';
+  // İletişim
+  const contacts=[g('cvEmail'),g('cvTelefon'),g('cvSehir'),g('cvLinkedin')].filter(Boolean);
+  if(s('cvpContact'))s('cvpContact').textContent=contacts.join(' · ');
+  // Bio
+  if(s('cvpBio')){s('cvpBio').textContent=g('cvBio');s('cvpBio').style.display=g('cvBio')?'':'none';}
+  // Eğitim
+  let egitimHtml='';
+  if(g('cvEgitim1Okul'))egitimHtml+=`<div class="cvp-item"><div class="cvp-item-title">${esc(g('cvEgitim1Okul'))}</div><div class="cvp-item-sub">${esc(g('cvEgitim1Bolum'))} ${g('cvEgitim1Tarih')?'· '+esc(g('cvEgitim1Tarih')):''}</div></div>`;
+  if(g('cvEgitim2Okul'))egitimHtml+=`<div class="cvp-item"><div class="cvp-item-title">${esc(g('cvEgitim2Okul'))}</div><div class="cvp-item-sub">${esc(g('cvEgitim2Tarih'))}</div></div>`;
+  if(s('cvpEgitim'))s('cvpEgitim').innerHTML=egitimHtml;
+  if(s('cvpEgitimWrap'))s('cvpEgitimWrap').style.display=egitimHtml?'':'none';
+  // Deneyim
+  let deneyimHtml='';
+  if(g('cvDeneyim1Firma'))deneyimHtml+=`<div class="cvp-item"><div class="cvp-item-title">${esc(g('cvDeneyim1Firma'))}</div><div class="cvp-item-sub">${esc(g('cvDeneyim1Pozisyon'))} ${g('cvDeneyim1Tarih')?'· '+esc(g('cvDeneyim1Tarih')):''}</div></div>`;
+  if(g('cvDeneyim2Firma'))deneyimHtml+=`<div class="cvp-item"><div class="cvp-item-title">${esc(g('cvDeneyim2Firma'))}</div><div class="cvp-item-sub">${esc(g('cvDeneyim2Pozisyon'))} ${g('cvDeneyim2Tarih')?'· '+esc(g('cvDeneyim2Tarih')):''}</div></div>`;
+  if(s('cvpDeneyim'))s('cvpDeneyim').innerHTML=deneyimHtml;
+  if(s('cvpDeneyimWrap'))s('cvpDeneyimWrap').style.display=deneyimHtml?'':'none';
+  // Yazılımlar / Beceriler / Diller
+  const tagHtml=val=>val?val.split(',').map(t=>t.trim()).filter(Boolean).map(t=>`<span class="cvp-tag">${esc(t)}</span>`).join(''):'';
+  if(s('cvpYazilimlar'))s('cvpYazilimlar').innerHTML=tagHtml(g('cvYazilimlar'));
+  if(s('cvpYazilimWrap'))s('cvpYazilimWrap').style.display=g('cvYazilimlar')?'':'none';
+  if(s('cvpBeceriler'))s('cvpBeceriler').innerHTML=tagHtml(g('cvBeceriler'));
+  if(s('cvpBeceriWrap'))s('cvpBeceriWrap').style.display=g('cvBeceriler')?'':'none';
+  if(s('cvpDiller'))s('cvpDiller').innerHTML=tagHtml(g('cvDiller'));
+  if(s('cvpDilWrap'))s('cvpDilWrap').style.display=g('cvDiller')?'':'none';
+}
+function cvYazdir(){
+  const preview=document.getElementById('cvPreviewInner');
+  if(!preview)return;
+  const w=window.open('','_blank');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>CV</title><style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Inter',Arial,sans-serif;font-size:10pt;color:#1a1a1a;padding:2cm;max-width:21cm;background:#fff}
+    .cvp-name{font-size:22pt;font-weight:700;letter-spacing:.05em;text-transform:uppercase;margin-bottom:.2rem}
+    .cvp-title{font-size:10pt;color:#666;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.4rem}
+    .cvp-contact{font-size:9pt;color:#888;margin-bottom:.8rem}
+    .cvp-divider{border-top:2px solid #1a1a1a;margin:.6rem 0}
+    .cvp-bio{font-size:9.5pt;color:#333;line-height:1.6;margin-bottom:.8rem}
+    .cvp-section{margin-bottom:.8rem}
+    .cvp-section-title{font-size:8pt;letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:#1a1a1a;border-bottom:1px solid #ccc;margin-bottom:.4rem;padding-bottom:.2rem}
+    .cvp-item{margin-bottom:.4rem}
+    .cvp-item-title{font-size:10pt;font-weight:600}
+    .cvp-item-sub{font-size:9pt;color:#666}
+    .cvp-tags{display:flex;flex-wrap:wrap;gap:.3rem}
+    .cvp-tag{font-size:8.5pt;background:#f0f0f0;padding:.15rem .45rem;border-radius:2px}
+  </style></head><body>${preview.innerHTML}</body></html>`);
+  w.document.close();
+  setTimeout(()=>{w.print();},400);
+}
+
 // ── ESC + TOAST → utils.js tarafından sağlanır ──
 
 // ── AUTH ──
@@ -1057,13 +1269,17 @@ function dismissWelcome(){
 
 // ── ARAÇLAR: ALT SEKME ──
 function switchArac(tab){
-  ['sayac','juri','olcek','alan','bingo','fikir'].forEach(t=>{
+  ['sayac','juri','olcek','alan','bingo','fikir','yazilim','program2','palet','cv'].forEach(t=>{
     document.getElementById('arac-'+t).classList.toggle('active',t===tab);
     document.getElementById('arac-tab-'+t).classList.toggle('active',t===tab);
   });
   if(tab==='sayac')renderSayac();
   if(tab==='alan')renderAlanProgram();
   if(tab==='bingo'&&!bingoKart.length)newBingo();
+  if(tab==='yazilim')renderYazilim('autocad');
+  if(tab==='program2')renderProgramSonuc();
+  if(tab==='palet')renderPalet();
+  if(tab==='cv')renderCvPreview();
 }
 
 // ── TESLİM SAYACI ──
@@ -1994,6 +2210,29 @@ if(newBingoBtn)newBingoBtn.addEventListener('click',newBingo);
 // Araç: Proje fikir
 const projeUretBtn=document.getElementById('projeUretBtn');
 if(projeUretBtn)projeUretBtn.addEventListener('click',projeUret);
+
+// Araç: Yazılım rehberi
+document.querySelectorAll('.yazilim-tab[data-yazilim]').forEach(b=>b.addEventListener('click',()=>switchYazilim(b.dataset.yazilim)));
+
+// Araç: Program hesaplayıcı
+const programHesaplaBtn=document.getElementById('programHesaplaBtn');
+if(programHesaplaBtn)programHesaplaBtn.addEventListener('click',renderProgramSonuc);
+const programAlan=document.getElementById('programAlan');
+if(programAlan)programAlan.addEventListener('input',renderProgramSonuc);
+const programTur=document.getElementById('programTur');
+if(programTur)programTur.addEventListener('change',renderProgramSonuc);
+const programKat=document.getElementById('programKat');
+if(programKat)programKat.addEventListener('input',renderProgramSonuc);
+
+// Araç: Renk paleti
+document.querySelectorAll('.palet-kat[data-palet]').forEach(b=>b.addEventListener('click',()=>{setPalet(b.dataset.palet);renderPalet();}));
+const paletUretBtn=document.getElementById('paletUretBtn');
+if(paletUretBtn)paletUretBtn.addEventListener('click',renderPalet);
+
+// Araç: CV şablonu
+document.querySelectorAll('.cv-input,.cv-textarea').forEach(el=>el.addEventListener('input',renderCvPreview));
+const cvYazdirBtn=document.getElementById('cvYazdir');
+if(cvYazdirBtn)cvYazdirBtn.addEventListener('click',cvYazdir);
 
 // Sözlük
 const sozlukSearch=document.getElementById('sozlukSearch');
