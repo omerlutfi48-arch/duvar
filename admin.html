@@ -632,10 +632,15 @@ async function deleteUser(nick) {
     sb.from('begeni').delete().eq('nick', nick),
     sb.from('anket_oylar').delete().eq('nick', nick),
   ]);
-  await sb.from('kullanicilar').delete().eq('nick', nick);
+  const {error} = await sb.from('kullanicilar').delete().eq('nick', nick);
+  if(error){
+    console.error('deleteUser hatası:', error);
+    toast(`// HATA: ${error.message} — Supabase RLS politikası eksik olabilir`);
+    return;
+  }
   await updateStats();
-  renderUsers();
-  renderPosts();
+  await renderUsers();
+  await renderPosts();
   toast(`// @${nick} hesabı ve tüm verileri silindi`);
 }
 
