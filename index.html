@@ -61,6 +61,8 @@ body::before{content:'';position:fixed;inset:0;background-image:repeating-linear
 .guest-btn:hover{border-color:var(--border2);color:var(--text)}
 .preq{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.06em;color:var(--muted);transition:color .15s}
 .preq.ok{color:#4caf50}
+.sifre-uyari{color:var(--yellow);font-weight:700;letter-spacing:.06em;animation:blink 1.2s step-start infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
 /* HEADER */
 header{position:relative;z-index:10;padding:2rem 2rem 1.5rem;border-bottom:2px solid var(--red);max-width:900px;margin:0 auto}
@@ -664,7 +666,7 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
     <div class="field hidden" id="authConfirmField"><label>şifre tekrar</label><input type="password" id="authPassConfirm" placeholder="şifreni tekrar yaz" maxlength="50"></div>
     <button class="modal-btn" id="authBtn" onclick="handleAuth()">GİRİŞ YAP</button>
     <div class="modal-note" id="authForgotNote">// şifreni unuttuysan yeni hesap açman gerekiyor — anonim platform, kurtarma yok.</div>
-    <div class="modal-note hidden" id="authRegisterNote">// gerçek isim girme. nickname bir kez alınır, başkası alamaz.</div>
+    <div class="modal-note hidden" id="authRegisterNote">// gerçek isim girme. nickname bir kez alınır, başkası alamaz.<br><span class="sifre-uyari">⚠ ŞİFRENİ UNUTMA — kurtarma yok, sıfırlama yok.</span></div>
     <button class="guest-btn" onclick="enterAsGuest()">sadece okumak istiyorum →</button>
   </div>
 </div>
