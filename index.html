@@ -684,6 +684,14 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
     <div class="rozet-wrap" id="profileRozetler"></div>
     <div class="panel-section-title">// gönderilerim</div>
     <div id="myPostsList"></div>
+    <button class="panel-btn" onclick="showNickChange()">✎ nickname değiştir</button>
+    <div class="hidden" id="nickChangeForm" style="margin-top:.8rem;display:flex;gap:.4rem">
+      <input id="newNickInput" type="text" placeholder="yeni nickname" maxlength="20" autocomplete="off"
+        style="flex:1;background:var(--surface2);border:1px solid var(--border);border-left:2px solid var(--yellow);color:var(--text);font-family:'Space Mono',monospace;font-size:.72rem;padding:.5rem .7rem;outline:none"
+        onkeydown="if(event.key==='Enter')changeNick()">
+      <button onclick="changeNick()" style="font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em;background:var(--yellow);color:#000;border:none;padding:.5rem 1rem;cursor:pointer">KAYDET</button>
+    </div>
+    <div class="modal-err" id="nickChangeErr" style="font-size:.62rem;min-height:.8rem"></div>
     <button class="panel-btn" onclick="logout()">çıkış yap</button>
     <button class="panel-btn" onclick="deleteAccount()" style="border-color:#5a0000;color:#c0392b;margin-top:2rem">⚠ hesabı sil</button>
   </div>
@@ -1444,6 +1452,47 @@ async function deleteMyPost(id){
     toast('// hata — yeniden yükleniyor');
     await loadPosts();
   }
+}
+function showNickChange(){
+  const f=document.getElementById('nickChangeForm');
+  f.classList.toggle('hidden');
+  if(!f.classList.contains('hidden'))document.getElementById('newNickInput').focus();
+  document.getElementById('nickChangeErr').textContent='';
+}
+async function changeNick(){
+  const newNick=document.getElementById('newNickInput').value.trim().toLowerCase().replace(/\s+/g,'_');
+  const err=document.getElementById('nickChangeErr');
+  if(newNick.length<2){err.textContent='// en az 2 karakter';return;}
+  if(!/^[a-zA-Z0-9_çğıöşüÇĞİÖŞÜ]+$/.test(newNick)){err.textContent='// sadece harf, rakam ve _';return;}
+  if(newNick===currentUser){err.textContent='// aynı nickname';return;}
+  err.textContent='// kontrol ediliyor...';
+  const {data:existing}=await sb.from('kullanicilar').select('nick').eq('nick',newNick).maybeSingle();
+  const users=getUsers();
+  if(existing||users[newNick]){err.textContent='// bu nickname alınmış';return;}
+  err.textContent='// güncelleniyor...';
+  const oldNick=currentUser;
+  // Supabase güncellemeleri
+  await Promise.all([
+    sb.from('kullanicilar').update({nick:newNick}).eq('nick',oldNick),
+    sb.from('posts').update({author:newNick}).eq('author',oldNick),
+    sb.from('yorumlar').update({nick:newNick}).eq('nick',oldNick),
+    sb.from('mesajlar').update({gonderen:newNick}).eq('gonderen',oldNick),
+    sb.from('mesajlar').update({alici:newNick}).eq('alici',oldNick),
+  ]);
+  // localStorage güncelle
+  users[newNick]={...users[oldNick]};
+  delete users[oldNick];
+  saveUsers(users);
+  localStorage.setItem(SESSION_KEY,JSON.stringify({nick:newNick}));
+  currentUser=newNick;
+  document.getElementById('userNickDisplay').textContent=newNick;
+  document.getElementById('writeAsNick').textContent=newNick;
+  document.getElementById('nickChangeForm').classList.add('hidden');
+  document.getElementById('newNickInput').value='';
+  err.textContent='';
+  toast('// nickname değiştirildi → @'+newNick);
+  await loadPosts();
+  openProfile();
 }
 async function deleteAccount(){
   if(!currentUser)return;
