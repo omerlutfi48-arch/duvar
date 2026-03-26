@@ -2102,6 +2102,30 @@ function closePanels(){
   document.getElementById('panelOverlay').classList.remove('open');
 }
 
+// ── DM E2EE ──
+async function deriveConvKey(nick1,nick2){
+  const sorted=[nick1,nick2].sort().join(':');
+  const raw=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(sorted+':duvar_dm_e2e_2026'));
+  return crypto.subtle.importKey('raw',raw,{name:'AES-GCM'},false,['encrypt','decrypt']);
+}
+async function encryptDM(text,nick1,nick2){
+  const key=await deriveConvKey(nick1,nick2);
+  const iv=crypto.getRandomValues(new Uint8Array(12));
+  const enc=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(text));
+  const combined=new Uint8Array(iv.byteLength+enc.byteLength);
+  combined.set(iv,0);combined.set(new Uint8Array(enc),iv.byteLength);
+  return btoa(String.fromCharCode(...combined));
+}
+async function decryptDM(b64,nick1,nick2){
+  try{
+    const combined=Uint8Array.from(atob(b64),c=>c.charCodeAt(0));
+    const iv=combined.slice(0,12),data=combined.slice(12);
+    const key=await deriveConvKey(nick1,nick2);
+    const dec=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,data);
+    return new TextDecoder().decode(dec);
+  }catch{return b64;}// eski şifrelenmemiş mesaj fallback
+}
+
 // ── DM ──
 let dmConversation=null;
 async function sbGetDMs(){
@@ -2111,7 +2135,8 @@ async function sbGetDMs(){
   return data||[];
 }
 async function sbSendDM(alici,metin){
-  const {error}=await sb.from('mesajlar').insert({gonderen:currentUser,alici,metin});
+  const sifreli=await encryptDM(metin,currentUser,alici);
+  const {error}=await sb.from('mesajlar').insert({gonderen:currentUser,alici,metin:sifreli});
   return !error;
 }
 async function sbMarkRead(gonderen){
@@ -2140,10 +2165,15 @@ async function openDMs(){
   const el=document.getElementById('dmContent');
   if(!convs.length){el.innerHTML='<div style="font-family:Space Mono,monospace;font-size:.7rem;color:var(--muted);padding:1.5rem 1rem">// henüz mesaj yok<br><br>Gönderilerdeki ✉ butonuna tıklayarak mesaj gönderebilirsin.</div>';
   }else{
-    el.innerHTML='<div class="dm-panel-list">'+convs.map(([nick,{last,unread}])=>`
+    // Önizleme metinlerini şifre çöz
+    const previews=await Promise.all(convs.map(([nick,{last}])=>{
+      const other=last.gonderen===currentUser?last.alici:last.gonderen;
+      return decryptDM(last.metin,currentUser,other);
+    }));
+    el.innerHTML='<div class="dm-panel-list">'+convs.map(([nick,{last,unread}],i)=>`
       <div class="dm-conv${unread?' unread':''}" onclick="openConversation('${esc(nick)}')">
         <div class="dm-conv-nick">@${esc(nick)}${unread?`<span class="dm-unread-dot"></span>`:''}</div>
-        <div class="dm-conv-preview">${esc(last.metin)}</div>
+        <div class="dm-conv-preview">${esc(previews[i])}</div>
       </div>`).join('')+'</div>';
   }
   document.getElementById('dmPanel').classList.add('open');
@@ -2164,12 +2194,20 @@ async function openConversation(nick){
   const msgs=await sbGetDMs();
   const thread=msgs.filter(m=>(m.gonderen===currentUser&&m.alici===nick)||(m.gonderen===nick&&m.alici===currentUser));
   const el=document.getElementById('dmContent');
-  el.innerHTML=`<button class="dm-back" onclick="openDMs()">← tüm mesajlar</button>
-    <div class="dm-thread" id="dmThread">${thread.length?thread.map(m=>`
+  // Mesajları şifre çözerek render et
+  let threadHTML='';
+  if(thread.length){
+    const decrypted=await Promise.all(thread.map(m=>decryptDM(m.metin,currentUser,nick)));
+    threadHTML=thread.map((m,i)=>`
       <div class="dm-msg ${m.gonderen===currentUser?'mine':'theirs'}">
-        <div>${esc(m.metin)}</div>
+        <div>${esc(decrypted[i])}</div>
         <div class="dm-msg-time">${relTime(m.created_at)}</div>
-      </div>`).join(''):'<div style="font-family:Space Mono,monospace;font-size:.7rem;color:var(--muted)">// henüz mesaj yok</div>'}</div>
+      </div>`).join('');
+  }else{
+    threadHTML='<div style="font-family:Space Mono,monospace;font-size:.7rem;color:var(--muted)">// henüz mesaj yok</div>';
+  }
+  el.innerHTML=`<button class="dm-back" onclick="openDMs()">← tüm mesajlar</button>
+    <div class="dm-thread" id="dmThread">${threadHTML}</div>
     <div class="dm-input-row">
       <input class="dm-input" id="dmInput" placeholder="mesajını yaz..." maxlength="300" onkeydown="if(event.key==='Enter')sendDM()">
       <button class="dm-send" onclick="sendDM()">GÖNDER</button>
