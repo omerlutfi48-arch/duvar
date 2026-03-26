@@ -782,6 +782,7 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
       <button onclick="changeNick()" style="font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em;background:var(--yellow);color:#000;border:none;padding:.5rem 1rem;cursor:pointer">KAYDET</button>
     </div>
     <div class="modal-err" id="nickChangeErr" style="font-size:.62rem;min-height:.8rem"></div>
+    <button class="panel-btn" id="pushToggleBtn" onclick="togglePushBtn()" style="margin-top:.5rem">🔔 bildirimleri aç</button>
     <button class="panel-btn" onclick="logout()">çıkış yap</button>
     <button class="panel-btn" onclick="deleteAccount()" style="border-color:#5a0000;color:#c0392b;margin-top:2rem">⚠ hesabı sil</button>
   </div>
@@ -1335,6 +1336,78 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
 const {createClient}=supabase;
 const sb=createClient('https://tnxflwddhucvlejmoihj.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRueGZsd2RkaHVjdmxlam1vaWhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjU5OTcsImV4cCI6MjA5MDA0MTk5N30.XFwCgn8lseNGsYDzigmHKDIBBRqByJ9gOpaPRmkT4Vs');
 
+// ── WEB PUSH ──
+const VAPID_PUBLIC_KEY='BAAjoBB1iDgAJNTOFh5V5o4K8nG06aSn55v3xxJz4HeAfGewcXFa-psingFnsHT2nI-G_brpC36k_awSsbVz9-8';
+
+function urlBase64ToUint8Array(b64){
+  const pad='='.repeat((4-b64.length%4)%4);
+  const raw=atob((b64+pad).replace(/-/g,'+').replace(/_/g,'/'));
+  return Uint8Array.from(raw,c=>c.charCodeAt(0));
+}
+
+async function subscribePush(){
+  if(!('serviceWorker' in navigator)||!('PushManager' in window))return;
+  try{
+    const reg=await navigator.serviceWorker.ready;
+    const perm=await Notification.requestPermission();
+    if(perm!=='granted'){toast('// bildirim izni verilmedi');return;}
+    const sub=await reg.pushManager.subscribe({
+      userVisibleOnly:true,
+      applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+    });
+    const k=sub.getKey('p256dh'),a=sub.getKey('auth');
+    const p256dh=btoa(String.fromCharCode(...new Uint8Array(k)));
+    const auth=btoa(String.fromCharCode(...new Uint8Array(a)));
+    await sb.from('push_subscriptions').upsert(
+      {nick:currentUser,endpoint:sub.endpoint,p256dh,auth},
+      {onConflict:'endpoint'}
+    );
+    toast('// bildirimler açıldı ✓');
+    localStorage.setItem('duvar_push_asked','1');
+  }catch(e){console.warn('push sub err',e);}
+}
+
+async function unsubscribePush(){
+  if(!('serviceWorker' in navigator))return;
+  const reg=await navigator.serviceWorker.ready;
+  const sub=await reg.pushManager.getSubscription();
+  if(sub){
+    await sb.from('push_subscriptions').delete().eq('endpoint',sub.endpoint);
+    await sub.unsubscribe();
+  }
+  toast('// bildirimler kapatıldı');
+}
+
+async function togglePushBtn(){
+  if(!('Notification' in window))return toast('// tarayıcın bildirim desteklemiyor');
+  const reg=await navigator.serviceWorker.ready;
+  const sub=await reg.pushManager.getSubscription();
+  if(sub){await unsubscribePush();updatePushBtn();}
+  else{await subscribePush();updatePushBtn();}
+}
+
+async function updatePushBtn(){
+  const btn=document.getElementById('pushToggleBtn');
+  if(!btn)return;
+  if(!('Notification' in window)){btn.style.display='none';return;}
+  const reg=await navigator.serviceWorker.ready;
+  const sub=await reg.pushManager.getSubscription();
+  const on=sub&&Notification.permission==='granted';
+  btn.textContent=on?'🔕 bildirimleri kapat':'🔔 bildirimleri aç';
+  btn.style.borderColor=on?'var(--yellow)':'';
+  btn.style.color=on?'var(--yellow)':'';
+}
+
+async function checkPushStatus(){
+  if(!('Notification' in window)||!currentUser)return;
+  if(Notification.permission==='granted'||localStorage.getItem('duvar_push_asked'))return;
+  // İlk girişten 10 sn sonra sor
+  setTimeout(()=>{
+    if(!currentUser)return;
+    toast('// 🔔 bildirim almak ister misin? <a href="#" onclick="subscribePush();return false" style="color:var(--yellow)">aç</a>',5000);
+  },10000);
+}
+
 // ── STORAGE ──
 const NOTIFS_KEY='duvar_notifs_';
 const getNotifs=u=>{try{return JSON.parse(localStorage.getItem(NOTIFS_KEY+u))||[];}catch{return[];}};
@@ -1674,6 +1747,7 @@ function loginSuccess(nick){
   document.getElementById('dmBtn').style.display='';
   document.getElementById('loginBtn').style.display='none';
   cleanOldNotifs(currentUser);checkNotifDot();loadDMDot();render();
+  checkPushStatus();
 }
 function enterAsGuest(){
   currentUser=null;
@@ -2107,6 +2181,7 @@ function openProfile(){
     :'<div style="font-family:Space Mono,monospace;font-size:.7rem;color:var(--muted);padding:1rem 0">// henüz gönderi yok</div>';
   document.getElementById('profilePanel').classList.add('open');
   document.getElementById('panelOverlay').classList.add('open');
+  updatePushBtn();
 }
 function closePanels(){
   ['profilePanel','notifPanel','dmPanel'].forEach(id=>document.getElementById(id).classList.remove('open'));
@@ -2285,7 +2360,7 @@ function dismissWelcome(){
 }
 
 // ── TOAST ──
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+function toast(msg,dur=2400){const t=document.getElementById('toast');t.innerHTML=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur);}
 
 // ── ARAÇLAR: ALT SEKME ──
 function switchArac(tab){
