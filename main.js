@@ -98,8 +98,12 @@ async function loadPosts(){
     comments:(p.yorumlar||[]).map(c=>({nick:c.nick,text:c.text,id:c.id}))
   }));
   if(currentUser){
-    const {data:likes}=await sb.from('begeni').select('post_id').eq('nick',currentUser);
+    const [{data:likes},{data:dislikes}]=await Promise.all([
+      sb.from('begeni').select('post_id').eq('nick',currentUser),
+      sb.from('begenmeme').select('post_id').eq('nick',currentUser)
+    ]);
     const likedSet=new Set((likes||[]).map(l=>l.post_id));
+    dislikedPosts=new Set((dislikes||[]).map(l=>l.post_id));
     posts.forEach(p=>{if(likedSet.has(p.id))p.fired=[currentUser];});
   }
   // Anket oyları
@@ -134,6 +138,12 @@ async function sbReact(id,nick){
   const liked=posts.find(p=>p.id===id)?.fired?.includes(nick);
   if(liked){await sb.rpc('geri_al_begen',{p_id:id,p_nick:nick});}
   else{await sb.rpc('artir_begen',{p_id:id,p_nick:nick});}
+  await loadPosts();
+}
+
+async function sbDislike(id,nick){
+  if(dislikedPosts.has(id)){await sb.rpc('geri_al_begenmeme',{p_id:id,p_nick:nick});}
+  else{await sb.rpc('artir_begenmeme',{p_id:id,p_nick:nick});}
   await loadPosts();
 }
 
@@ -236,6 +246,9 @@ const PAGE_SIZE=20;
 let posts=[];
 let bookmarks=JSON.parse(localStorage.getItem('duvar_bookmarks')||'[]');
 let reportedPosts=new Set(JSON.parse(localStorage.getItem('duvar_reported')||'[]'));
+let expandedPosts=new Set();
+let dislikedPosts=new Set();
+const TRUNCATE_LEN=200;
 let anketOpen=false;
 
 // ── TAG ──
@@ -1026,12 +1039,16 @@ function render(){
     return esc(t).replace(/#([\wçğışöüÇĞİŞÖÜ]+)/g,(m,tag)=>`<span class="tag-link" data-tag="${esc(tag)}">${m}</span>`);
   }
 
+  renderGununEnIyisi();
   const toShow=filtered.slice(0,visibleCount);
   grid.innerHTML=toShow.map((p,i)=>{
     const isMine=p.author===currentUser;
     const mF=p.fired&&p.fired.includes(currentUser);
+    const mD=dislikedPosts.has(p.id);
     const isBkm=bookmarks.includes(p.id);
     const isRep=reportedPosts.has(p.id);
+    const isExp=expandedPosts.has(p.id);
+    const needsTrunc=!isExp&&p.text.length>TRUNCATE_LEN;
     const mB=p.mood?`<span class="badge badge-mood-${p.mood}">${moodL[p.mood]||p.mood}</span>`:'';
     const tB=p.type?`<span class="badge badge-type-${p.type}">${typeL[p.type]||p.type}</span>`:'';
     // Anket HTML
@@ -1058,12 +1075,13 @@ function render(){
         ${p.pinned?'<span class="mini-tag pin-tag">📌 sabit</span>':''}
       </div>
       ${(mB||tB)?`<div class="post-badges">${tB}${mB}</div>`:''}
-      <div class="post-text">${renderText(p.text)}</div>
+      <div class="post-text">${renderText(needsTrunc?p.text.slice(0,TRUNCATE_LEN).trimEnd():p.text)}${needsTrunc?`<button class="devami-btn" data-pid="${p.id}"> devamını oku →</button>`:''}</div>
       ${anketHtml}
       <div class="post-bottom">
         <span class="post-time">${relTime(p.time)}</span>
         <div class="reactions">
           <button class="rxn${mF?' on':''}"onclick="react(${p.id},'like')" title="beğen">${mF?'❤️':'🤍'} ${p.fire||0}</button>
+          <button class="rxn${mD?' on dislike-on':''}"onclick="dislike(${p.id})" title="beğenme">${mD?'👎':'👎'} ${p.disfire||0}</button>
           <button class="rxn"onclick="toggleComments(${p.id})" title="yorum yap">💬 ${p.comments.length}</button>
           <button class="rxn bkm-btn${isBkm?' on':''}"onclick="toggleBookmark(${p.id})"title="${isBkm?'kaydı kaldır':'kaydet'}">${isBkm?'🔖':'🏷️'}</button>
           <button class="rxn" onclick="copyPostLink(${p.id})" title="linki kopyala">🔗</button>
@@ -1151,6 +1169,28 @@ async function react(id,type){
     if(p&&!p.fired.includes(currentUser))addNotif(p.author,currentUser,'❤️ gönderini beğendi');
     await sbReact(id,currentUser);
   }
+}
+async function dislike(id){
+  if(!currentUser){toast('// dislike için giriş yap');return;}
+  await sbDislike(id,currentUser);
+}
+function expandPost(pid){expandedPosts.add(pid);render();}
+function renderGununEnIyisi(){
+  const el=document.getElementById('gunEnIyisi');
+  if(!el)return;
+  const bugun=new Date();bugun.setHours(0,0,0,0);
+  const bugunPosts=posts.filter(p=>new Date(p.time)>=bugun&&p.aktif!==false);
+  if(bugunPosts.length<2){el.style.display='none';return;}
+  const enFire=[...bugunPosts].sort((a,b)=>(b.fire||0)-(a.fire||0))[0];
+  const enYorum=[...bugunPosts].sort((a,b)=>b.comments.length-a.comments.length)[0];
+  const top=[...new Map([[enFire.id,enFire],[enYorum.id,enYorum]]).values()];
+  el.style.display='block';
+  el.innerHTML='<div class="gun-baslik">// BUGÜNÜN EN İYİSİ</div>'
+    +top.map((p,i)=>`<div class="gun-kart" onclick="document.querySelector('[data-pid=\\'${p.id}\\']')?.scrollIntoView({behavior:'smooth',block:'center'})">
+      <span class="gun-etiket">${i===0?'🔥 en çok beğeni':'💬 en çok yorum'}</span>
+      <span class="gun-preview">${esc(p.text.slice(0,80))}${p.text.length>80?'…':''}</span>
+      <span class="gun-meta">❤️ ${p.fire||0} · 💬 ${p.comments.length}</span>
+    </div>`).join('');
 }
 function toggleComments(id){document.getElementById('c-'+id).classList.toggle('open');}
 async function sendComment(id){
@@ -2208,6 +2248,8 @@ async function submitFeedback(){
 document.getElementById('postsGrid').addEventListener('click',e=>{
   const tl=e.target.closest('.tag-link');
   if(tl&&tl.dataset.tag)setTagFilter(tl.dataset.tag);
+  const db=e.target.closest('.devami-btn');
+  if(db&&db.dataset.pid)expandPost(parseInt(db.dataset.pid));
 });
 
 // Welcome

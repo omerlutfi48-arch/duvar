@@ -758,6 +758,22 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
 .ai-kopyala-btn{font-size:.75rem;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.1rem .4rem;cursor:pointer;flex-shrink:0;transition:all .15s;font-family:var(--ff-mono)}
 .ai-kopyala-btn:hover{border-color:var(--yellow);color:var(--yellow)}
 
+/* DEVAMINI OKU */
+.devami-btn{font-family:var(--ff-mono);font-size:.65rem;color:var(--yellow);background:none;border:none;cursor:pointer;padding:0;margin-left:.3rem;opacity:.8;transition:opacity .15s}
+.devami-btn:hover{opacity:1}
+
+/* GÜNÜN EN İYİSİ */
+.gun-en-iyisi{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem;padding:.8rem;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--yellow)}
+.gun-baslik{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.12em;color:var(--yellow);width:100%;margin-bottom:.4rem}
+.gun-kart{flex:1;min-width:200px;background:var(--surface2);border:1px solid var(--border);padding:.6rem .8rem;cursor:pointer;transition:border-color .15s;display:flex;flex-direction:column;gap:.3rem}
+.gun-kart:hover{border-color:var(--yellow)}
+.gun-etiket{font-family:var(--ff-mono);font-size:.58rem;color:var(--muted);letter-spacing:.06em}
+.gun-preview{font-family:var(--ff-body);font-size:.75rem;color:var(--text);line-height:1.5}
+.gun-meta{font-family:var(--ff-mono);font-size:.6rem;color:var(--muted)}
+
+/* DISLIKE */
+.rxn.dislike-on{color:#888}
+
 /* RADYO */
 .radio-float-btn{position:fixed;bottom:5rem;right:1.2rem;z-index:900;background:var(--surface2);border:1px solid var(--border2);color:var(--text);font-size:1.3rem;width:2.8rem;height:2.8rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)}
 .radio-float-btn:hover{border-color:var(--yellow);background:var(--surface)}
