@@ -1,5 +1,6 @@
 # Hassas dosyalar
 takip/config.json
+takip/.env
 takip/goruldu.json
 takip/log.txt
 
