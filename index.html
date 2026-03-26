@@ -98,7 +98,8 @@ body::before{content:'';position:fixed;inset:0;background-image:repeating-linear
 /* HEADER */
 header{position:relative;z-index:10;padding:2rem 2rem 1.5rem;border-bottom:2px solid var(--red);max-width:900px;margin:0 auto}
 .header-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem}
-.site-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,10vw,6rem);letter-spacing:.05em;line-height:1;color:var(--text)}
+.site-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,10vw,6rem);letter-spacing:.05em;line-height:1;color:var(--text);display:flex;align-items:flex-end;gap:.6rem}
+.beta-badge{font-family:var(--ff-mono);font-size:.6rem;letter-spacing:.12em;color:var(--yellow);border:1px solid var(--yellow);padding:.15rem .45rem;margin-bottom:.6rem;opacity:.8;flex-shrink:0}
 .header-controls{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-top:.5rem}
 .user-nick{font-family:var(--ff-mono);font-size:.65rem;color:var(--yellow);letter-spacing:.1em;border:1px solid #3a3a00;padding:.3rem .7rem;background:#1a1a00}
 [data-theme="light"] .user-nick{background:#fffbe6;border-color:#d4b800}
@@ -844,7 +845,7 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
 <!-- HEADER -->
 <header>
   <div class="header-top">
-    <div class="site-title">DUVAR</div>
+    <div class="site-title">DUVAR<span class="beta-badge">BETA v1.0</span></div>
     <div class="header-controls">
       <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="tema">◑</button>
       <button class="icon-btn" onclick="openDMs()" id="dmBtn" title="mesajlar" style="display:none">✉<span class="notif-dot" id="dmDot"></span></button>
