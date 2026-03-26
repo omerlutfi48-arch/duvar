@@ -688,6 +688,9 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
   footer{padding:1.2rem 1rem 2rem}
   .side-panel{width:100vw}
   .toast{right:.8rem;left:.8rem;max-width:calc(100vw - 1.6rem)}
+  textarea{font-size:16px;min-height:120px;resize:vertical}
+  .reactions{flex-wrap:wrap;gap:.25rem}
+  .sort-btns{flex-wrap:wrap}
 }
 </style>
 </head>
@@ -1556,7 +1559,21 @@ function toggleTheme(){
   localStorage.setItem('duvar_theme',t);
   document.getElementById('themeBtn').textContent=t==='dark'?'◑':'◐';
 }
-(()=>{const t=localStorage.getItem('duvar_theme')||'dark';document.documentElement.setAttribute('data-theme',t);document.getElementById('themeBtn').textContent=t==='dark'?'◑':'◐';})();
+(()=>{
+  const saved=localStorage.getItem('duvar_theme');
+  const sys=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  const t=saved||sys;
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('themeBtn').textContent=t==='dark'?'◑':'◐';
+  if(!saved){
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',e=>{
+      if(localStorage.getItem('duvar_theme'))return;
+      const nt=e.matches?'dark':'light';
+      document.documentElement.setAttribute('data-theme',nt);
+      document.getElementById('themeBtn').textContent=nt==='dark'?'◑':'◐';
+    });
+  }
+})();
 
 // ── ESC ──
 const esc=t=>String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -1863,8 +1880,22 @@ function selectType(el,type){
   selectedType=selectedType===type?null:type;
   if(selectedType)el.classList.add('active');
 }
+function checkRateLimit(){
+  const key='duvar_ratelimit_'+currentUser;
+  const now=Date.now();const hour=60*60*1000;
+  const times=JSON.parse(localStorage.getItem(key)||'[]').filter(t=>now-t<hour);
+  if(times.length>=10){
+    const wait=Math.ceil((Math.min(...times)+hour-now)/60000);
+    toast(`// saatlik limit doldu — ${wait} dk sonra tekrar yaz`);
+    return false;
+  }
+  times.push(now);
+  localStorage.setItem(key,JSON.stringify(times));
+  return true;
+}
 async function addPost(){
   if(!currentUser)return;
+  if(!checkRateLimit())return;
   const {data:banRow,error:banErr}=await sb.from('kullanicilar').select('banli').eq('nick',currentUser).maybeSingle();
   if(banErr){toast('// bağlantı hatası, tekrar dene');return;}
   if(banRow?.banli){toast('// hesabın askıya alınmış');logout();return;}
@@ -2830,7 +2861,15 @@ document.addEventListener('keydown',e=>{
     sendComment(id);
   }
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeReport();closeTerms();closePanels();}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeReport();closeTerms();closePanels();closeUProfile();}});
+document.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  if(e.key==='/'){ e.preventDefault();const s=document.getElementById('searchInput');s.focus();s.scrollIntoView({behavior:'smooth',block:'center'});}
+  if((e.key==='n'||e.key==='N')&&!e.ctrlKey&&!e.metaKey){
+    if(!currentUser)return;
+    e.preventDefault();const m=document.getElementById('mainInput');m.focus();m.scrollIntoView({behavior:'smooth',block:'center'});
+  }
+});
 
 const session=getSession();
 if(session?.nick){const users=getUsers();if(users[session.nick]){loginSuccess(session.nick);}else{showWelcomeOrAuth();}}
