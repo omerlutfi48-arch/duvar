@@ -1,38 +1,120 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml"
+  xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+>
+
+  <!-- ── ANA SAYFA ── -->
   <url>
-    <loc>https://duvar.app/</loc>
+    <loc>https://duvar.site/</loc>
+    <lastmod>2026-03-26</lastmod>
     <changefreq>hourly</changefreq>
     <priority>1.0</priority>
   </url>
+
+  <!-- ── DUVAR (gönderi akışı) ── -->
   <url>
-    <loc>https://duvar.app/#sozluk</loc>
+    <loc>https://duvar.site/#duvar</loc>
+    <lastmod>2026-03-26</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- ── REHBER ── -->
+  <url>
+    <loc>https://duvar.site/#rehber</loc>
+    <lastmod>2026-03-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
+
+  <!-- ── SÖZLÜK ── -->
   <url>
-    <loc>https://duvar.app/#rehber</loc>
+    <loc>https://duvar.site/#sozluk</loc>
+    <lastmod>2026-03-26</lastmod>
     <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
+
+  <!-- ── ARAÇLAR (ana) ── -->
   <url>
-    <loc>https://duvar.app/#araclar</loc>
+    <loc>https://duvar.site/#araclar</loc>
+    <lastmod>2026-03-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- ── ARAÇLAR — Teslim Sayacı ── -->
+  <url>
+    <loc>https://duvar.site/#araclar/sayac</loc>
+    <lastmod>2026-03-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- ── ARAÇLAR — Jüri Simülatörü ── -->
+  <url>
+    <loc>https://duvar.site/#araclar/juri</loc>
+    <lastmod>2026-03-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- ── ARAÇLAR — Ölçek Hesaplayıcı ── -->
+  <url>
+    <loc>https://duvar.site/#araclar/olcek</loc>
+    <lastmod>2026-03-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- ── ARAÇLAR — Alan Programı ── -->
+  <url>
+    <loc>https://duvar.site/#araclar/alan</loc>
+    <lastmod>2026-03-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+
+  <!-- ── ARAÇLAR — Studio Bingo ── -->
+  <url>
+    <loc>https://duvar.site/#araclar/bingo</loc>
+    <lastmod>2026-03-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- ── ARAÇLAR — Proje Fikir Üretici ── -->
+  <url>
+    <loc>https://duvar.site/#araclar/fikir</loc>
+    <lastmod>2026-03-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- ── MİMARLAR ── -->
+  <url>
+    <loc>https://duvar.site/#mimarlar</loc>
+    <lastmod>2026-03-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
+
+  <!-- ── İLANLAR ── -->
   <url>
-    <loc>https://duvar.app/#mimarlar</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://duvar.app/#ilanlar</loc>
+    <loc>https://duvar.site/#ilanlar</loc>
+    <lastmod>2026-03-26</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
+
+  <!-- ── ETKİNLİK ── -->
   <url>
-    <loc>https://duvar.app/#etkinlik</loc>
+    <loc>https://duvar.site/#etkinlik</loc>
+    <lastmod>2026-03-26</lastmod>
     <changefreq>daily</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
+
 </urlset>

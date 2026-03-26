@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /admin.html
 
-Sitemap: https://duvar.app/sitemap.xml
+Sitemap: https://duvar.site/sitemap.xml
