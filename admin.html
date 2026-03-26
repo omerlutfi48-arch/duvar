@@ -577,6 +577,7 @@ async function renderUsers() {
         <button class="action-btn ${isBanned ? 'success' : 'danger'}" onclick="toggleBan('${nick}',${isBanned})">
           ${isBanned ? '✓ banı kaldır' : '🚫 banla'}
         </button>
+        <button class="action-btn danger" onclick="confirmDeleteUser('${nick}')">🗑 hesabı sil</button>
       </div>
     </div>`;
   }).join('');
@@ -612,6 +613,30 @@ async function toggleBan(nick, isBanned) {
   await updateStats();
   renderUsers();
   renderPosts();
+}
+
+function confirmDeleteUser(nick) {
+  openConfirm(
+    `@${nick.toUpperCase()} HESABI SİL`,
+    `// @${nick} kullanıcısının TÜM gönderileri, yorumları ve hesabı kalıcı olarak silinecek. Bu işlem geri alınamaz.`,
+    () => deleteUser(nick)
+  );
+}
+
+async function deleteUser(nick) {
+  // Tüm gönderilerini, yorumlarını, mesajlarını, beğenilerini ve hesabı sil
+  await Promise.all([
+    sb.from('posts').delete().eq('author', nick),
+    sb.from('yorumlar').delete().eq('nick', nick),
+    sb.from('mesajlar').delete().or(`gonderen.eq.${nick},alici.eq.${nick}`),
+    sb.from('begeni').delete().eq('nick', nick),
+    sb.from('anket_oylar').delete().eq('nick', nick),
+  ]);
+  await sb.from('kullanicilar').delete().eq('nick', nick);
+  await updateStats();
+  renderUsers();
+  renderPosts();
+  toast(`// @${nick} hesabı ve tüm verileri silindi`);
 }
 
 // ── CONFIRM MODAL ──

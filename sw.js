@@ -1,8 +1,12 @@
-const CACHE = 'duvar-v1';
+const CACHE = 'duvar-v2';
 const ASSETS = [
   '/',
   '/index.html',
-  '/manifest.json'
+  '/manifest.json',
+  '/favicon-32.png',
+  '/favicon-16.png',
+  '/icon-192.png',
+  '/icon-512.png'
 ];
 
 self.addEventListener('install', e => {
