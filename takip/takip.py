@@ -73,6 +73,13 @@ def goruldu_kaydet(goruldu):
         json.dump(liste, f, ensure_ascii=False)
 
 
+def temizle(metin):
+    """Sorunlu unicode karakterleri temizle (Windows charmap hatası önler)."""
+    if not isinstance(metin, str):
+        metin = str(metin)
+    return metin.replace('\ufffd', '?').encode('utf-8', errors='replace').decode('utf-8')
+
+
 def anahtar_kelime_kontrol(baslik, ozet, anahtar_kelimeler):
     metin = (baslik + ' ' + ozet).lower()
     for k in anahtar_kelimeler:
@@ -101,7 +108,7 @@ def feedleri_tara(config, goruldu):
             log(f"  → {len(feed.entries)} içerik bulundu")
 
             for entry in feed.entries:
-                entry_id = getattr(entry, 'id', None) or getattr(entry, 'link', '')
+                entry_id = temizle(getattr(entry, 'id', None) or getattr(entry, 'link', ''))
                 if not entry_id:
                     continue
 
@@ -109,9 +116,9 @@ def feedleri_tara(config, goruldu):
                 if entry_id in goruldu:
                     continue
 
-                baslik = getattr(entry, 'title', '')
-                ozet = getattr(entry, 'summary', '') or getattr(entry, 'description', '')
-                link = getattr(entry, 'link', '')
+                baslik = temizle(getattr(entry, 'title', ''))
+                ozet = temizle(getattr(entry, 'summary', '') or getattr(entry, 'description', ''))
+                link = temizle(getattr(entry, 'link', ''))
 
                 # Anahtar kelime kontrolü
                 eslesen = anahtar_kelime_kontrol(baslik, ozet, anahtar_kelimeler)
