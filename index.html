@@ -326,6 +326,8 @@ textarea:focus{border-bottom-color:var(--red)}
 .dm-msg.theirs{background:var(--surface2);color:var(--text);align-self:flex-start;border:1px solid var(--border);border-bottom-left-radius:0}
 .dm-msg-time{font-size:.56rem;opacity:.65;margin-top:.3rem}
 .dm-input-row{display:flex;gap:.4rem;padding:.8rem 1rem;border-top:1px solid var(--border)}
+.dm-e2ee-badge{display:flex;align-items:center;gap:.35rem;font-family:'Space Mono',monospace;font-size:.6rem;color:#4caf50;padding:.35rem 1rem;border-bottom:1px solid var(--border);opacity:.75;letter-spacing:.03em}
+.dm-e2ee-badge svg{flex-shrink:0}
 .dm-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-left:2px solid var(--yellow);color:var(--text);font-family:var(--ff-mono);font-size:.72rem;padding:.5rem .7rem;outline:none}
 .dm-send{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em;background:var(--yellow);color:#000;border:none;padding:.5rem 1rem;cursor:pointer}
 .dm-back{font-family:var(--ff-mono);font-size:.62rem;color:var(--muted);background:transparent;border:none;cursor:pointer;padding:.5rem 1rem;border-bottom:1px solid var(--border);display:block;width:100%;text-align:left}
@@ -2207,6 +2209,10 @@ async function openConversation(nick){
     threadHTML='<div style="font-family:Space Mono,monospace;font-size:.7rem;color:var(--muted)">// henüz mesaj yok</div>';
   }
   el.innerHTML=`<button class="dm-back" onclick="openDMs()">← tüm mesajlar</button>
+    <div class="dm-e2ee-badge">
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      uçtan uca şifreli
+    </div>
     <div class="dm-thread" id="dmThread">${threadHTML}</div>
     <div class="dm-input-row">
       <input class="dm-input" id="dmInput" placeholder="mesajını yaz..." maxlength="300" onkeydown="if(event.key==='Enter')sendDM()">
