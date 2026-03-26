@@ -206,6 +206,14 @@ body::before {
     <div class="stat-box"><div class="stat-num red" id="statBanned">—</div><div class="stat-label">banlı kullanıcı</div></div>
     <div class="stat-box"><div class="stat-num green" id="statAcil">—</div><div class="stat-label">acil gönderi</div></div>
     <div class="stat-box"><div class="stat-num yellow" id="statFeedback">—</div><div class="stat-label">geri bildirim</div></div>
+    <div class="stat-box"><div class="stat-num" id="statYorumlar">—</div><div class="stat-label">toplam yorum</div></div>
+    <div class="stat-box"><div class="stat-num" id="statMesajlar">—</div><div class="stat-label">dm mesajı</div></div>
+    <div class="stat-box"><div class="stat-num" id="statBegeni">—</div><div class="stat-label">beğeni</div></div>
+  </div>
+  <div style="margin-bottom:2rem;display:flex;gap:.6rem;flex-wrap:wrap">
+    <button class="action-btn warn" onclick="cleanOldDMs()">🧹 90+ günlük DM'leri sil</button>
+    <button class="action-btn warn" onclick="cleanOldFeedback()">🧹 çözülmüş bildirimleri sil</button>
+    <div id="cleanResult" style="font-family:'Space Mono',monospace;font-size:.65rem;color:#4caf50;align-self:center"></div>
   </div>
 
   <!-- TABS -->
@@ -362,7 +370,13 @@ const ADMIN_EMAIL = 'omerlutfi48@gmail.com';
 })();
 
 async function updateStats() {
-  const [posts, reports, feedback, banned, users] = await Promise.all([getPosts(), getReports(), getFeedback(), getBanned(), getUsers()]);
+  const [posts, reports, feedback, banned, users,
+         yorumlarRes, mesajlarRes, begeniRes] = await Promise.all([
+    getPosts(), getReports(), getFeedback(), getBanned(), getUsers(),
+    sb.from('yorumlar').select('id',{count:'exact',head:true}),
+    sb.from('mesajlar').select('id',{count:'exact',head:true}),
+    sb.from('begeni').select('id',{count:'exact',head:true})
+  ]);
   const pending = reports.length;
   const acil = posts.filter(p => p.type === 'acil').length;
   const feedbackPending = feedback.filter(f => !f.okundu).length;
@@ -375,6 +389,26 @@ async function updateStats() {
   document.getElementById('reportBadge').textContent = pending;
   document.getElementById('statFeedback').textContent = feedback.length;
   document.getElementById('feedbackBadge').textContent = feedbackPending;
+  document.getElementById('statYorumlar').textContent = yorumlarRes.count ?? '—';
+  document.getElementById('statMesajlar').textContent = mesajlarRes.count ?? '—';
+  document.getElementById('statBegeni').textContent = begeniRes.count ?? '—';
+}
+
+async function cleanOldDMs() {
+  const cutoff = new Date(Date.now() - 90*24*60*60*1000).toISOString();
+  const {count,error} = await sb.from('mesajlar').delete({count:'exact'}).lt('created_at',cutoff);
+  const el = document.getElementById('cleanResult');
+  if(error){el.textContent='// hata: '+error.message;el.style.color='#c0392b';}
+  else{el.textContent=`// ${count??0} eski DM silindi`;el.style.color='#4caf50';}
+  await updateStats();
+}
+
+async function cleanOldFeedback() {
+  const {count,error} = await sb.from('feedback').delete({count:'exact'}).eq('okundu',true);
+  const el = document.getElementById('cleanResult');
+  if(error){el.textContent='// hata: '+error.message;el.style.color='#c0392b';}
+  else{el.textContent=`// ${count??0} çözülmüş bildirim silindi`;el.style.color='#4caf50';}
+  await updateStats();
 }
 
 // ── TABS ──

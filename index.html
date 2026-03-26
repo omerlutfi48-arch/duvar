@@ -1623,7 +1623,7 @@ function loginSuccess(nick){
   document.getElementById('notifBtn').style.display='';
   document.getElementById('dmBtn').style.display='';
   document.getElementById('loginBtn').style.display='none';
-  checkNotifDot();loadDMDot();render();
+  cleanOldNotifs(currentUser);checkNotifDot();loadDMDot();render();
 }
 function enterAsGuest(){
   currentUser=null;
@@ -1909,9 +1909,18 @@ async function sendComment(id){
 }
 
 // ── BİLDİRİMLER ──
+function cleanOldNotifs(user){
+  const cutoff=Date.now()-30*24*60*60*1000;
+  const notifs=getNotifs(user).filter(n=>new Date(n.time).getTime()>cutoff);
+  saveNotifs(user,notifs);
+}
 function addNotif(toUser,fromUser,action){
   if(!toUser||toUser===fromUser)return;
   const notifs=getNotifs(toUser);
+  // Yinelenen bildirim engelle: aynı from+action 60 dk içinde tekrar gelmesin
+  const recent=Date.now()-60*60*1000;
+  const dup=notifs.find(n=>n.from===fromUser&&n.action===action&&new Date(n.time).getTime()>recent);
+  if(dup)return;
   notifs.unshift({from:fromUser,action,time:new Date().toISOString(),read:false});
   if(notifs.length>50)notifs.pop();
   saveNotifs(toUser,notifs);
