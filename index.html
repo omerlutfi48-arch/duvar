@@ -228,6 +228,27 @@ textarea:focus{border-bottom-color:var(--red)}
 .my-post-mini-meta{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);margin-top:.4rem;display:flex;gap:.8rem}
 .panel-btn{width:100%;font-family:'Space Mono',monospace;font-size:.65rem;letter-spacing:.1em;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.6rem;cursor:pointer;transition:all .15s;margin-top:.5rem}
 .panel-btn:hover{border-color:var(--red);color:var(--red)}
+.rozet-wrap{display:flex;flex-wrap:wrap;gap:.4rem;margin:.8rem 0}
+.rozet{font-family:'Space Mono',monospace;font-size:.62rem;padding:.25rem .55rem;border:1px solid var(--border);color:var(--text2);background:var(--surface2);letter-spacing:.04em}
+.dm-btn{font-family:'Space Mono',monospace;font-size:.6rem;background:transparent;border:none;color:var(--muted);cursor:pointer;padding:.1rem .3rem;transition:color .15s}
+.dm-btn:hover{color:var(--yellow)}
+.dm-panel-list{padding:.5rem 0}
+.dm-conv{padding:.8rem 1rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
+.dm-conv:hover{background:var(--surface2)}
+.dm-conv-nick{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--text)}
+.dm-conv-preview{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);margin-top:.2rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-conv.unread .dm-conv-nick{color:var(--yellow)}
+.dm-thread{display:flex;flex-direction:column;gap:.6rem;padding:.8rem 1rem;overflow-y:auto;max-height:60vh}
+.dm-msg{font-family:'Space Mono',monospace;font-size:.7rem;line-height:1.6;padding:.5rem .8rem;max-width:85%}
+.dm-msg.mine{background:var(--red);color:#fff;align-self:flex-end}
+.dm-msg.theirs{background:var(--surface2);color:var(--text);align-self:flex-start}
+.dm-msg-time{font-size:.55rem;opacity:.6;margin-top:.2rem}
+.dm-input-row{display:flex;gap:.4rem;padding:.8rem 1rem;border-top:1px solid var(--border)}
+.dm-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-left:2px solid var(--yellow);color:var(--text);font-family:'Space Mono',monospace;font-size:.72rem;padding:.5rem .7rem;outline:none}
+.dm-send{font-family:'Bebas Neue',sans-serif;font-size:.9rem;letter-spacing:.1em;background:var(--yellow);color:#000;border:none;padding:.5rem 1rem;cursor:pointer}
+.dm-back{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);background:transparent;border:none;cursor:pointer;padding:.5rem 1rem;border-bottom:1px solid var(--border);display:block;width:100%;text-align:left}
+.dm-back:hover{color:var(--text)}
+.dm-unread-dot{display:inline-block;width:6px;height:6px;background:var(--yellow);border-radius:50%;margin-left:.3rem;vertical-align:middle}
 .notif-item{padding:1rem 1.5rem;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s}
 .notif-item:hover{background:var(--surface2)}
 .notif-item.unread{border-left:3px solid var(--red)}
@@ -659,6 +680,7 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
   <div class="panel-body">
     <div class="panel-nick" id="profileNick"></div>
     <div class="panel-stats" id="profileStats"></div>
+    <div class="rozet-wrap" id="profileRozetler"></div>
     <div class="panel-section-title">// gönderilerim</div>
     <div id="myPostsList"></div>
     <button class="panel-btn" onclick="logout()">çıkış yap</button>
@@ -673,6 +695,15 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
     <button class="panel-close" onclick="closePanels()">✕ kapat</button>
   </div>
   <div id="notifList"></div>
+</div>
+
+<!-- DM PANELİ -->
+<div class="side-panel" id="dmPanel">
+  <div class="panel-header">
+    <div class="panel-title" id="dmPanelTitle">// MESAJLAR</div>
+    <button class="panel-close" onclick="closePanels()">✕ kapat</button>
+  </div>
+  <div id="dmContent"></div>
 </div>
 
 <!-- REPORT -->
@@ -718,6 +749,7 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
     <div class="site-title">DUVAR</div>
     <div class="header-controls">
       <button class="icon-btn" onclick="toggleTheme()" id="themeBtn" title="tema">◑</button>
+      <button class="icon-btn" onclick="openDMs()" id="dmBtn" title="mesajlar" style="display:none">✉<span class="notif-dot" id="dmDot"></span></button>
       <button class="icon-btn" onclick="openNotifs()" id="notifBtn" title="bildirimler" style="display:none">◉<span class="notif-dot" id="notifDot"></span></button>
       <span class="user-nick" id="userNickDisplay" style="display:none;cursor:pointer" onclick="openProfile()" title="profil"></span>
       <button class="icon-btn" onclick="showAuth()" id="loginBtn" title="giriş yap / kayıt ol" style="border-color:var(--red);color:var(--red)">GİR →</button>
@@ -798,6 +830,7 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
       <div class="sort-btns">
         <button class="sort-btn active" id="sort-new" onclick="setSort('new',this)">↓ yeni</button>
         <button class="sort-btn" id="sort-top" onclick="setSort('top',this)">⚡ popüler</button>
+        <button class="sort-btn" id="sort-week" onclick="setSort('week',this)">📅 bu hafta</button>
       </div>
     </div>
 
@@ -1238,6 +1271,11 @@ async function sbFeedback(tip,mesaj){
 sb.channel('duvar-realtime')
   .on('postgres_changes',{event:'*',schema:'public',table:'posts'},()=>loadPosts())
   .on('postgres_changes',{event:'INSERT',schema:'public',table:'yorumlar'},()=>loadPosts())
+  .on('postgres_changes',{event:'INSERT',schema:'public',table:'mesajlar'},()=>{
+    loadDMDot();
+    if(dmConversation)openConversation(dmConversation);
+    else if(document.getElementById('dmPanel').classList.contains('open'))openDMs();
+  })
   .subscribe();
 
 // Yedek: realtime çalışmasa da 30 saniyede bir güncelle
@@ -1375,8 +1413,9 @@ function loginSuccess(nick){
   document.getElementById('writeBox').classList.remove('locked');
   document.getElementById('lockNotice').classList.remove('show');
   document.getElementById('notifBtn').style.display='';
+  document.getElementById('dmBtn').style.display='';
   document.getElementById('loginBtn').style.display='none';
-  checkNotifDot();render();
+  checkNotifDot();loadDMDot();render();
 }
 function enterAsGuest(){
   currentUser=null;
@@ -1385,6 +1424,7 @@ function enterAsGuest(){
   document.getElementById('lockNotice').classList.add('show');
   document.getElementById('userNickDisplay').style.display='none';
   document.getElementById('notifBtn').style.display='none';
+  document.getElementById('dmBtn').style.display='none';
   document.getElementById('loginBtn').style.display='';
   render();
 }
@@ -1420,6 +1460,7 @@ async function deleteAccount(){
   currentUser=null;
   document.getElementById('userNickDisplay').style.display='none';
   document.getElementById('notifBtn').style.display='none';
+  document.getElementById('dmBtn').style.display='none';
   document.getElementById('loginBtn').style.display='';
   document.getElementById('writeBox').classList.add('locked');
   document.getElementById('lockNotice').classList.add('show');
@@ -1431,6 +1472,7 @@ function logout(){
   currentUser=null;localStorage.removeItem(SESSION_KEY);
   document.getElementById('userNickDisplay').style.display='none';
   document.getElementById('notifBtn').style.display='none';
+  document.getElementById('dmBtn').style.display='none';
   document.getElementById('loginBtn').style.display='';
   document.getElementById('writeBox').classList.add('locked');
   document.getElementById('lockNotice').classList.add('show');
@@ -1487,8 +1529,9 @@ function render(){
   let filtered=[...posts];
   if(activeFilter.kind!=='all'){filtered=filtered.filter(p=>p[activeFilter.kind]===activeFilter.val);}
   if(q){filtered=filtered.filter(p=>p.text.toLowerCase().includes(q)||p.author.toLowerCase().includes(q));}
+  if(activeSort==='week'){const w=Date.now()-7*24*60*60*1000;filtered=filtered.filter(p=>new Date(p.time)>=w);}
   // sıralama
-  if(activeSort==='top'){
+  if(activeSort==='top'||activeSort==='week'){
     filtered.sort((a,b)=>(b.type==='acil'?1:0)-(a.type==='acil'?1:0)||(b.pinned?1:0)-(a.pinned?1:0)||((b.fire||0)-(a.fire||0)));
   } else {
     filtered.sort((a,b)=>(b.type==='acil'?1:0)-(a.type==='acil'?1:0)||(b.pinned?1:0)-(a.pinned?1:0));
@@ -1504,7 +1547,7 @@ function render(){
     return`<div class="post${isMine?' mine':''}${p.pinned?' pinned-post':''}"style="animation-delay:${Math.min(i,6)*.05}s">
       <div class="post-header">
         <span class="post-number">#${String(filtered.length-i).padStart(3,'0')}</span>
-        <span class="post-author${isMine?' me':''}">${esc(p.author)}</span>
+        <span class="post-author${isMine?' me':''}">${esc(p.author)}</span>${!isMine&&currentUser?`<button class="dm-btn" onclick="openConversation('${esc(p.author)}')" title="mesaj gönder">✉</button>`:''}
         ${isMine?'<span class="mini-tag mine-tag">sen</span>':''}
         ${p.pinned?'<span class="mini-tag pin-tag">📌 sabit</span>':''}
       </div>
@@ -1609,31 +1652,133 @@ function openNotifs(){
   document.getElementById('panelOverlay').classList.add('open');
 }
 
+// ── ROZETLER ──
+function getRozetler(myPosts,totalLikes){
+  const r=[];
+  if(myPosts.length>=1)r.push('🏛 ilk adım');
+  if(myPosts.length>=5)r.push('✏️ aktif üye');
+  if(myPosts.length>=15)r.push('🏗 sütun');
+  if(myPosts.length>=30)r.push('🔥 usta');
+  if(totalLikes>=10)r.push('❤️ sevilen');
+  if(totalLikes>=50)r.push('⭐ popüler');
+  if(totalLikes>=100)r.push('👑 efsane');
+  const cevap=myPosts.filter(p=>p.comments.length>0&&p.type==='soru').length;
+  if(cevap>=3)r.push('💡 yardımsever');
+  return r;
+}
+
 // ── PROFİL ──
 function openProfile(){
   if(!currentUser)return;
   closePanels();
   document.getElementById('profileNick').textContent=currentUser;
   const myPosts=posts.filter(p=>p.author===currentUser);
-  const tF=myPosts.reduce((s,p)=>s+p.fire,0);
+  const tF=myPosts.reduce((s,p)=>s+(p.fire||0),0);
   document.getElementById('profileStats').innerHTML=`
     <div class="panel-stat"><div class="panel-stat-num">${myPosts.length}</div><div class="panel-stat-label">gönderi</div></div>
     <div class="panel-stat"><div class="panel-stat-num">${tF}</div><div class="panel-stat-label">❤️ toplam</div></div>
-    <div class="panel-stat"><div class="panel-stat-num">${myPosts.reduce((s,p)=>s+p.comments.length,0)}</div><div class="panel-stat-label">yorum aldı</div></div>
-    <div class="panel-stat"><div class="panel-stat-num">${myPosts.filter(p=>p.type==='acil').length}</div><div class="panel-stat-label">acil gönderi</div></div>`;
+    <div class="panel-stat"><div class="panel-stat-num">${myPosts.reduce((s,p)=>s+p.comments.length,0)}</div><div class="panel-stat-label">yorum aldı</div></div>`;
+  const rozetler=getRozetler(myPosts,tF);
+  document.getElementById('profileRozetler').innerHTML=rozetler.length
+    ?rozetler.map(r=>`<span class="rozet">${r}</span>`).join('')
+    :'<span style="font-family:Space Mono,monospace;font-size:.62rem;color:var(--muted)">// henüz rozet yok — gönderi at!</span>';
   document.getElementById('myPostsList').innerHTML=myPosts.length
     ?myPosts.map(p=>`<div class="my-post-mini">
       ${p.type?`<span style="font-family:Space Mono,monospace;font-size:.55rem;color:var(--muted)">${typeL[p.type]||p.type} · </span>`:''}
       <div class="my-post-mini-text">${esc(p.text)}</div>
-      <div class="my-post-mini-meta"><span>⚡ ${p.fire}</span><span>◎ ${p.hug}</span><span>↳ ${p.comments.length}</span><span>${p.time}</span></div>
+      <div class="my-post-mini-meta"><span>❤️ ${p.fire||0}</span><span>↳ ${p.comments.length}</span><span>${relTime(p.time)}</span></div>
     </div>`).join('')
     :'<div style="font-family:Space Mono,monospace;font-size:.7rem;color:var(--muted);padding:1rem 0">// henüz gönderi yok</div>';
   document.getElementById('profilePanel').classList.add('open');
   document.getElementById('panelOverlay').classList.add('open');
 }
 function closePanels(){
-  ['profilePanel','notifPanel'].forEach(id=>document.getElementById(id).classList.remove('open'));
+  ['profilePanel','notifPanel','dmPanel'].forEach(id=>document.getElementById(id).classList.remove('open'));
   document.getElementById('panelOverlay').classList.remove('open');
+}
+
+// ── DM ──
+let dmConversation=null;
+async function sbGetDMs(){
+  const {data}=await sb.from('mesajlar').select('*')
+    .or(`gonderen.eq.${currentUser},alici.eq.${currentUser}`)
+    .order('created_at',{ascending:true});
+  return data||[];
+}
+async function sbSendDM(alici,metin){
+  const {error}=await sb.from('mesajlar').insert({gonderen:currentUser,alici,metin});
+  return !error;
+}
+async function sbMarkRead(gonderen){
+  await sb.from('mesajlar').update({okundu:true}).eq('gonderen',gonderen).eq('alici',currentUser).eq('okundu',false);
+}
+async function loadDMDot(){
+  if(!currentUser)return;
+  const {data}=await sb.from('mesajlar').select('id').eq('alici',currentUser).eq('okundu',false);
+  document.getElementById('dmDot').classList.toggle('show',(data||[]).length>0);
+}
+async function openDMs(){
+  if(!currentUser)return;
+  dmConversation=null;
+  closePanels();
+  document.getElementById('dmPanelTitle').textContent='// MESAJLAR';
+  const msgs=await sbGetDMs();
+  // Konuşmaları grupla
+  const convMap={};
+  msgs.forEach(m=>{
+    const other=m.gonderen===currentUser?m.alici:m.gonderen;
+    if(!convMap[other])convMap[other]={last:m,unread:0};
+    convMap[other].last=m;
+    if(m.alici===currentUser&&!m.okundu)convMap[other].unread++;
+  });
+  const convs=Object.entries(convMap).sort((a,b)=>new Date(b[1].last.created_at)-new Date(a[1].last.created_at));
+  const el=document.getElementById('dmContent');
+  if(!convs.length){el.innerHTML='<div style="font-family:Space Mono,monospace;font-size:.7rem;color:var(--muted);padding:1.5rem 1rem">// henüz mesaj yok<br><br>Gönderilerdeki ✉ butonuna tıklayarak mesaj gönderebilirsin.</div>';
+  }else{
+    el.innerHTML='<div class="dm-panel-list">'+convs.map(([nick,{last,unread}])=>`
+      <div class="dm-conv${unread?' unread':''}" onclick="openConversation('${esc(nick)}')">
+        <div class="dm-conv-nick">@${esc(nick)}${unread?`<span class="dm-unread-dot"></span>`:''}</div>
+        <div class="dm-conv-preview">${esc(last.metin)}</div>
+      </div>`).join('')+'</div>';
+  }
+  document.getElementById('dmPanel').classList.add('open');
+  document.getElementById('panelOverlay').classList.add('open');
+  loadDMDot();
+}
+async function openConversation(nick){
+  if(!currentUser)return;
+  dmConversation=nick;
+  if(!document.getElementById('dmPanel').classList.contains('open')){
+    closePanels();
+    document.getElementById('dmPanel').classList.add('open');
+    document.getElementById('panelOverlay').classList.add('open');
+  }
+  document.getElementById('dmPanelTitle').textContent=`// @${nick}`;
+  await sbMarkRead(nick);
+  loadDMDot();
+  const msgs=await sbGetDMs();
+  const thread=msgs.filter(m=>(m.gonderen===currentUser&&m.alici===nick)||(m.gonderen===nick&&m.alici===currentUser));
+  const el=document.getElementById('dmContent');
+  el.innerHTML=`<button class="dm-back" onclick="openDMs()">← tüm mesajlar</button>
+    <div class="dm-thread" id="dmThread">${thread.length?thread.map(m=>`
+      <div class="dm-msg ${m.gonderen===currentUser?'mine':'theirs'}">
+        <div>${esc(m.metin)}</div>
+        <div class="dm-msg-time">${relTime(m.created_at)}</div>
+      </div>`).join(''):'<div style="font-family:Space Mono,monospace;font-size:.7rem;color:var(--muted)">// henüz mesaj yok</div>'}</div>
+    <div class="dm-input-row">
+      <input class="dm-input" id="dmInput" placeholder="mesajını yaz..." maxlength="300" onkeydown="if(event.key==='Enter')sendDM()">
+      <button class="dm-send" onclick="sendDM()">GÖNDER</button>
+    </div>`;
+  const thread_el=document.getElementById('dmThread');
+  if(thread_el)thread_el.scrollTop=thread_el.scrollHeight;
+}
+async function sendDM(){
+  const inp=document.getElementById('dmInput');
+  if(!inp||!dmConversation)return;
+  const val=inp.value.trim();if(!val)return;
+  inp.value='';
+  await sbSendDM(dmConversation,val);
+  openConversation(dmConversation);
 }
 
 // ── REPORT ──
