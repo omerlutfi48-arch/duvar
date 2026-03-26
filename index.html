@@ -142,6 +142,39 @@ main{max-width:900px;margin:0 auto;padding:1.5rem 2rem 4rem;position:relative;z-
 .ctrl-hint{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);letter-spacing:.05em;opacity:.7}
 .bkm-btn{color:var(--muted)}
 .bkm-btn.on{color:var(--yellow)}
+/* TAG */
+.tag-link{color:var(--yellow);cursor:pointer;font-weight:700;text-decoration:none}
+.tag-link:hover{text-decoration:underline}
+.post.highlighted{outline:2px solid var(--yellow);outline-offset:2px;animation:highlight-fade 3s forwards}
+@keyframes highlight-fade{0%,70%{outline-color:var(--yellow)}100%{outline-color:transparent}}
+/* DRAFT */
+.draft-saved{font-family:'Space Mono',monospace;font-size:.6rem;color:var(--yellow);letter-spacing:.05em;opacity:0;transition:opacity .3s}
+.draft-saved.show{opacity:1}
+/* REPORT DONE */
+.rxn.report-btn.reported{color:var(--red);opacity:.5;cursor:default}
+/* USER PROFILE MODAL */
+.uprofile-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:550;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.uprofile-overlay.hidden{display:none}
+.uprofile-box{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--red);padding:2rem;width:min(480px,92vw);max-height:80vh;overflow-y:auto}
+.uprofile-nick{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.1em;margin-bottom:.8rem}
+.uprofile-nick::before{content:'@';color:var(--muted);font-size:1.2rem}
+/* ANKET */
+.anket-toggle{font-family:'Space Mono',monospace;font-size:.65rem;color:var(--muted);background:transparent;border:1px dashed var(--border);padding:.3rem .8rem;cursor:pointer;margin-top:.5rem;display:inline-block;transition:all .15s}
+.anket-toggle:hover{border-color:var(--yellow);color:var(--yellow)}
+.anket-inputs{display:flex;flex-direction:column;gap:.4rem;margin-top:.6rem}
+.anket-opt-input{background:var(--surface2);border:1px solid var(--border);border-left:2px solid var(--yellow);color:var(--text);font-family:'Inter',sans-serif;font-size:.85rem;padding:.4rem .7rem;outline:none;width:100%}
+.anket-opt-input:focus{border-left-color:var(--yellow);border-color:var(--yellow)}
+.anket-display{margin:.6rem 0;display:flex;flex-direction:column;gap:.35rem}
+.vote-opt{display:flex;align-items:center;gap:.5rem;padding:.45rem .6rem;border:1px solid var(--border);cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.vote-opt:hover{border-color:var(--yellow)}
+.vote-opt.voted{border-color:var(--yellow)}
+.vote-opt.voted .vote-fill{background:rgba(245,196,0,.15)}
+.vote-fill{position:absolute;inset:0;background:rgba(245,196,0,.07);transform-origin:left;transition:width .4s}
+.vote-label{font-size:.85rem;font-family:'Inter',sans-serif;position:relative;z-index:1;flex:1}
+.vote-pct{font-family:'Space Mono',monospace;font-size:.62rem;color:var(--muted);position:relative;z-index:1}
+.vote-count{font-family:'Space Mono',monospace;font-size:.58rem;color:var(--muted);margin-top:.2rem;padding-left:.6rem}
+.post-author-link{cursor:pointer;color:inherit;background:none;border:none;font:inherit;padding:0}
+.post-author-link:hover{text-decoration:underline;color:var(--yellow)}
 
 /* WRITE BOX */
 .write-lock-notice{font-family:'Inter',sans-serif;font-size:.85rem;color:var(--text2);margin-bottom:1.5rem;border:1px dashed var(--border);padding:.9rem 1.1rem;display:none}
@@ -844,9 +877,19 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
           </div>
         </div>
       </div>
-      <textarea id="mainInput" placeholder="dert anlat, soru sor, kaynak paylaş — ya da sadece bir şey söyle." maxlength="500" rows="4"></textarea>
+      <textarea id="mainInput" placeholder="dert anlat, soru sor, kaynak paylaş — ya da sadece bir şey söyle." maxlength="500" rows="4" oninput="saveDraft()"></textarea>
+      <button class="anket-toggle" onclick="toggleAnket()" id="anketToggle">📊 anket ekle</button>
+      <div class="anket-inputs hidden" id="anketInputs">
+        <input class="anket-opt-input" id="anket-opt-0" placeholder="seçenek 1" maxlength="80">
+        <input class="anket-opt-input" id="anket-opt-1" placeholder="seçenek 2" maxlength="80">
+        <input class="anket-opt-input" id="anket-opt-2" placeholder="seçenek 3 (isteğe bağlı)" maxlength="80">
+        <input class="anket-opt-input" id="anket-opt-3" placeholder="seçenek 4 (isteğe bağlı)" maxlength="80">
+      </div>
       <div class="write-footer">
-        <span class="char-left" id="charCount">500 karakter kaldı</span>
+        <div style="display:flex;align-items:center;gap:.8rem">
+          <span class="char-left" id="charCount">500 karakter kaldı</span>
+          <span class="draft-saved" id="draftSaved">💾 taslak</span>
+        </div>
         <div style="display:flex;align-items:center;gap:.7rem">
           <span class="ctrl-hint">ctrl+↵</span>
           <button class="submit-btn" onclick="addPost()">DUVARA YAZ</button>
@@ -1197,6 +1240,18 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
   </div>
 </main>
 
+<!-- KULLANICI PROFİLİ -->
+<div class="uprofile-overlay hidden" id="uprofileOverlay" onclick="closeUProfile()">
+  <div class="uprofile-box" onclick="event.stopPropagation()">
+    <div class="uprofile-nick" id="uprofileNick"></div>
+    <div class="panel-stats" id="uprofileStats"></div>
+    <div class="rozet-wrap" id="uprofileRozetler"></div>
+    <div class="panel-section-title" style="margin-top:1.2rem">// son gönderileri</div>
+    <div id="uprofilePostsList"></div>
+    <button class="feedback-cancel" style="margin-top:1.2rem;width:100%;text-align:center" onclick="closeUProfile()">kapat</button>
+  </div>
+</div>
+
 <!-- FEEDBACK FLOAT -->
 <button class="feedback-float" onclick="openFeedback()" title="öneri & şikayet">💬 öneri / şikayet</button>
 
@@ -1281,11 +1336,30 @@ async function loadPosts(){
     const likedSet=new Set((likes||[]).map(l=>l.post_id));
     posts.forEach(p=>{if(likedSet.has(p.id))p.fired=[currentUser];});
   }
+  // Anket oyları
+  const pollPosts=posts.filter(p=>p.options?.length>=2);
+  if(pollPosts.length){
+    const ids=pollPosts.map(p=>p.id);
+    const [{data:allVotes},{data:myVotes}]=await Promise.all([
+      sb.from('anket_oylar').select('post_id,option_idx').in('post_id',ids),
+      currentUser?sb.from('anket_oylar').select('post_id,option_idx').eq('nick',currentUser).in('post_id',ids):{data:[]}
+    ]);
+    const myVoteMap={};(myVotes||[]).forEach(v=>myVoteMap[v.post_id]=v.option_idx);
+    posts.forEach(p=>{
+      if(!p.options?.length)return;
+      const cnts=new Array(p.options.length).fill(0);
+      (allVotes||[]).filter(v=>v.post_id===p.id).forEach(v=>{if(v.option_idx<cnts.length)cnts[v.option_idx]++;});
+      p.voteCounts=cnts;
+      p.myVote=myVoteMap[p.id]??null;
+    });
+  }
   render();
 }
 
-async function sbAddPost(author,text,mood,type){
-  const {data,error}=await sb.from('posts').insert({author,text,mood,type}).select().single();
+async function sbAddPost(author,text,mood,type,options=null){
+  const row={author,text,mood,type};
+  if(options)row.options=options;
+  const {data,error}=await sb.from('posts').insert(row).select().single();
   if(error){toast('// hata: gönderi kaydedilemedi');return null;}
   return data;
 }
@@ -1386,9 +1460,87 @@ async function hashPass(p){const b=await crypto.subtle.digest('SHA-256',new Text
 
 // ── STATE ──
 let currentUser=null,activeFilter={kind:'all',val:''},selectedMood=null,selectedType=null,activeAuthTab='login',activeSort='new',isModerator=false;
+let activeTag=null;
 
 let posts=[];
 let bookmarks=JSON.parse(localStorage.getItem('duvar_bookmarks')||'[]');
+let reportedPosts=new Set(JSON.parse(localStorage.getItem('duvar_reported')||'[]'));
+let anketOpen=false;
+
+// ── TAG ──
+function setTagFilter(tag){activeTag=activeTag===tag?null:tag;render();}
+
+// ── DRAFT ──
+let draftTimer=null;
+function saveDraft(){
+  clearTimeout(draftTimer);
+  draftTimer=setTimeout(()=>{
+    const v=document.getElementById('mainInput').value;
+    if(v)localStorage.setItem('duvar_draft',v);else localStorage.removeItem('duvar_draft');
+    const el=document.getElementById('draftSaved');
+    el.classList.add('show');
+    setTimeout(()=>el.classList.remove('show'),1500);
+  },600);
+}
+function restoreDraft(){
+  const d=localStorage.getItem('duvar_draft');
+  if(d)document.getElementById('mainInput').value=d;
+}
+
+// ── PERMALINK ──
+function copyPostLink(id){
+  const url=location.origin+location.pathname+'?post='+id;
+  navigator.clipboard.writeText(url).then(()=>toast('// link kopyalandı')).catch(()=>{});
+}
+function handlePermalink(){
+  const id=parseInt(new URLSearchParams(location.search).get('post'));
+  if(!id)return;
+  const check=setInterval(()=>{
+    const el=document.querySelector(`.post[data-pid="${id}"]`);
+    if(el){clearInterval(check);el.classList.add('highlighted');el.scrollIntoView({behavior:'smooth',block:'center'});}
+  },300);
+  setTimeout(()=>clearInterval(check),6000);
+}
+
+// ── KULLANICI PROFİLİ ──
+function openUserProfile(nick){
+  if(nick===currentUser){openProfile();return;}
+  const userPosts=posts.filter(p=>p.author===nick);
+  const tF=userPosts.reduce((s,p)=>s+(p.fire||0),0);
+  document.getElementById('uprofileNick').textContent=nick;
+  document.getElementById('uprofileStats').innerHTML=`
+    <div class="panel-stat"><div class="panel-stat-num">${userPosts.length}</div><div class="panel-stat-label">gönderi</div></div>
+    <div class="panel-stat"><div class="panel-stat-num">${tF}</div><div class="panel-stat-label">❤️ toplam</div></div>
+    <div class="panel-stat"><div class="panel-stat-num">${userPosts.reduce((s,p)=>s+p.comments.length,0)}</div><div class="panel-stat-label">yorum aldı</div></div>`;
+  const rz=getRozetler(userPosts,tF);
+  document.getElementById('uprofileRozetler').innerHTML=rz.length?rz.map(r=>`<span class="rozet">${r}</span>`).join(''):'<span style="font-family:Space Mono,monospace;font-size:.62rem;color:var(--muted)">// henüz rozet yok</span>';
+  document.getElementById('uprofilePostsList').innerHTML=userPosts.slice(0,10).map(p=>`
+    <div class="my-post-mini">
+      <div class="my-post-mini-text">${esc(p.text.slice(0,120))}${p.text.length>120?'...':''}</div>
+      <div class="my-post-mini-meta"><span>❤️ ${p.fire||0}</span><span>↳ ${p.comments.length}</span><span>${relTime(p.time)}</span></div>
+    </div>`).join('')||'<div style="font-family:Space Mono,monospace;font-size:.7rem;color:var(--muted)">// gönderi yok</div>';
+  document.getElementById('uprofileOverlay').classList.remove('hidden');
+}
+function closeUProfile(){document.getElementById('uprofileOverlay').classList.add('hidden');}
+
+// ── ANKET ──
+function toggleAnket(){
+  anketOpen=!anketOpen;
+  document.getElementById('anketInputs').classList.toggle('hidden',!anketOpen);
+  document.getElementById('anketToggle').textContent=anketOpen?'✕ anketi kaldır':'📊 anket ekle';
+  if(!anketOpen)['anket-opt-0','anket-opt-1','anket-opt-2','anket-opt-3'].forEach(id=>{document.getElementById(id).value='';});
+}
+async function voteAnket(postId,optIdx){
+  if(!currentUser){toast('// oy için giriş yap');return;}
+  const p=posts.find(x=>x.id===postId);
+  if(!p)return;
+  if(p.myVote===optIdx){
+    await sb.from('anket_oylar').delete().eq('post_id',postId).eq('nick',currentUser);
+  } else {
+    await sb.from('anket_oylar').upsert({post_id:postId,nick:currentUser,option_idx:optIdx},{onConflict:'post_id,nick'});
+  }
+  await loadPosts();
+}
 
 function toggleBookmark(id){
   const i=bookmarks.indexOf(id);
@@ -1628,43 +1780,68 @@ function render(){
   if(q){filtered=filtered.filter(p=>p.text.toLowerCase().includes(q)||p.author.toLowerCase().includes(q));}
   if(activeSort==='week'){const w=Date.now()-7*24*60*60*1000;filtered=filtered.filter(p=>new Date(p.time)>=w);}
   if(activeSort==='saved'){filtered=filtered.filter(p=>bookmarks.includes(p.id));}
+  if(activeTag){filtered=filtered.filter(p=>p.text.toLowerCase().includes('#'+activeTag.toLowerCase()));}
   // sıralama
   if(activeSort==='top'||activeSort==='week'){
     filtered.sort((a,b)=>(b.type==='acil'?1:0)-(a.type==='acil'?1:0)||(b.pinned?1:0)-(a.pinned?1:0)||((b.fire||0)-(a.fire||0)));
   } else {
     filtered.sort((a,b)=>(b.type==='acil'?1:0)-(a.type==='acil'?1:0)||(b.pinned?1:0)-(a.pinned?1:0));
   }
-  const isFiltered=activeFilter.kind!=='all'||q||activeSort==='saved';
-  document.getElementById('wallStats').textContent=filtered.length+' mesaj'+(isFiltered?' · filtrelendi':'');
+  const isFiltered=activeFilter.kind!=='all'||q||activeSort==='saved'||activeTag;
+  document.getElementById('wallStats').textContent=filtered.length+' mesaj'+(isFiltered?' · filtrelendi':'')+(activeTag?` #${activeTag}`:'');
   if(!filtered.length){grid.innerHTML='<div class="empty-state"><div class="big">// bu filtrede gönderi yok</div></div>';return;}
+
+  function renderText(t){
+    return esc(t).replace(/#([\wçğışöüÇĞİŞÖÜ]+)/g,(m,tag)=>`<span class="tag-link" onclick="setTagFilter('${tag}')">${m}</span>`);
+  }
+
   grid.innerHTML=filtered.map((p,i)=>{
     const isMine=p.author===currentUser;
     const mF=p.fired&&p.fired.includes(currentUser);
     const isBkm=bookmarks.includes(p.id);
+    const isRep=reportedPosts.has(p.id);
     const mB=p.mood?`<span class="badge badge-mood-${p.mood}">${moodL[p.mood]||p.mood}</span>`:'';
     const tB=p.type?`<span class="badge badge-type-${p.type}">${typeL[p.type]||p.type}</span>`:'';
-    return`<div class="post${isMine?' mine':''}${p.pinned?' pinned-post':''}"style="animation-delay:${Math.min(i,6)*.05}s">
+    // Anket HTML
+    let anketHtml='';
+    if(p.options&&p.options.length>=2){
+      const total=(p.voteCounts||[]).reduce((s,n)=>s+n,0);
+      anketHtml=`<div class="anket-display">${p.options.map((opt,idx)=>{
+        const cnt=(p.voteCounts||[])[idx]||0;
+        const pct=total?Math.round(cnt/total*100):0;
+        const voted=p.myVote===idx;
+        return`<div class="vote-opt${voted?' voted':''}" onclick="voteAnket(${p.id},${idx})">
+          <div class="vote-fill" style="width:${pct}%"></div>
+          <span class="vote-label">${esc(opt)}</span>
+          <span class="vote-pct">${pct}%</span>
+        </div>`;
+      }).join('')}<div class="vote-count">// ${total} oy</div></div>`;
+    }
+    return`<div class="post${isMine?' mine':''}${p.pinned?' pinned-post':''}" data-pid="${p.id}" style="animation-delay:${Math.min(i,6)*.05}s">
       <div class="post-header">
         <span class="post-number">#${String(filtered.length-i).padStart(3,'0')}</span>
-        <span class="post-author${isMine?' me':''}">${esc(p.author)}</span>${!isMine&&currentUser?`<button class="dm-btn" onclick="openConversation('${esc(p.author)}')" title="mesaj gönder">✉</button>`:''}
+        <button class="post-author-link post-author${isMine?' me':''}" onclick="openUserProfile('${esc(p.author)}')">${esc(p.author)}</button>
+        ${!isMine&&currentUser?`<button class="dm-btn" onclick="openConversation('${esc(p.author)}')" title="mesaj gönder">✉</button>`:''}
         ${isMine?'<span class="mini-tag mine-tag">sen</span>':''}
         ${p.pinned?'<span class="mini-tag pin-tag">📌 sabit</span>':''}
       </div>
       ${(mB||tB)?`<div class="post-badges">${tB}${mB}</div>`:''}
-      <div class="post-text">${esc(p.text)}</div>
+      <div class="post-text">${renderText(p.text)}</div>
+      ${anketHtml}
       <div class="post-bottom">
         <span class="post-time">${relTime(p.time)}</span>
         <div class="reactions">
           <button class="rxn${mF?' on':''}"onclick="react(${p.id},'like')" title="beğen">${mF?'❤️':'🤍'} ${p.fire||0}</button>
           <button class="rxn"onclick="toggleComments(${p.id})" title="yorum yap">💬 ${p.comments.length}</button>
           <button class="rxn bkm-btn${isBkm?' on':''}"onclick="toggleBookmark(${p.id})"title="${isBkm?'kaydı kaldır':'kaydet'}">${isBkm?'🔖':'🏷️'}</button>
-          ${!isMine?`<button class="rxn report-btn"onclick="openReport(${p.id})"title="şikayet">···</button>`:''}
+          <button class="rxn" onclick="copyPostLink(${p.id})" title="linki kopyala">🔗</button>
+          ${!isMine?`<button class="rxn report-btn${isRep?' reported':''}"onclick="${isRep?'':` openReport(${p.id})`}"title="şikayet"${isRep?' disabled':''}>${isRep?'⚑':'···'}</button>`:''}
           ${isMine?`<button class="rxn"onclick="deleteMyPost(${p.id})"title="gönderimi sil"style="color:#c0392b">🗑</button>`:''}
           ${isModerator?`<button class="rxn"onclick="modDeletePost(${p.id})"title="sil"style="color:#c0392b">🗑</button><button class="rxn"onclick="modPin(${p.id},${!!p.pinned})"title="${p.pinned?'sabiti kaldır':'sabitle'}"style="color:var(--yellow)">${p.pinned?'📌':'📍'}</button><button class="rxn"data-nick="${esc(p.author)}"onclick="modBan(this.dataset.nick)"title="banla"style="color:#c0392b">🚫</button>`:''}
         </div>
       </div>
       <div class="comments-wrap"id="c-${p.id}">
-        ${p.comments.map(c=>`<div class="comment"><span class="comment-nick${c.nick===currentUser?' me':''}">${esc(c.nick)}</span>${esc(c.text)}</div>`).join('')}
+        ${p.comments.map(c=>`<div class="comment"><button class="post-author-link comment-nick${c.nick===currentUser?' me':''}" onclick="openUserProfile('${esc(c.nick)}')">${esc(c.nick)}</button>${esc(c.text)}</div>`).join('')}
         <div class="comment-row">
           <input class="comment-input"id="ci-${p.id}"placeholder="${currentUser?(p.type==='soru'?'cevapla...':'destek yaz...'):'yazmak için giriş yap'}"maxlength="200"${!currentUser?' disabled':''}>
           <button class="comment-send"onclick="sendComment(${p.id})"${!currentUser?' disabled':''}>${p.type==='soru'?'cevapla':'gönder'}</button>
@@ -1693,12 +1870,21 @@ async function addPost(){
   if(banRow?.banli){toast('// hesabın askıya alınmış');logout();return;}
   const val=document.getElementById('mainInput').value.trim();
   if(!val)return;
-  const newPost=await sbAddPost(currentUser,val,selectedMood,selectedType);
+  // Anket seçenekleri
+  let options=null;
+  if(anketOpen){
+    const opts=[0,1,2,3].map(i=>document.getElementById('anket-opt-'+i).value.trim()).filter(Boolean);
+    if(opts.length>=2)options=opts;
+    else if(opts.length===1){toast('// en az 2 seçenek gir');return;}
+  }
+  const newPost=await sbAddPost(currentUser,val,selectedMood,selectedType,options);
   if(!newPost)return;
   document.getElementById('mainInput').value='';
   document.getElementById('charCount').textContent='500 karakter kaldı';
+  localStorage.removeItem('duvar_draft');
   selectedMood=null;selectedType=null;
   document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  if(anketOpen)toggleAnket();
   toast('// duvara yazıldı');
   await loadPosts();
 }
@@ -1890,7 +2076,9 @@ async function submitReport(){
   if(!currentUser){toast('// şikayet için giriş yap');closeReport();showAuth();return;}
   if(!reportReason){toast('// bir neden seç');return;}
   await sbReport(reportTargetId,reportReason,currentUser);
-  closeReport();toast('// bildirim alındı');
+  reportedPosts.add(reportTargetId);
+  localStorage.setItem('duvar_reported',JSON.stringify([...reportedPosts]));
+  closeReport();toast('// bildirim alındı');render();
 }
 
 // ── TERMS / GUIDE ──
@@ -2648,7 +2836,8 @@ function showWelcomeOrAuth(){
 setInterval(()=>render(),60000);
 
 // ── POSTLARI YÜKLE ──
-loadPosts();
+loadPosts().then(()=>handlePermalink());
+restoreDraft();
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
 </script>
 </body>
