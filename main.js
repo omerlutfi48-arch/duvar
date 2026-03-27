@@ -803,10 +803,12 @@ async function handleAuth(){
     // Supabase Auth ile doğrula — sunucu tarafında kontrol
     const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
     if(error){err.textContent='// şifre yanlış veya hesap bulunamadı';return;}
+    // Metadata'daki gerçek nick'i kullan (nick değiştirilmiş olabilir)
+    const realNick=data.user.user_metadata?.nick||nick;
     // Ban kontrolü
-    const {data:banRow}=await sb.from('kullanicilar').select('banli').eq('nick',nick).maybeSingle();
+    const {data:banRow}=await sb.from('kullanicilar').select('banli').eq('nick',realNick).maybeSingle();
     if(banRow?.banli){await sb.auth.signOut();err.textContent='// bu hesap askıya alınmış';return;}
-    loginSuccess(nick);
+    loginSuccess(realNick);
   }
 }
 function loginSuccess(nick){
