@@ -94,17 +94,27 @@ async function loadPosts(){
   const {data,error}=await sb.from('posts').select('*, yorumlar(*)').eq('aktif',true).order('created_at',{ascending:false}).limit(200);
   if(error){console.error('posts yüklenemedi:',error);return;}
   posts=(data||[]).map(p=>({
-    ...p,time:p.created_at,fired:[],
+    ...p,time:p.created_at,fired:[],disfire:p.disfire||0,
     comments:(p.yorumlar||[]).map(c=>({nick:c.nick,text:c.text,id:c.id}))
   }));
+  const postIds=posts.map(p=>p.id);
   if(currentUser){
-    const [{data:likes},{data:dislikes}]=await Promise.all([
+    const [{data:likes},{data:dislikes},{data:allDislikes}]=await Promise.all([
       sb.from('begeni').select('post_id').eq('nick',currentUser),
-      sb.from('begenmeme').select('post_id').eq('nick',currentUser)
+      sb.from('begenmeme').select('post_id').eq('nick',currentUser),
+      sb.from('begenmeme').select('post_id').in('post_id',postIds)
     ]);
     const likedSet=new Set((likes||[]).map(l=>l.post_id));
     dislikedPosts=new Set((dislikes||[]).map(l=>l.post_id));
     posts.forEach(p=>{if(likedSet.has(p.id))p.fired=[currentUser];});
+    const dislikeCounts={};
+    (allDislikes||[]).forEach(r=>{dislikeCounts[r.post_id]=(dislikeCounts[r.post_id]||0)+1;});
+    posts.forEach(p=>{if(dislikeCounts[p.id])p.disfire=dislikeCounts[p.id];});
+  } else {
+    const {data:allDislikes}=await sb.from('begenmeme').select('post_id').in('post_id',postIds);
+    const dislikeCounts={};
+    (allDislikes||[]).forEach(r=>{dislikeCounts[r.post_id]=(dislikeCounts[r.post_id]||0)+1;});
+    posts.forEach(p=>{if(dislikeCounts[p.id])p.disfire=dislikeCounts[p.id];});
   }
   // Anket oyları
   const pollPosts=posts.filter(p=>p.options?.length>=2);
@@ -1081,7 +1091,7 @@ function render(){
         <span class="post-time">${relTime(p.time)}</span>
         <div class="reactions">
           <button class="rxn${mF?' on':''}"onclick="react(${p.id},'like')" title="beğen">${mF?'❤️':'🤍'} ${p.fire||0}</button>
-          <button class="rxn${mD?' on dislike-on':''}"onclick="dislike(${p.id})" title="beğenme">${mD?'👎':'👎'} ${p.disfire||0}</button>
+          <button class="rxn${mD?' on dislike-on':''}"onclick="dislike(${p.id})" title="beğenme">${mD?'👎':'🖐'} ${p.disfire||0}</button>
           <button class="rxn"onclick="toggleComments(${p.id})" title="yorum yap">💬 ${p.comments.length}</button>
           <button class="rxn bkm-btn${isBkm?' on':''}"onclick="toggleBookmark(${p.id})"title="${isBkm?'kaydı kaldır':'kaydet'}">${isBkm?'🔖':'🏷️'}</button>
           <button class="rxn" onclick="copyPostLink(${p.id})" title="linki kopyala">🔗</button>
@@ -1166,7 +1176,7 @@ async function react(id,type){
   if(!currentUser)return;
   if(type==='like'){
     const p=posts.find(x=>x.id===id);
-    if(p&&!p.fired.includes(currentUser))addNotif(p.author,currentUser,'❤️ gönderini beğendi');
+    if(p&&p.fired&&!p.fired.includes(currentUser))addNotif(p.author,currentUser,'❤️ gönderini beğendi');
     await sbReact(id,currentUser);
   }
 }
@@ -1186,7 +1196,7 @@ function renderGununEnIyisi(){
   const top=[...new Map([[enFire.id,enFire],[enYorum.id,enYorum]]).values()];
   el.style.display='block';
   el.innerHTML='<div class="gun-baslik">// BUGÜNÜN EN İYİSİ</div>'
-    +top.map((p,i)=>`<div class="gun-kart" onclick="document.querySelector('[data-pid=\\'${p.id}\\']')?.scrollIntoView({behavior:'smooth',block:'center'})">
+    +top.map((p,i)=>`<div class="gun-kart" onclick="document.querySelector('[data-pid=${p.id}]')?.scrollIntoView({behavior:'smooth',block:'center'})">
       <span class="gun-etiket">${i===0?'🔥 en çok beğeni':'💬 en çok yorum'}</span>
       <span class="gun-preview">${esc(p.text.slice(0,80))}${p.text.length>80?'…':''}</span>
       <span class="gun-meta">❤️ ${p.fire||0} · 💬 ${p.comments.length}</span>
@@ -1686,6 +1696,15 @@ var MIMARLAR=[
   {isim:'Alejandro Aravena',yillar:'1967–',akim:'Sosyal / Katılımcı',soz:'"Mimarlık, kaynakları en iyi biçimde dağıtma sanatıdır."',yapi:'Quinta Monroy Konutları',yapiAlt:'Iquique, Şili · 2004',aciklama:'"Yarım ev" modeli: Elemental ile devlet bütçesine sığacak, sakinlerin tamamlayabileceği konutlar tasarladı. Pritzker 2016. Mimarlığın sosyal sorumluluk boyutunun güncel sesi.',ulke:'Şili',tags:['pritzker']},
   {isim:'David Chipperfield',yillar:'1953–',akim:'Çağdaş / Arındırılmış',soz:'"Bağlam olmadan form anlamsızdır."',yapi:'Neues Museum Restorasyon',yapiAlt:'Berlin, Almanya · 2009',aciklama:'Tarihi ile modernin titiz diyaloğu. Neues Museum restorasyonuyla yaraları sakladı değil, gösterdi. Pritzker 2023. İnce, sessiz, sağlam bir dil.',ulke:'İngiltere',tags:['pritzker']},
   {isim:'Aldo Rossi',yillar:'1931–1997',akim:'Neorasyon / Yeni Rasyonalizm',soz:'"Şehir, kolektif belleğin deposudur."',yapi:'San Cataldo Mezarlığı',yapiAlt:'Modena, İtalya · 1984',aciklama:'"The Architecture of the City" ile kentsel tipoloji teorisini kurdu. Pritzker 1990. Form ve hafıza üzerine sorgulayıcı yeni rasyonalizmin sesi. Mimarisi ürkütücü ve anlamlı.',ulke:'İtalya',tags:['pritzker']},
+  // ── TÜRK MİMARLAR ──
+  {isim:'Mimar Kemaleddin',yillar:'1870–1927',akim:'Birinci Ulusal Mimarlık Akımı',soz:'"Bir milletin mimarisi, onun kimliğinin taşıyıcısıdır."',yapi:'Vakıf Han',yapiAlt:'İstanbul, Türkiye · 1926',aciklama:'Osmanlı-Selçuklu geleneğini Cumhuriyet yapılarına taşıyan Birinci Ulusal Mimarlık Akımı\'nın öncüsü. Alman Charlottenburg Politeknik mezunu. Ankara\'nın kuruluş dönemindeki pek çok devlet yapısını tasarladı. Tarihi dokuyu modern programla buluşturma çabasının simgesi.',ulke:'Türkiye',tags:[]},
+  {isim:'Vedat Tek',yillar:'1873–1942',akim:'Ulusal Romantizm / Osmanlı Rönesansı',soz:'"Batı\'yı öğren; ama kim olduğunu unutma."',yapi:'İstanbul Büyük Postane',yapiAlt:'Sirkeci, İstanbul · 1909',aciklama:'Paris Ecole des Beaux-Arts mezunu ilk Türk mimar. Osmanlı süsleme anlayışını Batı yapım tekniğiyle birleştirdi. Büyük Postane bugün hâlâ kullanımda — 100 yıl sonra bile görkemini koruyor.',ulke:'Türkiye',tags:[]},
+  {isim:'Hayati Tabanlıoğlu',yillar:'1927–1993',akim:'Türk Modernizmi',soz:'"Mimarlık toplumla barışık olmalıdır."',yapi:'Atatürk Kültür Merkezi (AKM)',yapiAlt:'Taksim, İstanbul · 1969',aciklama:'Türkiye\'nin en simgesel çağdaş kamusal yapısını tasarladı. AKM, Taksim Meydanı\'nın yüzü haline geldi. Tabanlıoğlu Mimarlık hanedanının kurucusu. Modern Türk mimarlığının kurucu isimlerinden.',ulke:'Türkiye',tags:[]},
+  {isim:'Behruz Çinici',yillar:'1932–',akim:'Brütalizm / Kampüs Mimarlığı',soz:'"Üniversite, kendini mekânıyla da inşa eder."',yapi:'ODTÜ Kampüsü',yapiAlt:'Ankara, Türkiye · 1961–',aciklama:'Can Çinici ile birlikte tasarladığı ODTÜ kampüsü, Türk mimarlık tarihinin en kapsamlı ve özgün brütalist külliyesi. Ağa Han Mimarlık Ödülü sahibi. ODTÜ\'deki her adımda Çinici\'nin izini görürsün.',ulke:'Türkiye',tags:[]},
+  {isim:'Cengiz Bektaş',yillar:'1934–2020',akim:'Vernakular / Anadolu Geleneği',soz:'"En iyi mimar, toprağı ve insanı dinleyendir."',yapi:'Ula Köyü Yapıları',yapiAlt:'Muğla, Türkiye · 1970ler–',aciklama:'Anadolu\'nun geleneksel yapı kültürünü belgeleyen ve yaşatan mimar-yazar. Yazıları nesillere rehber oldu. Mimarlığı kimlik, yer ve toplumsal bellek meselesi olarak gördü. Bodrum ve Ege kıyısındaki konut projeleriyle tanınır.',ulke:'Türkiye',tags:[]},
+  {isim:'Han Tümertekin',yillar:'1958–',akim:'Eleştirel Minimalizm',soz:'"Az malzeme, dürüst yapı, güçlü yer."',yapi:'B2 Evi',yapiAlt:'Büyükada, İstanbul · 2003',aciklama:'Ağa Han Mimarlık Ödülü 2004 ile uluslararası arenaya çıktı. Coğrafyaya saygılı, minimal malzemeli yapıları ile Türk mimarlığının çağdaş sesi. Doğa ile dürüst diyalog onun imzası.',ulke:'Türkiye',tags:[]},
+  {isim:'Emre Arolat',yillar:'1963–',akim:'Çağdaş / Bağlamsal',soz:'"Mimarlık, bir yere ait olmakla başlar."',yapi:'Sancaklar Camii',yapiAlt:'Büyükçekmece, İstanbul · 2013',aciklama:'EAA (Emre Arolat Architecture) ile uluslararası ölçekte tanındı. Toprağa gömülü Sancaklar Camii, geleneksel cami tipini radikal biçimde yeniden yorumladı; dünya basınında büyük yankı uyandırdı. Türk mimarisi için yeni bir ses.',ulke:'Türkiye',tags:[]},
+  {isim:'Murat Tabanlıoğlu',yillar:'1966–',akim:'Çağdaş / Kamusal Mimarlık',soz:'"Mimarlık şehrin hafızasını kurar."',yapi:'Zorlu Center',yapiAlt:'Beşiktaş, İstanbul · 2013',aciklama:'Tabanlıoğlu Mimarlık\'ın ikinci kuşak temsilcisi. Zorlu Center ile İstanbul\'un karma kullanım mimarisini dönüştürdü. AKM yenileme projesinin mimarı. Türk mimarlığını küresel sahnede temsil eden isim.',ulke:'Türkiye',tags:[]},
 ];
 
 var mimarAkim='tümü';
@@ -2541,7 +2560,7 @@ if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');l
   restoreDraft();
   // ziyaret kaydı — bot/crawler hariç
   if(!navigator.userAgent.match(/bot|crawl|spider|slurp|facebook|twitter/i)){
-    sb.from('page_views').insert({}).then(()=>{});
+    sb.from('page_views').insert({}).then(()=>{}).catch(()=>{});
   }
 })();
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
