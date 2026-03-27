@@ -243,7 +243,7 @@ async function modBan(nick){
 // Sayfa yüklenince mod oturumu kontrol et
 (async()=>{
   const {data:{session}}=await sb.auth.getSession();
-  if(session)setModeratorMode(true);
+  if(session&&MOD_EMAILS.includes(session.user.email))setModeratorMode(true);
 })();
 
 
