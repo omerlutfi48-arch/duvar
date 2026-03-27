@@ -870,8 +870,8 @@ async function changeNick(){
   if(existing?.auth_id){err.textContent='// bu nickname alınmış';return;}
   err.textContent='// güncelleniyor...';
   const oldNick=currentUser;
-  // Supabase Auth email güncelle (kimlik sunucuda değişir)
-  await sb.auth.updateUser({email:nickToEmail(newNick),data:{nick:newNick}});
+  // Sadece metadata'yı güncelle, email değiştirme (onay mekanizması login'i bozuyor)
+  await sb.auth.updateUser({data:{nick:newNick}});
   // Supabase tablo güncellemeleri
   await Promise.all([
     sb.from('kullanicilar').update({nick:newNick}).eq('nick',oldNick),
@@ -2552,9 +2552,10 @@ if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');l
     // session.user.user_metadata.nick'ten nick al (kayıt sırasında set edildi)
     const nick=session.user.user_metadata?.nick;
     if(nick){
-      // Ban + mod kontrolü
-      const {data:row}=await sb.from('kullanicilar').select('banli,mod').eq('nick',nick).maybeSingle();
-      if(row&&!row.banli){if(row.mod)setModeratorMode(true);loginSuccess(nick);}
+      // Ban + mod kontrolü (nick bulunamazsa auth_id ile dene)
+      let {data:row}=await sb.from('kullanicilar').select('nick,banli,mod').eq('nick',nick).maybeSingle();
+      if(!row){const {data:r2}=await sb.from('kullanicilar').select('nick,banli,mod').eq('auth_id',session.user.id).maybeSingle();if(r2){row=r2;}}
+      if(row&&!row.banli){if(row.mod)setModeratorMode(true);loginSuccess(row.nick||nick);}
       else{await sb.auth.signOut();showWelcomeOrAuth();}
     }else{await sb.auth.signOut();showWelcomeOrAuth();}
   }else{showWelcomeOrAuth();}

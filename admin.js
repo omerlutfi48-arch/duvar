@@ -377,10 +377,10 @@ async function toggleMod(nick, isMod) {
 
 async function toggleBan(nick, isBanned) {
   if (isBanned) {
-    await sb.from('kullanicilar').delete().eq('nick', nick);
+    await sb.from('kullanicilar').update({banli: false}).eq('nick', nick);
     toast(`// @${nick} ban kaldırıldı`);
   } else {
-    await sb.from('kullanicilar').upsert({ nick, banli: true });
+    await sb.from('kullanicilar').update({banli: true}).eq('nick', nick);
     toast(`// @${nick} banlı`);
   }
   await updateStats();
