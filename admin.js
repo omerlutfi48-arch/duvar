@@ -325,6 +325,7 @@ async function renderUsers() {
   el.innerHTML = filtered.map(u => {
     const nick = u.nick;
     const isBanned = u.banli;
+    const isMod = u.mod;
     const postCount = posts.filter(p => p.author === nick).length;
     return `
     <div class="user-card ${isBanned ? 'banned-user' : ''}">
@@ -333,9 +334,13 @@ async function renderUsers() {
         <div class="user-stats-row">
           <span>${postCount} gönderi</span>
           ${isBanned ? '<span style="color:var(--red)">🚫 banlı</span>' : ''}
+          ${isMod ? '<span style="color:var(--yellow)">⚡ mod</span>' : ''}
         </div>
       </div>
       <div class="item-actions">
+        <button class="action-btn ${isMod ? 'warning' : 'secondary'}" onclick="toggleMod('${nick}',${isMod})">
+          ${isMod ? '⚡ mod al' : '⚡ mod ver'}
+        </button>
         <button class="action-btn ${isBanned ? 'success' : 'danger'}" onclick="toggleBan('${nick}',${isBanned})">
           ${isBanned ? '✓ banı kaldır' : '🚫 banla'}
         </button>
@@ -362,6 +367,12 @@ async function deletePost(id) {
   renderPosts();
   renderReports();
   toast('// gönderi silindi');
+}
+
+async function toggleMod(nick, isMod) {
+  await sb.from('kullanicilar').update({mod: !isMod}).eq('nick', nick);
+  toast(isMod ? `// @${nick} mod yetkisi alındı` : `// @${nick} mod yetkisi verildi`);
+  renderUsers();
 }
 
 async function toggleBan(nick, isBanned) {

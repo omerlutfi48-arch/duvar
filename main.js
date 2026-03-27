@@ -805,9 +805,10 @@ async function handleAuth(){
     if(error){err.textContent='// şifre yanlış veya hesap bulunamadı';return;}
     // Metadata'daki gerçek nick'i kullan (nick değiştirilmiş olabilir)
     const realNick=data.user.user_metadata?.nick||nick;
-    // Ban kontrolü
-    const {data:banRow}=await sb.from('kullanicilar').select('banli').eq('nick',realNick).maybeSingle();
+    // Ban + mod kontrolü
+    const {data:banRow}=await sb.from('kullanicilar').select('banli,mod').eq('nick',realNick).maybeSingle();
     if(banRow?.banli){await sb.auth.signOut();err.textContent='// bu hesap askıya alınmış';return;}
+    if(banRow?.mod)setModeratorMode(true);
     loginSuccess(realNick);
   }
 }
@@ -2551,9 +2552,9 @@ if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');l
     // session.user.user_metadata.nick'ten nick al (kayıt sırasında set edildi)
     const nick=session.user.user_metadata?.nick;
     if(nick){
-      // Ban kontrolü
-      const {data:row}=await sb.from('kullanicilar').select('banli').eq('nick',nick).maybeSingle();
-      if(row&&!row.banli){loginSuccess(nick);}
+      // Ban + mod kontrolü
+      const {data:row}=await sb.from('kullanicilar').select('banli,mod').eq('nick',nick).maybeSingle();
+      if(row&&!row.banli){if(row.mod)setModeratorMode(true);loginSuccess(nick);}
       else{await sb.auth.signOut();showWelcomeOrAuth();}
     }else{await sb.auth.signOut();showWelcomeOrAuth();}
   }else{showWelcomeOrAuth();}
