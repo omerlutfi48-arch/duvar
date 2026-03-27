@@ -800,8 +800,9 @@ async function handleAuth(){
     if(error){err.textContent='// şifre yanlış veya hesap bulunamadı';return;}
     // Metadata'daki gerçek nick'i kullan (nick değiştirilmiş olabilir)
     const realNick=data.user.user_metadata?.nick||nick;
-    // Ban + mod kontrolü
-    const {data:banRow}=await sb.from('kullanicilar').select('banli,mod').eq('nick',realNick).maybeSingle();
+    // Ban + mod kontrolü, kayıt yoksa oluştur
+    let {data:banRow}=await sb.from('kullanicilar').select('banli,mod').eq('nick',realNick).maybeSingle();
+    if(!banRow){await sb.from('kullanicilar').upsert({nick:realNick,banli:false,auth_id:data.user.id},{onConflict:'nick'});banRow={banli:false,mod:false};}
     if(banRow?.banli){await sb.auth.signOut();err.textContent='// bu hesap askıya alınmış';return;}
     loginSuccess(realNick, banRow?.mod===true);
   }
@@ -2547,9 +2548,10 @@ if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');l
     // session.user.user_metadata.nick'ten nick al (kayıt sırasında set edildi)
     const nick=session.user.user_metadata?.nick;
     if(nick){
-      // Ban + mod kontrolü (nick bulunamazsa auth_id ile dene)
+      // Ban + mod kontrolü (nick bulunamazsa auth_id ile dene, o da yoksa oluştur)
       let {data:row}=await sb.from('kullanicilar').select('nick,banli,mod').eq('nick',nick).maybeSingle();
       if(!row){const {data:r2}=await sb.from('kullanicilar').select('nick,banli,mod').eq('auth_id',session.user.id).maybeSingle();if(r2){row=r2;}}
+      if(!row){await sb.from('kullanicilar').upsert({nick,banli:false,auth_id:session.user.id},{onConflict:'nick'});row={nick,banli:false,mod:false};}
       if(row&&!row.banli){loginSuccess(row.nick||nick, row.mod===true);}
       else{await sb.auth.signOut();showWelcomeOrAuth();}
     }else{await sb.auth.signOut();showWelcomeOrAuth();}
