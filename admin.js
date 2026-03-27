@@ -397,6 +397,8 @@ function confirmDeleteUser(nick) {
 }
 
 async function deleteUser(nick) {
+  // Auth id'yi önceden al
+  const {data:userRow}=await sb.from('kullanicilar').select('auth_id').eq('nick',nick).maybeSingle();
   // Tüm gönderilerini, yorumlarını, mesajlarını, beğenilerini ve hesabı sil
   await Promise.all([
     sb.from('posts').delete().eq('author', nick),
@@ -408,8 +410,19 @@ async function deleteUser(nick) {
   const {error} = await sb.from('kullanicilar').delete().eq('nick', nick);
   if(error){
     console.error('deleteUser hatası:', error);
-    toast(`// HATA: ${error.message} — Supabase RLS politikası eksik olabilir`);
+    toast(`// HATA: ${error.message}`);
     return;
+  }
+  // Supabase Auth kaydını da sil (nick tekrar alınabilsin)
+  if(userRow?.auth_id){
+    const {data:{session}}=await sb.auth.getSession();
+    if(session){
+      await fetch('https://tnxflwddhucvlejmoihj.supabase.co/functions/v1/delete-user',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
+        body:JSON.stringify({auth_id:userRow.auth_id})
+      }).catch(()=>{});
+    }
   }
   await updateStats();
   await renderUsers();

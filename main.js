@@ -890,10 +890,19 @@ async function deleteAccount(){
   if(!currentUser)return;
   if(!confirm(`@${currentUser} hesabını kalıcı olarak silmek istediğine emin misin?\n\nTüm gönderilerin de silinecek.`))return;
   const nick=currentUser;
-  // Supabase'den tüm gönderileri ve hesabı sil
+  const {data:{session}}=await sb.auth.getSession();
+  const authId=session?.user?.id;
+  // Tüm verileri sil
   await sb.from('posts').delete().eq('author',nick);
   await sb.from('kullanicilar').delete().eq('nick',nick);
-  // Supabase Auth oturumunu kapat
+  // Supabase Auth kaydını da sil (nick tekrar alınabilsin)
+  if(authId){
+    await fetch('https://tnxflwddhucvlejmoihj.supabase.co/functions/v1/delete-user',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
+      body:JSON.stringify({auth_id:authId})
+    }).catch(()=>{});
+  }
   await sb.auth.signOut();
   currentUser=null;
   document.getElementById('userNickDisplay').style.display='none';
