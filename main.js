@@ -240,11 +240,6 @@ async function modBan(nick){
   await sb.from('kullanicilar').upsert({nick,banli:true});
   toast(`// @${nick} banlı`);
 }
-// Sayfa yüklenince mod oturumu kontrol et
-(async()=>{
-  const {data:{session}}=await sb.auth.getSession();
-  if(session&&MOD_EMAILS.includes(session.user.email))setModeratorMode(true);
-})();
 
 
 // ── STATE ──
@@ -808,12 +803,12 @@ async function handleAuth(){
     // Ban + mod kontrolü
     const {data:banRow}=await sb.from('kullanicilar').select('banli,mod').eq('nick',realNick).maybeSingle();
     if(banRow?.banli){await sb.auth.signOut();err.textContent='// bu hesap askıya alınmış';return;}
-    if(banRow?.mod)setModeratorMode(true);
-    loginSuccess(realNick);
+    loginSuccess(realNick, banRow?.mod===true);
   }
 }
-function loginSuccess(nick){
+function loginSuccess(nick,isMod=false){
   currentUser=nick;
+  setModeratorMode(isMod);
   document.getElementById('authModal').classList.add('hidden');
   const nd=document.getElementById('userNickDisplay');
   nd.textContent=nick;nd.style.display='';
@@ -2555,7 +2550,7 @@ if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');l
       // Ban + mod kontrolü (nick bulunamazsa auth_id ile dene)
       let {data:row}=await sb.from('kullanicilar').select('nick,banli,mod').eq('nick',nick).maybeSingle();
       if(!row){const {data:r2}=await sb.from('kullanicilar').select('nick,banli,mod').eq('auth_id',session.user.id).maybeSingle();if(r2){row=r2;}}
-      if(row&&!row.banli){if(row.mod)setModeratorMode(true);loginSuccess(row.nick||nick);}
+      if(row&&!row.banli){loginSuccess(row.nick||nick, row.mod===true);}
       else{await sb.auth.signOut();showWelcomeOrAuth();}
     }else{await sb.auth.signOut();showWelcomeOrAuth();}
   }else{showWelcomeOrAuth();}
