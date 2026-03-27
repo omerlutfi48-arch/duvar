@@ -446,7 +446,8 @@ textarea:focus{border-bottom-color:var(--red)}
 .mimar-back{transform:rotateY(180deg);border-color:var(--border2)}
 .mimar-card-wrap:hover .mimar-front{border-color:var(--border2)}
 .mimar-akım{font-family:var(--ff-mono);font-size:.58rem;color:var(--red);letter-spacing:.12em;text-transform:uppercase;margin-bottom:.5rem}
-.mimar-isim{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.06em;color:var(--text);line-height:1.1;margin-bottom:.3rem}
+.mimar-isim{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.06em;color:var(--text);line-height:1.1;margin-bottom:.3rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.pritzker-badge{font-family:'Space Mono',monospace;font-size:.55rem;font-weight:700;letter-spacing:.08em;color:#000;background:var(--yellow);padding:.15rem .4rem;border-radius:2px;white-space:nowrap;flex-shrink:0}
 .mimar-yillar{font-family:var(--ff-mono);font-size:.62rem;color:var(--muted);margin-bottom:.8rem}
 .mimar-soz{font-family:var(--ff-mono);font-size:.65rem;color:var(--text2);line-height:1.7;font-style:italic;flex:1}
 .mimar-hint{font-family:var(--ff-mono);font-size:.58rem;color:var(--muted);letter-spacing:.08em;align-self:flex-end}
