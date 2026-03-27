@@ -1651,7 +1651,7 @@ function juriUret(){
 }
 
 // ── MİMAR KARTLARI ──
-const MIMARLAR=[
+var MIMARLAR=[
   {isim:'Le Corbusier',yillar:'1887–1965',akim:'Modernizm',soz:'"Ev yaşamak için bir makinedir."',yapi:'Villa Savoye',yapiAlt:'Poissy, Fransa · 1931',aciklama:'Modern mimarlığın 5 ilkesini tanımladı. Piloti, çatı bahçesi, serbest plan, şerit pencere, serbest cephe. Mimarlık eğitiminin olmazsa olmazı.',ulke:'İsviçre / Fransa',tags:[]},
   {isim:'Mies van der Rohe',yillar:'1886–1969',akim:'Modernizm',soz:'"Az çoktur."',yapi:'Barcelona Pavyonu',yapiAlt:'Barselona, İspanya · 1929',aciklama:'Saf geometri, cam ve çeliğin ustası. "Evrensel mekan" kavramıyla esnek, sütun destekli açık planı mimarlığa kazandırdı.',ulke:'Almanya / ABD',tags:[]},
   {isim:'Frank Lloyd Wright',yillar:'1867–1959',akim:'Organik Mimarlık',soz:'"Mimarlık doğanın insan dilidir."',yapi:'Şelale Evi (Fallingwater)',yapiAlt:'Pennsylvania, ABD · 1939',aciklama:'Yapıyı araziden koparmak yerine onunla bütünleştirdi. Prairie Style ve organik mimarlığın kurucusu.',ulke:'ABD',tags:[]},
