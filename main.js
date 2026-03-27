@@ -1688,9 +1688,10 @@ var MIMARLAR=[
   {isim:'Aldo Rossi',yillar:'1931–1997',akim:'Neorasyon / Yeni Rasyonalizm',soz:'"Şehir, kolektif belleğin deposudur."',yapi:'San Cataldo Mezarlığı',yapiAlt:'Modena, İtalya · 1984',aciklama:'"The Architecture of the City" ile kentsel tipoloji teorisini kurdu. Pritzker 1990. Form ve hafıza üzerine sorgulayıcı yeni rasyonalizmin sesi. Mimarisi ürkütücü ve anlamlı.',ulke:'İtalya',tags:['pritzker']},
 ];
 
-let mimarAkim='tümü';
+var mimarAkim='tümü';
 
 function renderMimarlar(){
+  if(!MIMARLAR||!MIMARLAR.length)return; // henüz initialize olmadıysa bekle
   const filtersEl=document.getElementById('mimarFilters');
   const statsEl=document.getElementById('mimarStats');
   const gridEl=document.getElementById('mimarGrid');
@@ -1702,7 +1703,7 @@ function renderMimarlar(){
     filtersEl.innerHTML=akimlar.map(a=>`<button class="mimar-filter${a==='tümü'?' active':''}" onclick="setMimarAkim('${a}',this)">${a}</button>`).join('');
   }
 
-  let liste=MIMARLAR;
+  var liste=MIMARLAR;
   if(mimarAkim!=='tümü'){
     if(mimarAkim==='🏆 pritzker'){
       liste=MIMARLAR.filter(m=>m.tags&&m.tags.includes('pritzker'));
