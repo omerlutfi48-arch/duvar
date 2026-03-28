@@ -177,42 +177,11 @@
   </div>
 </div>
 
-<!-- HERO -->
-<div class="site-hero" id="siteHero">
-  <div class="site-title">DUVAR<span class="beta-badge">BETA v1.0</span></div>
-  <div class="site-subtitle">mim okulu · yardımlaşma & dayanışma · <span>anonim</span></div>
-  <div class="header-tags">
-    <span class="tag hot">anonim</span>
-    <span class="tag">soru & cevap</span>
-    <span class="tag">kaynak</span>
-    <span class="tag">dayanışma</span>
-  </div>
-</div>
-
-<!-- TOPBAR -->
-<header class="topbar" id="topbar">
-  <div class="topbar-inner">
-    <button class="topbar-logo" onclick="switchNav('duvar')">duvar.</button>
-    <div class="topbar-nav">
-      <div class="topbar-dropdown" id="dd-kaynaklar">
-        <button class="topbar-nav-btn" onclick="toggleTopbarDropdown('kaynaklar')">Kaynaklar <span class="dd-chevron">▾</span></button>
-        <div class="topbar-dd-menu" id="ddm-kaynaklar">
-          <button class="topbar-dd-item" onclick="switchNav('rehber');closeTopbarDropdowns()">// rehber</button>
-          <button class="topbar-dd-item" onclick="switchNav('sozluk');closeTopbarDropdowns()">// sözlük</button>
-          <button class="topbar-dd-item" onclick="switchNav('araclar');closeTopbarDropdowns()">// araçlar</button>
-        </div>
-      </div>
-      <div class="topbar-dropdown" id="dd-kesfet">
-        <button class="topbar-nav-btn" onclick="toggleTopbarDropdown('kesfet')">Keşfet <span class="dd-chevron">▾</span></button>
-        <div class="topbar-dd-menu" id="ddm-kesfet">
-          <button class="topbar-dd-item" onclick="switchNav('mimarlar');closeTopbarDropdowns()">// mimarlar</button>
-          <button class="topbar-dd-item" onclick="switchNav('ilanlar');closeTopbarDropdowns()">// ilanlar</button>
-          <button class="topbar-dd-item" onclick="switchNav('etkinlik');closeTopbarDropdowns()">// etkinlik</button>
-        </div>
-      </div>
-    </div>
-    <div class="topbar-actions">
-      <button class="topbar-paylas-btn" onclick="currentUser?(switchNav('duvar'),setTimeout(()=>document.getElementById('mainInput').focus(),50)):showAuth()">+ Paylaş</button>
+<!-- HEADER -->
+<header>
+  <div class="header-top">
+    <div class="site-title">DUVAR<span class="beta-badge">BETA v1.0</span></div>
+    <div class="header-controls">
       <button class="icon-btn" id="themeBtn" title="tema">◑</button>
       <button class="icon-btn" id="dmBtn" title="mesajlar" style="display:none">✉<span class="notif-dot" id="dmDot"></span></button>
       <button class="icon-btn" id="notifBtn" title="bildirimler" style="display:none">◉<span class="notif-dot" id="notifDot"></span></button>
@@ -220,16 +189,16 @@
       <button class="icon-btn" id="loginBtn" title="giriş yap / kayıt ol" style="border-color:var(--red);color:var(--red)">GİR →</button>
     </div>
   </div>
+  <div class="site-subtitle">mim okulu · yardımlaşma & dayanışma · <span>anonim</span></div>
+  <div class="header-tags">
+    <span class="tag hot">anonim</span>
+    <span class="tag">soru & cevap</span>
+    <span class="tag">kaynak</span>
+    <span class="tag">dayanışma</span>
+  </div>
 </header>
 
-<!-- Canlılık çubuğu -->
-<div class="canlilik-bar">
-  <span class="canlilik-dot">●</span>
-  <span id="canlilikText">duvarda şu an — kişi var</span>
-</div>
-
-<!-- Hidden nav (JS uyumluluğu için) -->
-<nav style="display:none">
+<nav>
   <button class="nav-tab active" id="tab-duvar" data-nav="duvar">// duvar</button>
   <button class="nav-tab" id="tab-rehber" data-nav="rehber">// rehber</button>
   <button class="nav-tab" id="tab-sozluk" data-nav="sozluk">// sözlük</button>
@@ -265,7 +234,7 @@
           </div>
         </div>
       </div>
-      <textarea id="mainInput" placeholder="ne düşünüyorsun?" maxlength="500" rows="4"></textarea>
+      <textarea id="mainInput" placeholder="dert anlat, soru sor, kaynak paylaş — ya da sadece bir şey söyle." maxlength="500" rows="4"></textarea>
       <button class="anket-toggle" id="anketToggle">📊 anket ekle</button>
       <div class="anket-inputs hidden" id="anketInputs">
         <input class="anket-opt-input" id="anket-opt-0" placeholder="seçenek 1" maxlength="80">
@@ -303,9 +272,9 @@
     <div class="search-sort-bar" id="searchSortBar">
       <input class="search-input" id="searchInput" type="text" placeholder="// gönderilerde ara...">
       <div class="sort-btns">
-        <button class="sort-btn active" id="sort-top" data-sort="top">🔥 sıcak</button>
-        <button class="sort-btn" id="sort-week" data-sort="week">↗ yükselen</button>
-        <button class="sort-btn" id="sort-new" data-sort="new">↓ yeni</button>
+        <button class="sort-btn active" id="sort-new" data-sort="new">↓ yeni</button>
+        <button class="sort-btn" id="sort-top" data-sort="top">⚡ popüler</button>
+        <button class="sort-btn" id="sort-week" data-sort="week">📅 bu hafta</button>
         <button class="sort-btn saved-btn" id="sort-saved" data-sort="saved">🔖 kaydettiklerim</button>
       </div>
     </div>
@@ -900,26 +869,22 @@
 
 <!-- MOBİL BOTTOM NAV -->
 <nav class="bottom-nav" id="bottomNav">
-  <button class="bnav-btn active" id="bnav-akis" onclick="switchNav('duvar');updateBottomNav('akis')">
-    <span class="bnav-icon">⬚</span>Akış
+  <button class="bnav-btn active" id="bnav-duvar" onclick="switchNav('duvar');updateBottomNav('duvar')">
+    <span class="bnav-icon">⬚</span>duvar
   </button>
-  <button class="bnav-btn" id="bnav-kaynaklar-mob" onclick="openBottomSheet('kaynaklar')">
-    <span class="bnav-icon">📚</span>Kaynaklar
+  <button class="bnav-btn" id="bnav-ilanlar" onclick="switchNav('ilanlar');updateBottomNav('ilanlar')">
+    <span class="bnav-icon">💼</span>ilanlar
   </button>
-  <button class="bnav-btn" id="bnav-kesfet-mob" onclick="openBottomSheet('kesfet')">
-    <span class="bnav-icon">🔍</span>Keşfet
+  <button class="bnav-btn" id="bnav-etkinlik" onclick="switchNav('etkinlik');updateBottomNav('etkinlik')">
+    <span class="bnav-icon">📅</span>etkinlik
   </button>
-  <button class="bnav-btn bnav-cta" id="bnav-paylas-mob" onclick="currentUser?(switchNav('duvar'),updateBottomNav('akis'),setTimeout(()=>document.getElementById('mainInput').focus(),50)):showAuth()">
-    <span class="bnav-icon">⊕</span>+ Paylaş
+  <button class="bnav-btn" id="bnav-notif" onclick="openNotifs()">
+    <span class="bnav-notif bnav-icon">◉<span class="bnav-dot" id="bnavNotifDot"></span></span>bildirim
+  </button>
+  <button class="bnav-btn" id="bnav-profil" onclick="currentUser?openProfile():showAuth()">
+    <span class="bnav-icon">◎</span>profil
   </button>
 </nav>
-
-<!-- Bottom Sheet (mobil dropdown için) -->
-<div class="bsheet-overlay" id="bsheetOverlay" onclick="closeBottomSheet()" style="display:none"></div>
-<div class="bsheet" id="bsheet">
-  <div class="bsheet-handle"></div>
-  <div class="bsheet-items" id="bsheetItems"></div>
-</div>
 
 <!-- TESLİM GECESİ RADYOSU -->
 <button class="radio-float-btn" id="radioFloatBtn" title="Teslim Gecesi Radyosu">📻</button>

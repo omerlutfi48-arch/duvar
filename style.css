@@ -74,47 +74,6 @@ header{position:relative;z-index:10;padding:2rem 2rem 1.5rem;border-bottom:2px s
 .tag{font-family:var(--ff-mono);font-size:.68rem;letter-spacing:.1em;padding:.2rem .55rem;border:1px solid var(--border);color:var(--muted);text-transform:uppercase}
 .tag.hot{border-color:var(--red);color:var(--red)}
 
-/* TOPBAR */
-.topbar{position:sticky;top:0;z-index:200;background:var(--bg);border-bottom:1px solid var(--border)}
-.topbar-inner{max-width:900px;margin:0 auto;padding:0 1.5rem;height:56px;display:flex;align-items:center;gap:1rem}
-.topbar-logo{font-family:var(--ff-mono);font-size:1rem;font-weight:700;color:var(--red);background:transparent;border:none;cursor:pointer;letter-spacing:.04em;padding:0;flex-shrink:0}
-.topbar-logo:hover{opacity:.8}
-.topbar-nav{display:flex;align-items:center;gap:.25rem;flex:1}
-.topbar-dropdown{position:relative}
-.topbar-nav-btn{font-family:var(--ff-mono);font-size:.72rem;letter-spacing:.08em;color:var(--muted);background:transparent;border:none;cursor:pointer;padding:.45rem .7rem;transition:color .15s;white-space:nowrap}
-.topbar-nav-btn:hover,.topbar-dropdown.open .topbar-nav-btn{color:var(--text)}
-.dd-chevron{font-size:.6rem;transition:transform .2s}
-.topbar-dropdown.open .dd-chevron{transform:rotate(180deg)}
-.topbar-dd-menu{position:absolute;top:calc(100% + 8px);left:0;background:var(--surface);border:1px solid var(--border);min-width:160px;z-index:300;opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity .15s,transform .15s}
-.topbar-dropdown.open .topbar-dd-menu{opacity:1;transform:translateY(0);pointer-events:auto}
-.topbar-dd-item{display:block;width:100%;text-align:left;font-family:var(--ff-mono);font-size:.72rem;letter-spacing:.08em;color:var(--muted);background:transparent;border:none;border-bottom:1px solid var(--border);padding:.75rem 1rem;cursor:pointer;transition:all .15s;white-space:nowrap}
-.topbar-dd-item:last-child{border-bottom:none}
-.topbar-dd-item:hover{color:var(--text);background:var(--surface2)}
-.topbar-actions{display:flex;align-items:center;gap:.4rem;margin-left:auto;flex-shrink:0}
-.topbar-paylas-btn{font-family:var(--ff-mono);font-size:.72rem;letter-spacing:.1em;background:var(--red);color:#fff;border:none;padding:.4rem .9rem;cursor:pointer;transition:background .15s;white-space:nowrap}
-.topbar-paylas-btn:hover{background:var(--red2)}
-
-/* HERO */
-.site-hero{max-width:900px;margin:0 auto;padding:2rem 2rem 1.5rem;border-bottom:2px solid var(--red);position:relative;z-index:10}
-
-/* CANLILIK ÇUBUĞU */
-.canlilik-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:.4rem 1.5rem;max-width:900px;margin:0 auto;font-family:var(--ff-mono);font-size:.68rem;color:var(--muted);letter-spacing:.06em;display:flex;align-items:center;gap:.5rem}
-.canlilik-dot{color:#00c87a;font-size:.6rem;animation:pulse-dot 2s ease-in-out infinite}
-@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.4}}
-
-/* BOTTOM SHEET (mobil) */
-.bsheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:none}
-.bsheet{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-radius:16px 16px 0 0;z-index:401;transform:translateY(100%);transition:transform .25s ease;padding-bottom:env(safe-area-inset-bottom)}
-.bsheet.open{transform:translateY(0)}
-.bsheet-handle{width:32px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 8px}
-.bsheet-items{padding:.5rem 0 1rem}
-.bsheet-item{display:flex;align-items:center;gap:.8rem;width:100%;text-align:left;font-family:var(--ff-mono);font-size:.82rem;letter-spacing:.06em;color:var(--text2);background:transparent;border:none;border-bottom:1px solid var(--border);padding:.95rem 1.5rem;cursor:pointer;transition:all .15s}
-.bsheet-item:last-child{border-bottom:none}
-.bsheet-item:hover{color:var(--text);background:var(--surface2)}
-.bsheet-item span{font-size:1.1rem}
-.bnav-cta{color:var(--yellow)!important}
-.bnav-cta .bnav-icon{color:var(--yellow)}
-
 /* NAV */
 nav{position:relative;z-index:10;max-width:900px;margin:0 auto;border-bottom:1px solid var(--border);display:flex;overflow-x:auto}
 nav::-webkit-scrollbar{display:none}
