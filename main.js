@@ -184,6 +184,11 @@ sb.channel('duvar-realtime')
     if(dmConversation)openConversation(dmConversation);
     else if(document.getElementById('dmPanel').classList.contains('open'))openDMs();
   })
+  .on('postgres_changes',{event:'DELETE',schema:'public',table:'kullanicilar'},async()=>{
+    if(!currentUser)return;
+    const {data}=await sb.from('kullanicilar').select('nick').eq('nick',currentUser).maybeSingle();
+    if(!data){toast('// hesabın silindi veya askıya alındı');logout();}
+  })
   .subscribe();
 
 // Yedek: realtime çalışmasa da 30 saniyede bir güncelle
@@ -789,6 +794,8 @@ async function handleAuth(){
       err.textContent=error.message.includes('already registered')?'// bu nickname alınmış':'// hata: '+error.message;
       return;
     }
+    // data.user null ise veya session yoksa → email zaten kayıtlı (silinmiş hesap ama auth kaydı duruyor)
+    if(!data?.user || !data?.session){err.textContent='// bu nickname alınmış';return;}
     // kullanicilar tablosuna auth_id ile ekle (veya güncelle)
     await sb.from('kullanicilar').upsert({nick,banli:false,auth_id:data.user.id},{onConflict:'nick'});
     loginSuccess(nick);
@@ -800,11 +807,13 @@ async function handleAuth(){
     if(error){err.textContent='// şifre yanlış veya hesap bulunamadı';return;}
     // Metadata'daki gerçek nick'i kullan (nick değiştirilmiş olabilir)
     const realNick=data.user.user_metadata?.nick||nick;
-    // Ban + mod kontrolü, kayıt yoksa oluştur
-    let {data:banRow}=await sb.from('kullanicilar').select('banli,mod').eq('nick',realNick).maybeSingle();
-    if(!banRow){await sb.from('kullanicilar').upsert({nick:realNick,banli:false,auth_id:data.user.id},{onConflict:'nick'});banRow={banli:false,mod:false};}
+    // Ban + mod kontrolü (kayıt yoksa auth_id ile dene, ikisi de yoksa hesap silinmiş)
+    let {data:banRow}=await sb.from('kullanicilar').select('nick,banli,mod,auth_id').eq('nick',realNick).maybeSingle();
+    if(!banRow){const {data:r2}=await sb.from('kullanicilar').select('nick,banli,mod,auth_id').eq('auth_id',data.user.id).maybeSingle();if(r2){banRow=r2;}else{await sb.auth.signOut();err.textContent='// hesap bulunamadı veya silindi';return;}}
     if(banRow?.banli){await sb.auth.signOut();err.textContent='// bu hesap askıya alınmış';return;}
-    loginSuccess(realNick, banRow?.mod===true);
+    // auth_id eksikse güncelle (eski hesaplar için)
+    if(banRow&&!banRow.auth_id){sb.from('kullanicilar').update({auth_id:data.user.id}).eq('nick',banRow.nick).then(()=>{});}
+    loginSuccess(banRow.nick||realNick, banRow?.mod===true);
   }
 }
 function loginSuccess(nick,isMod=false){
@@ -892,16 +901,28 @@ async function deleteAccount(){
   const nick=currentUser;
   const {data:{session}}=await sb.auth.getSession();
   const authId=session?.user?.id;
-  // Tüm verileri sil
-  await sb.from('posts').delete().eq('author',nick);
-  await sb.from('kullanicilar').delete().eq('nick',nick);
+  // Önce kullanicilar satırını sil — başarısız olursa dur
+  const {error:kulErr}=await sb.from('kullanicilar').delete().eq('nick',nick);
+  if(kulErr){toast('// hesap silinemedi: '+kulErr.message);return;}
+  // Diğer verileri sil
+  await Promise.all([
+    sb.from('posts').delete().eq('author',nick),
+    sb.from('yorumlar').delete().eq('nick',nick),
+    sb.from('mesajlar').delete().or(`gonderen.eq.${nick},alici.eq.${nick}`),
+    sb.from('begeni').delete().eq('nick',nick),
+    sb.from('anket_oylar').delete().eq('nick',nick),
+  ]);
   // Supabase Auth kaydını da sil (nick tekrar alınabilsin)
   if(authId){
-    await fetch('https://tnxflwddhucvlejmoihj.supabase.co/functions/v1/delete-user',{
+    const res=await fetch('https://tnxflwddhucvlejmoihj.supabase.co/functions/v1/delete-user',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
       body:JSON.stringify({auth_id:authId})
-    }).catch(()=>{});
+    }).catch(()=>null);
+    if(!res?.ok){
+      toast('// hesap verileri silindi ama auth kaydı silinemedi — lütfen adminle iletişime geç');
+      console.error('Auth kaydı silinemedi:',authId,res?.status);
+    }
   }
   await sb.auth.signOut();
   currentUser=null;
@@ -1159,6 +1180,7 @@ async function addPost(){
   if(!checkRateLimit())return;
   const {data:banRow,error:banErr}=await sb.from('kullanicilar').select('banli').eq('nick',currentUser).maybeSingle();
   if(banErr){toast('// bağlantı hatası, tekrar dene');return;}
+  if(!banRow){toast('// hesabın silinmiş');logout();return;}
   if(banRow?.banli){toast('// hesabın askıya alınmış');logout();return;}
   const val=document.getElementById('mainInput').value.trim();
   if(!val)return;
@@ -2197,14 +2219,14 @@ async function renderEtkinlikler(){
   const tipLabel={yarisma:'yarışma',festival:'festival',etkinlik:'etkinlik',workshop:'workshop',seminer:'seminer'};
   const bugun=Date.now();
   grid.innerHTML=[...filtered].reverse().map(e=>{
-    const etkinlikTarih=e.etkinlikTarih?new Date(e.etkinlikTarih):null;
+    const etkinlikTarih=e.tarih?new Date(e.tarih):null;
     const son=e.son?new Date(e.son):null;
     const gecti=son&&son.getTime()<bugun;
     return`<div class="etkinlik-card ${e.tip}">
       <div class="etkinlik-head">
         <div>
           <div class="etkinlik-baslik">${esc(e.baslik)}</div>
-          ${e.organizator?`<div class="etkinlik-org">${esc(e.organizator)}</div>`:''}
+          ${e.yer?`<div class="etkinlik-org">${esc(e.yer)}</div>`:''}
         </div>
         <span class="etkinlik-tip-badge tip-${e.tip}">${tipLabel[e.tip]||e.tip}</span>
       </div>
@@ -2257,9 +2279,9 @@ async function renderIlanlar(){
       <div class="ilan-meta">
         ${il.sehir?`<span>📍 ${esc(il.sehir)}</span>`:''}
         ${sonStr?`<span style="${gecti?'color:var(--red)':''}">⏳ son: ${sonStr}${gecti?' (sona erdi)':''}</span>`:''}
-        <span>📅 ${new Date(il.tarih).toLocaleDateString('tr-TR')}</span>
+        ${il.tarih?`<span>📅 ${new Date(il.tarih).toLocaleDateString('tr-TR')}</span>`:''}
       </div>
-      ${il.iletisim?`<div class="ilan-iletisim">→ ${esc(il.iletisim)}</div>`:''}
+      ${il.link?`<div class="ilan-iletisim">→ ${esc(il.link)}</div>`:''}
     </div>`;
   }).join('');
 }
@@ -2557,10 +2579,10 @@ if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');l
     // session.user.user_metadata.nick'ten nick al (kayıt sırasında set edildi)
     const nick=session.user.user_metadata?.nick;
     if(nick){
-      // Ban + mod kontrolü (nick bulunamazsa auth_id ile dene, o da yoksa oluştur)
+      // Ban + mod kontrolü (nick bulunamazsa auth_id ile dene, ikisi de yoksa hesap silinmiş demektir)
       let {data:row}=await sb.from('kullanicilar').select('nick,banli,mod').eq('nick',nick).maybeSingle();
       if(!row){const {data:r2}=await sb.from('kullanicilar').select('nick,banli,mod').eq('auth_id',session.user.id).maybeSingle();if(r2){row=r2;}}
-      if(!row){await sb.from('kullanicilar').upsert({nick,banli:false,auth_id:session.user.id},{onConflict:'nick'});row={nick,banli:false,mod:false};}
+      if(!row){await sb.auth.signOut();showWelcomeOrAuth();return;}
       if(row&&!row.banli){loginSuccess(row.nick||nick, row.mod===true);}
       else{await sb.auth.signOut();showWelcomeOrAuth();}
     }else{await sb.auth.signOut();showWelcomeOrAuth();}
@@ -2573,4 +2595,8 @@ if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');l
     sb.from('page_views').insert({}).then(()=>{}).catch(()=>{});
   }
 })();
+// Supabase zorla oturum kapattığında (JWT expire, hesap silindi vb.) UI'yi temizle
+sb.auth.onAuthStateChange((event)=>{
+  if(event==='SIGNED_OUT'&&currentUser){logout();}
+});
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}

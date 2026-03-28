@@ -210,7 +210,6 @@ async function autoCleanIfNeeded() {
   const yediGun = 7*24*60*60*1000;
   if(Date.now() - last > yediGun){
     await cleanPageViews(true);
-    console.log('[admin] page_views otomatik temizlendi');
   }
 }
 
@@ -414,14 +413,16 @@ async function deleteUser(nick) {
     return;
   }
   // Supabase Auth kaydını da sil (nick tekrar alınabilsin)
-  if(userRow?.auth_id){
-    const {data:{session}}=await sb.auth.getSession();
-    if(session){
-      await fetch('https://tnxflwddhucvlejmoihj.supabase.co/functions/v1/delete-user',{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
-        body:JSON.stringify({auth_id:userRow.auth_id})
-      }).catch(()=>{});
+  const {data:{session}}=await sb.auth.getSession();
+  if(session){
+    const res=await fetch('https://tnxflwddhucvlejmoihj.supabase.co/functions/v1/delete-user',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
+      body:JSON.stringify({auth_id:userRow?.auth_id||null, nick})
+    }).catch(()=>null);
+    if(!res?.ok){
+      console.error('Auth kaydı silinemedi:', nick, res?.status);
+      toast(`// UYARI: @${nick} verileri silindi ama auth kaydı silinemedi`);
     }
   }
   await updateStats();

@@ -7,43 +7,69 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-function err(msg: string, status: number) {
+function errResp(msg: string, status: number) {
   return new Response(JSON.stringify({ error: msg }), {
     status, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
   })
+}
+
+function nickToEmail(nick: string): string {
+  const s = nick.toLowerCase()
+    .replace(/ç/g, 'c').replace(/ğ/g, 'g').replace(/ı/g, 'i')
+    .replace(/ö/g, 'o').replace(/ş/g, 's').replace(/ü/g, 'u');
+  return s + '.u@duvar.app';
 }
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
 
   const authHeader = req.headers.get('Authorization')
-  if (!authHeader) return err('Unauthorized', 401)
+  if (!authHeader) return errResp('Unauthorized', 401)
 
-  // Çağıranın kim olduğunu doğrula
   const userClient = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_ANON_KEY')!,
     { global: { headers: { Authorization: authHeader } } }
   )
   const { data: { user }, error: authErr } = await userClient.auth.getUser()
-  if (authErr || !user) return err('Unauthorized', 401)
+  if (authErr || !user) return errResp('Unauthorized', 401)
 
-  const { auth_id } = await req.json()
-  if (!auth_id) return err('auth_id gerekli', 400)
+  const { auth_id: rawAuthId, nick } = await req.json()
 
-  // Sadece admin başkasını silebilir, kullanıcı kendini silebilir
-  const isAdmin = user.email === ADMIN_EMAIL
-  const isSelf = user.id === auth_id
-  if (!isAdmin && !isSelf) return err('Forbidden', 403)
-
-  // Service role ile auth kullanıcısını sil
   const adminClient = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   )
-  const { error: deleteErr } = await adminClient.auth.admin.deleteUser(auth_id)
-  if (deleteErr) return err(deleteErr.message, 500)
 
+  let targetAuthId = rawAuthId
+
+  // auth_id yoksa nick'ten email türet ve kullanıcıyı listeden bul
+  if (!targetAuthId && nick) {
+    const email = nickToEmail(nick)
+    console.log('auth_id yok, email ile aranıyor:', email)
+    const { data: usersPage } = await adminClient.auth.admin.listUsers({ page: 1, perPage: 1000 })
+    const found = usersPage?.users?.find((u: { email: string; id: string }) => u.email === email)
+    targetAuthId = found?.id
+    console.log('Bulunan auth_id:', targetAuthId)
+  }
+
+  if (!targetAuthId) {
+    console.error('auth_id bulunamadı, nick:', nick)
+    return errResp('auth_id veya geçerli nick gerekli', 400)
+  }
+
+  const isAdmin = user.email === ADMIN_EMAIL
+  const isSelf = user.id === targetAuthId
+  if (!isAdmin && !isSelf) return errResp('Forbidden', 403)
+
+  console.log('Siliniyor:', targetAuthId, '| isAdmin:', isAdmin, '| isSelf:', isSelf)
+  const { error: deleteErr } = await adminClient.auth.admin.deleteUser(targetAuthId)
+  if (deleteErr) {
+    console.error('Silme hatası:', deleteErr.message)
+    return errResp(deleteErr.message, 500)
+  }
+
+  console.log('Başarıyla silindi:', targetAuthId)
   return new Response(JSON.stringify({ success: true }), {
     headers: { ...corsHeaders, 'Content-Type': 'application/json' }
   })
