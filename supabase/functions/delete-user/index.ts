@@ -42,6 +42,7 @@ Deno.serve(async (req) => {
   )
 
   let targetAuthId = rawAuthId
+  let targetNick = nick
 
   // auth_id yoksa nick'ten email türet ve kullanıcıyı listeden bul
   if (!targetAuthId && nick) {
@@ -53,6 +54,13 @@ Deno.serve(async (req) => {
     console.log('Bulunan auth_id:', targetAuthId)
   }
 
+  // nick yoksa auth_id ile kullanicilar'dan bul
+  if (!targetNick && targetAuthId) {
+    const { data: kulRow } = await adminClient.from('kullanicilar').select('nick').eq('auth_id', targetAuthId).maybeSingle()
+    targetNick = kulRow?.nick
+    console.log('auth_id ile bulunan nick:', targetNick)
+  }
+
   if (!targetAuthId) {
     console.error('auth_id bulunamadı, nick:', nick)
     return errResp('auth_id veya geçerli nick gerekli', 400)
@@ -62,10 +70,19 @@ Deno.serve(async (req) => {
   const isSelf = user.id === targetAuthId
   if (!isAdmin && !isSelf) return errResp('Forbidden', 403)
 
-  console.log('Siliniyor:', targetAuthId, '| isAdmin:', isAdmin, '| isSelf:', isSelf)
+  console.log('Siliniyor:', targetAuthId, 'nick:', targetNick, '| isAdmin:', isAdmin, '| isSelf:', isSelf)
+
+  // 1. kullanicilar satırını service role ile sil (RLS'i bypass eder)
+  if (targetNick) {
+    const { error: kulErr } = await adminClient.from('kullanicilar').delete().eq('nick', targetNick)
+    if (kulErr) console.error('kullanicilar silinemedi:', kulErr.message)
+    else console.log('kullanicilar silindi:', targetNick)
+  }
+
+  // 2. Auth kaydını sil
   const { error: deleteErr } = await adminClient.auth.admin.deleteUser(targetAuthId)
   if (deleteErr) {
-    console.error('Silme hatası:', deleteErr.message)
+    console.error('Auth silme hatası:', deleteErr.message)
     return errResp(deleteErr.message, 500)
   }
 

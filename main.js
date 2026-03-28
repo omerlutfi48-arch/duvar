@@ -248,7 +248,7 @@ async function modBan(nick){
 
 
 // ── STATE ──
-let currentUser=null,activeFilter={kind:'all',val:''},selectedMood=null,selectedType=null,activeAuthTab='login',activeSort='new',isModerator=false;
+let currentUser=null,activeFilter={kind:'all',val:''},selectedMood=null,selectedType=null,activeAuthTab='login',activeSort='top',isModerator=false;
 let activeTag=null;
 let visibleCount=20;
 const PAGE_SIZE=20;
@@ -371,11 +371,68 @@ function toggleTheme(){
 
 // ── BOTTOM NAV ──
 function updateBottomNav(active){
-  ['duvar','ilanlar','etkinlik'].forEach(id=>{
-    document.getElementById('bnav-'+id)?.classList.toggle('active',id===active);
+  ['akis','kaynaklar-mob','kesfet-mob'].forEach(id=>{
+    document.getElementById('bnav-'+id)?.classList.remove('active');
   });
-  ['bnav-notif','bnav-profil'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  if(active==='duvar'||active==='akis'){
+    document.getElementById('bnav-akis')?.classList.add('active');
+  }else if(['rehber','sozluk','araclar'].includes(active)){
+    document.getElementById('bnav-kaynaklar-mob')?.classList.add('active');
+  }else if(['mimarlar','ilanlar','etkinlik'].includes(active)){
+    document.getElementById('bnav-kesfet-mob')?.classList.add('active');
+  }
 }
+
+// ── TOPBAR DROPDOWN ──
+function toggleTopbarDropdown(name){
+  const dd=document.getElementById('dd-'+name);
+  const isOpen=dd.classList.contains('open');
+  closeTopbarDropdowns();
+  if(!isOpen)dd.classList.add('open');
+}
+function closeTopbarDropdowns(){
+  document.querySelectorAll('.topbar-dropdown.open').forEach(d=>d.classList.remove('open'));
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.topbar-dropdown'))closeTopbarDropdowns();
+});
+
+// ── BOTTOM SHEET ──
+function openBottomSheet(type){
+  const items=document.getElementById('bsheetItems');
+  const sheet=document.getElementById('bsheet');
+  const overlay=document.getElementById('bsheetOverlay');
+  if(type==='kaynaklar'){
+    items.innerHTML=`
+      <button class="bsheet-item" onclick="switchNav('rehber');updateBottomNav('rehber');closeBottomSheet()"><span>📖</span> rehber</button>
+      <button class="bsheet-item" onclick="switchNav('sozluk');updateBottomNav('sozluk');closeBottomSheet()"><span>📚</span> sözlük</button>
+      <button class="bsheet-item" onclick="switchNav('araclar');updateBottomNav('araclar');closeBottomSheet()"><span>🔧</span> araçlar</button>`;
+  }else if(type==='kesfet'){
+    items.innerHTML=`
+      <button class="bsheet-item" onclick="switchNav('mimarlar');updateBottomNav('mimarlar');closeBottomSheet()"><span>👤</span> mimarlar</button>
+      <button class="bsheet-item" onclick="switchNav('ilanlar');updateBottomNav('ilanlar');closeBottomSheet()"><span>💼</span> ilanlar</button>
+      <button class="bsheet-item" onclick="switchNav('etkinlik');updateBottomNav('etkinlik');closeBottomSheet()"><span>📅</span> etkinlik</button>`;
+  }
+  overlay.style.display='block';
+  sheet.style.display='block';
+  requestAnimationFrame(()=>sheet.classList.add('open'));
+}
+function closeBottomSheet(){
+  const sheet=document.getElementById('bsheet');
+  const overlay=document.getElementById('bsheetOverlay');
+  sheet.classList.remove('open');
+  setTimeout(()=>{sheet.style.display='none';overlay.style.display='none';},250);
+}
+
+// ── CANLILIK ÇUBUĞU ──
+async function loadCanlilik(){
+  const since=new Date(Date.now()-15*60*1000).toISOString();
+  const {count}=await sb.from('page_views').select('*',{count:'exact',head:true}).gte('created_at',since).catch(()=>({count:null}));
+  const el=document.getElementById('canlilikText');
+  if(el&&count!=null)el.textContent=`duvarda şu an ${count} kişi var`;
+}
+loadCanlilik();
+
 // Bildirim dot'unu bottom nav ile senkronize et
 function syncBnavDot(){
   const dot=document.getElementById('bnavNotifDot');
@@ -901,9 +958,11 @@ async function deleteAccount(){
   const nick=currentUser;
   const {data:{session}}=await sb.auth.getSession();
   const authId=session?.user?.id;
-  // Önce kullanicilar satırını sil — başarısız olursa dur
-  const {error:kulErr}=await sb.from('kullanicilar').delete().eq('nick',nick);
+  if(!session){toast('// oturum bulunamadı, tekrar giriş yap');return;}
+  // kullanicilar satırını sil (RLS policy: auth.uid()=auth_id gerekli)
+  const {data:deleted,error:kulErr}=await sb.from('kullanicilar').delete().eq('nick',nick).select('nick');
   if(kulErr){toast('// hesap silinemedi: '+kulErr.message);return;}
+  if(!deleted?.length){toast('// hesap silinemedi: yetki hatası (RLS policy eksik olabilir)');return;}
   // Diğer verileri sil
   await Promise.all([
     sb.from('posts').delete().eq('author',nick),
@@ -912,17 +971,14 @@ async function deleteAccount(){
     sb.from('begeni').delete().eq('nick',nick),
     sb.from('anket_oylar').delete().eq('nick',nick),
   ]);
-  // Supabase Auth kaydını da sil (nick tekrar alınabilsin)
+  // Auth kaydını sil (nick tekrar alınabilsin)
   if(authId){
     const res=await fetch('https://tnxflwddhucvlejmoihj.supabase.co/functions/v1/delete-user',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
-      body:JSON.stringify({auth_id:authId})
+      body:JSON.stringify({auth_id:authId,nick})
     }).catch(()=>null);
-    if(!res?.ok){
-      toast('// hesap verileri silindi ama auth kaydı silinemedi — lütfen adminle iletişime geç');
-      console.error('Auth kaydı silinemedi:',authId,res?.status);
-    }
+    if(!res?.ok)console.error('Auth kaydı silinemedi:',authId,res?.status);
   }
   await sb.auth.signOut();
   currentUser=null;
