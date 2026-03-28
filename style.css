@@ -94,6 +94,9 @@ header{position:relative;z-index:10;padding:2rem 2rem 1.5rem;border-bottom:2px s
 .topbar-paylas-btn{font-family:var(--ff-mono);font-size:.72rem;letter-spacing:.1em;background:var(--red);color:#fff;border:none;padding:.4rem .9rem;cursor:pointer;transition:background .15s;white-space:nowrap}
 .topbar-paylas-btn:hover{background:var(--red2)}
 
+/* HERO */
+.site-hero{max-width:900px;margin:0 auto;padding:2rem 2rem 1.5rem;border-bottom:2px solid var(--red);position:relative;z-index:10}
+
 /* CANLILIK ÇUBUĞU */
 .canlilik-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:.4rem 1.5rem;max-width:900px;margin:0 auto;font-family:var(--ff-mono);font-size:.68rem;color:var(--muted);letter-spacing:.06em;display:flex;align-items:center;gap:.5rem}
 .canlilik-dot{color:#00c87a;font-size:.6rem;animation:pulse-dot 2s ease-in-out infinite}
