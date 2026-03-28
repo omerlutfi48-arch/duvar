@@ -860,7 +860,6 @@ function loginSuccess(nick,isMod=false){
   document.getElementById('notifBtn').style.display='';
   document.getElementById('dmBtn').style.display='';
   document.getElementById('loginBtn').style.display='none';
-  document.getElementById('aiHelpBtn').style.display='';
   document.getElementById('aiFloatBtn').style.display='';
   cleanOldNotifs(currentUser);checkNotifDot();loadDMDot();render();
   checkPushStatus();
@@ -874,7 +873,6 @@ function enterAsGuest(){
   document.getElementById('notifBtn').style.display='none';
   document.getElementById('dmBtn').style.display='none';
   document.getElementById('loginBtn').style.display='';
-  document.getElementById('aiHelpBtn').style.display='none';
   document.getElementById('aiFloatBtn').style.display='none';
   render();
 }
@@ -2658,22 +2656,6 @@ async function aiCall(mode,messages){
   return{text:json.text||''};
 }
 
-async function aiHelp(){
-  if(!currentUser){toast('// AI için giriş yap');return;}
-  const inp=document.getElementById('mainInput');
-  const text=inp.value.trim();
-  if(!text){toast('// önce birkaç kelime yaz');return;}
-  const btn=document.getElementById('aiHelpBtn');
-  btn.textContent='// düşünüyor...';btn.disabled=true;
-  try{
-    const ctx=`${text}${selectedMood?'\nMood: '+selectedMood:''}${selectedType?'\nTür: '+selectedType:''}`;
-    const result=await aiCall('content',[{role:'user',content:ctx}]);
-    if(result.err)toast('// AI hata: '+result.err);
-    else if(result.text){inp.value=result.text;inp.dispatchEvent(new Event('input'));}
-    else toast('// AI boş yanıt verdi');
-  }catch(e){toast('// bağlantı hatası: '+e.message);}
-  btn.textContent='✦ AI ile tamamla';btn.disabled=false;
-}
 
 function openAiChat(){
   if(!currentUser){toast('// AI için giriş yap');return;}
