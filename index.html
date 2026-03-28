@@ -235,6 +235,7 @@
         </div>
       </div>
       <textarea id="mainInput" placeholder="dert anlat, soru sor, kaynak paylaş — ya da sadece bir şey söyle." maxlength="500" rows="4"></textarea>
+      <button class="ai-help-btn" id="aiHelpBtn" onclick="aiHelp()" style="display:none">✦ AI ile tamamla</button>
       <button class="anket-toggle" id="anketToggle">📊 anket ekle</button>
       <div class="anket-inputs hidden" id="anketInputs">
         <input class="anket-opt-input" id="anket-opt-0" placeholder="seçenek 1" maxlength="80">
@@ -886,8 +887,22 @@
   </button>
 </nav>
 
+<!-- AI ASISTAN PANELİ -->
+<div class="side-panel" id="aiPanel">
+  <div class="panel-header">
+    <div class="panel-title">// AI ASİSTAN <span style="font-size:.55rem;color:var(--muted);font-weight:400;letter-spacing:0;text-transform:none">beta</span></div>
+    <button class="panel-close">✕ kapat</button>
+  </div>
+  <div id="aiChatMessages"></div>
+  <div class="ai-input-row">
+    <input id="aiChatInput" placeholder="bir şey sor..." maxlength="500" autocomplete="off">
+    <button id="aiSendBtn" onclick="sendAiMessage()">↵</button>
+  </div>
+</div>
+
 <!-- TESLİM GECESİ RADYOSU -->
 <button class="radio-float-btn" id="radioFloatBtn" title="Teslim Gecesi Radyosu">📻</button>
+<button class="ai-float-btn" id="aiFloatBtn" onclick="openAiChat()" title="AI asistan" style="display:none">✦</button>
 
 <div class="radio-player" id="radioPlayer">
   <div class="radio-header">

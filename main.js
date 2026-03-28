@@ -248,7 +248,7 @@ async function modBan(nick){
 
 
 // ── STATE ──
-let currentUser=null,activeFilter={kind:'all',val:''},selectedMood=null,selectedType=null,activeAuthTab='login',activeSort='new',isModerator=false;
+let currentUser=null,activeFilter={kind:'all',val:''},selectedMood=null,selectedType=null,activeAuthTab='login',activeSort='new',isModerator=false,aiMessages=[];
 let activeTag=null;
 let visibleCount=20;
 const PAGE_SIZE=20;
@@ -860,6 +860,8 @@ function loginSuccess(nick,isMod=false){
   document.getElementById('notifBtn').style.display='';
   document.getElementById('dmBtn').style.display='';
   document.getElementById('loginBtn').style.display='none';
+  document.getElementById('aiHelpBtn').style.display='';
+  document.getElementById('aiFloatBtn').style.display='';
   cleanOldNotifs(currentUser);checkNotifDot();loadDMDot();render();
   checkPushStatus();
 }
@@ -872,6 +874,8 @@ function enterAsGuest(){
   document.getElementById('notifBtn').style.display='none';
   document.getElementById('dmBtn').style.display='none';
   document.getElementById('loginBtn').style.display='';
+  document.getElementById('aiHelpBtn').style.display='none';
+  document.getElementById('aiFloatBtn').style.display='none';
   render();
 }
 function showAuth(){document.getElementById('authModal').classList.remove('hidden');}
@@ -1359,7 +1363,7 @@ function openProfile(){
   updatePushBtn();
 }
 function closePanels(){
-  ['profilePanel','notifPanel','dmPanel'].forEach(id=>document.getElementById(id).classList.remove('open'));
+  ['profilePanel','notifPanel','dmPanel','aiPanel'].forEach(id=>document.getElementById(id).classList.remove('open'));
   document.getElementById('panelOverlay').classList.remove('open');
 }
 
@@ -2631,4 +2635,82 @@ if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');l
 sb.auth.onAuthStateChange((event)=>{
   if(event==='SIGNED_OUT'&&currentUser){logout();}
 });
+// ── AI ASISTAN ──
+const AI_EDGE_URL='https://tnxflwddhucvlejmoihj.supabase.co/functions/v1/claude-ai';
+
+async function aiCall(mode,messages){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session)return null;
+  const resp=await fetch(AI_EDGE_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+    body:JSON.stringify({mode,messages})
+  });
+  if(!resp.ok)return null;
+  const {text}=await resp.json();
+  return text||null;
+}
+
+async function aiHelp(){
+  if(!currentUser){toast('// AI için giriş yap');return;}
+  const inp=document.getElementById('mainInput');
+  const text=inp.value.trim();
+  if(!text){toast('// önce birkaç kelime yaz');return;}
+  const btn=document.getElementById('aiHelpBtn');
+  btn.textContent='// düşünüyor...';btn.disabled=true;
+  try{
+    const ctx=`${text}${selectedMood?'\nMood: '+selectedMood:''}${selectedType?'\nTür: '+selectedType:''}`;
+    const result=await aiCall('content',[{role:'user',content:ctx}]);
+    if(result){inp.value=result;inp.dispatchEvent(new Event('input'));}
+    else toast('// AI yanıt veremedi, tekrar dene');
+  }catch(e){toast('// bağlantı hatası');}
+  btn.textContent='✦ AI ile tamamla';btn.disabled=false;
+}
+
+function openAiChat(){
+  if(!currentUser){toast('// AI için giriş yap');return;}
+  closePanels();
+  renderAiMessages();
+  document.getElementById('aiPanel').classList.add('open');
+  document.getElementById('panelOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('aiChatInput').focus(),200);
+}
+
+function renderAiMessages(){
+  const el=document.getElementById('aiChatMessages');
+  if(!aiMessages.length){
+    el.innerHTML='<div class="ai-welcome">// mimarlık öğrencisi asistanı<span>stüdyo, jüri, konsept, referans — ne olursa sor.</span></div>';
+    return;
+  }
+  el.innerHTML=aiMessages.map(m=>`<div class="ai-msg ${m.role}">${esc(m.content)}</div>`).join('');
+  el.scrollTop=el.scrollHeight;
+}
+
+async function sendAiMessage(){
+  if(!currentUser){toast('// AI için giriş yap');return;}
+  const inp=document.getElementById('aiChatInput');
+  const text=inp.value.trim();
+  if(!text)return;
+  inp.value='';
+  const sendBtn=document.getElementById('aiSendBtn');
+  sendBtn.disabled=true;inp.disabled=true;
+  aiMessages.push({role:'user',content:text});
+  // Loading göster
+  const el=document.getElementById('aiChatMessages');
+  el.innerHTML=aiMessages.map(m=>`<div class="ai-msg ${m.role}">${esc(m.content)}</div>`).join('')
+    +'<div class="ai-msg assistant ai-loading">// düşünüyor...</div>';
+  el.scrollTop=el.scrollHeight;
+  try{
+    const result=await aiCall('chat',aiMessages.map(m=>({role:m.role,content:m.content})));
+    aiMessages.push({role:'assistant',content:result||'// yanıt alınamadı, tekrar dene'});
+  }catch(e){aiMessages.push({role:'assistant',content:'// bağlantı hatası, tekrar dene'});}
+  renderAiMessages();
+  sendBtn.disabled=false;inp.disabled=false;
+  setTimeout(()=>inp.focus(),50);
+}
+
+document.getElementById('aiChatInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendAiMessage();}
+});
+
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
