@@ -281,6 +281,38 @@ function restoreDraft(){
   if(d)document.getElementById('mainInput').value=d;
 }
 
+// ── DÖNEN PLACEHOLDER ──
+(function initRotatingPlaceholder(){
+  const prompts=[
+    'dert anlat, soru sor, kaynak paylaş — ya da sadece bir şey söyle.',
+    'şu an ne hissediyorsun?',
+    'bugün stüdyoda ne oldu?',
+    'jüri öncesi aklından geçenler?',
+    'paylaşmak istediğin bir kaynak var mı?',
+    'hocanla ilgili bir şey mi yaşandı?',
+    'bir şey öğrendin, paylaşmak ister misin?',
+    'anonim ol, rahat ol — yaz.',
+    'gecenin kaçında çalışıyorsun?',
+    'bunu duymak isteyen biri vardır.',
+  ];
+  let idx=0,timer=null;
+  function start(){
+    const inp=document.getElementById('mainInput');
+    if(!inp)return;
+    inp.addEventListener('focus',()=>clearInterval(timer));
+    inp.addEventListener('blur',()=>{if(!inp.value)timer=setInterval(rotate,3500);});
+    function rotate(){
+      const i=document.getElementById('mainInput');
+      if(!i||document.activeElement===i||i.value)return;
+      idx=(idx+1)%prompts.length;
+      i.placeholder=prompts[idx];
+    }
+    timer=setInterval(rotate,3500);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);
+  else start();
+})();
+
 // ── PERMALINK ──
 function copyPostLink(id){
   const url=location.origin+location.pathname+'?post='+id;
