@@ -2640,15 +2640,15 @@ const AI_EDGE_URL='https://tnxflwddhucvlejmoihj.supabase.co/functions/v1/claude-
 
 async function aiCall(mode,messages){
   const {data:{session}}=await sb.auth.getSession();
-  if(!session)return null;
+  if(!session)return{err:'oturum bulunamadı'};
   const resp=await fetch(AI_EDGE_URL,{
     method:'POST',
     headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
     body:JSON.stringify({mode,messages})
   });
-  if(!resp.ok)return null;
-  const {text}=await resp.json();
-  return text||null;
+  const json=await resp.json().catch(()=>({}));
+  if(!resp.ok)return{err:json.error||'HTTP '+resp.status};
+  return{text:json.text||''};
 }
 
 async function aiHelp(){
@@ -2661,9 +2661,10 @@ async function aiHelp(){
   try{
     const ctx=`${text}${selectedMood?'\nMood: '+selectedMood:''}${selectedType?'\nTür: '+selectedType:''}`;
     const result=await aiCall('content',[{role:'user',content:ctx}]);
-    if(result){inp.value=result;inp.dispatchEvent(new Event('input'));}
-    else toast('// AI yanıt veremedi, tekrar dene');
-  }catch(e){toast('// bağlantı hatası');}
+    if(result.err)toast('// AI hata: '+result.err);
+    else if(result.text){inp.value=result.text;inp.dispatchEvent(new Event('input'));}
+    else toast('// AI boş yanıt verdi');
+  }catch(e){toast('// bağlantı hatası: '+e.message);}
   btn.textContent='✦ AI ile tamamla';btn.disabled=false;
 }
 
@@ -2702,8 +2703,8 @@ async function sendAiMessage(){
   el.scrollTop=el.scrollHeight;
   try{
     const result=await aiCall('chat',aiMessages.map(m=>({role:m.role,content:m.content})));
-    aiMessages.push({role:'assistant',content:result||'// yanıt alınamadı, tekrar dene'});
-  }catch(e){aiMessages.push({role:'assistant',content:'// bağlantı hatası, tekrar dene'});}
+    aiMessages.push({role:'assistant',content:result.err?'// hata: '+result.err:(result.text||'// yanıt alınamadı')});
+  }catch(e){aiMessages.push({role:'assistant',content:'// bağlantı hatası: '+e.message});}
   renderAiMessages();
   sendBtn.disabled=false;inp.disabled=false;
   setTimeout(()=>inp.focus(),50);
