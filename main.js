@@ -2641,12 +2641,19 @@ const AI_EDGE_URL='https://tnxflwddhucvlejmoihj.supabase.co/functions/v1/claude-
 async function aiCall(mode,messages){
   const {data:{session}}=await sb.auth.getSession();
   if(!session)return{err:'oturum bulunamadı'};
-  const resp=await fetch(AI_EDGE_URL,{
-    method:'POST',
-    headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
-    body:JSON.stringify({mode,messages})
-  });
+  let resp;
+  try{
+    resp=await fetch(AI_EDGE_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+      body:JSON.stringify({mode,messages})
+    });
+  }catch(e){
+    console.error('[AI] fetch hatası:',e);
+    return{err:'fetch: '+e.message};
+  }
   const json=await resp.json().catch(()=>({}));
+  console.log('[AI] status:',resp.status,'json:',json);
   if(!resp.ok)return{err:json.error||'HTTP '+resp.status};
   return{text:json.text||''};
 }
