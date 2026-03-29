@@ -75,9 +75,6 @@ async function checkPushStatus(){
 }
 
 // ── STORAGE ──
-const NOTIFS_KEY='duvar_notifs_';
-const getNotifs=u=>{try{return JSON.parse(localStorage.getItem(NOTIFS_KEY+u))||[];}catch{return[];}};
-const saveNotifs=(u,n)=>localStorage.setItem(NOTIFS_KEY+u,JSON.stringify(n));
 // nick → Supabase Auth email (ASCII-safe, deterministik)
 function nickToEmail(nick){
   const s=nick.toLowerCase()
@@ -861,7 +858,7 @@ function loginSuccess(nick,isMod=false){
   document.getElementById('dmBtn').style.display='';
   document.getElementById('loginBtn').style.display='none';
   document.getElementById('aiFloatBtn').style.display='';
-  cleanOldNotifs(currentUser);checkNotifDot();loadDMDot();render();
+  checkNotifDot();loadDMDot();render();subscribeNotifs();
   checkPushStatus();
 }
 function enterAsGuest(){
@@ -971,6 +968,7 @@ async function deleteAccount(){
   render();
 }
 function logout(){
+  if(notifChannel){sb.removeChannel(notifChannel);notifChannel=null;}
   currentUser=null;sb.auth.signOut();
   document.getElementById('userNickDisplay').style.display='none';
   document.getElementById('notifBtn').style.display='none';
@@ -1281,38 +1279,35 @@ async function sendComment(id){
 }
 
 // ── BİLDİRİMLER ──
-function cleanOldNotifs(user){
-  const cutoff=Date.now()-30*24*60*60*1000;
-  const notifs=getNotifs(user).filter(n=>new Date(n.time).getTime()>cutoff);
-  saveNotifs(user,notifs);
-}
-function addNotif(toUser,fromUser,action){
-  if(!toUser||toUser===fromUser)return;
-  const notifs=getNotifs(toUser);
-  // Yinelenen bildirim engelle: aynı from+action 60 dk içinde tekrar gelmesin
-  const recent=Date.now()-60*60*1000;
-  const dup=notifs.find(n=>n.from===fromUser&&n.action===action&&new Date(n.time).getTime()>recent);
-  if(dup)return;
-  notifs.unshift({from:fromUser,action,time:new Date().toISOString(),read:false});
-  if(notifs.length>50)notifs.pop();
-  saveNotifs(toUser,notifs);
-  if(toUser===currentUser)checkNotifDot();
-}
-function checkNotifDot(){
+let notifChannel=null;
+function subscribeNotifs(){
   if(!currentUser)return;
-  const n=getNotifs(currentUser).filter(x=>!x.read).length;
-  document.getElementById('notifDot').classList.toggle('show',n>0);
+  if(notifChannel)sb.removeChannel(notifChannel);
+  notifChannel=sb.channel('notifs-'+currentUser)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:`to_user=eq.${currentUser}`},()=>checkNotifDot())
+    .subscribe();
 }
-function openNotifs(){
+async function addNotif(toUser,fromUser,action){
+  if(!toUser||toUser===fromUser)return;
+  const since=new Date(Date.now()-60*60*1000).toISOString();
+  const{data:dup}=await sb.from('notifications').select('id').eq('to_user',toUser).eq('from_user',fromUser).eq('action',action).gte('created_at',since).maybeSingle();
+  if(dup)return;
+  await sb.from('notifications').insert({to_user:toUser,from_user:fromUser,action});
+}
+async function checkNotifDot(){
+  if(!currentUser)return;
+  const{count}=await sb.from('notifications').select('*',{count:'exact',head:true}).eq('to_user',currentUser).eq('read',false);
+  document.getElementById('notifDot').classList.toggle('show',(count||0)>0);
+}
+async function openNotifs(){
   if(!currentUser)return;
   closePanels();
-  const notifs=getNotifs(currentUser);
   const list=document.getElementById('notifList');
-  if(!notifs.length){list.innerHTML='<div class="notif-empty">// henüz bildirim yok</div>';}
+  const{data:notifs}=await sb.from('notifications').select('*').eq('to_user',currentUser).order('created_at',{ascending:false}).limit(50);
+  if(!notifs?.length){list.innerHTML='<div class="notif-empty">// henüz bildirim yok</div>';}
   else{
-    list.innerHTML=notifs.map(n=>`<div class="notif-item${n.read?'':' unread'}"><div class="notif-text"><strong>@${esc(n.from)}</strong> ${esc(n.action)}</div><div class="notif-time">${relTime(n.time)}</div></div>`).join('');
-    const updated=notifs.map(n=>({...n,read:true}));
-    saveNotifs(currentUser,updated);
+    list.innerHTML=notifs.map(n=>`<div class="notif-item${n.read?'':' unread'}"><div class="notif-text"><strong>@${esc(n.from_user)}</strong> ${esc(n.action)}</div><div class="notif-time">${relTime(n.created_at)}</div></div>`).join('');
+    await sb.from('notifications').update({read:true}).eq('to_user',currentUser).eq('read',false);
     document.getElementById('notifDot').classList.remove('show');
   }
   document.getElementById('notifPanel').classList.add('open');
