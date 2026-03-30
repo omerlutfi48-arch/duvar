@@ -1034,7 +1034,7 @@ function switchNav(tab,pushState=true){
   ['rehber','sozluk','araclar','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('section-'+t).classList.toggle('active',t===tab));
   ['duvar','rehber','sozluk','araclar','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active',t===tab));
   updateBottomNav(tab);
-  if(tab==='sozluk')renderSozluk();
+  if(tab==='sozluk')loadBasliklar();
   if(tab==='mimarlar')renderMimarlar();
   if(tab==='araclar')renderSayac();
   if(tab==='ilanlar')renderIlanlar();
@@ -2112,44 +2112,92 @@ const SOZLUK=[
   {tr:'Art Deco',en:'Art Deco',cat:'kultur',def:'1920-30\'larda hakim olan, geometrik süsleme, zengin malzeme ve gösterişli cephelerle tanınan tasarım akımı.',not:'Chrysler Binası Art Deco\'nun zirvesidir.',ornek:'"Binanın girişindeki süslemeler Art Deco\'dan ilham alıyor"'},
 ];
 
-let sozlukCat='all';
+// ── EKŞİ SÖZLÜK ──
+let eksBasliklar=[];
+let currentBaslikId=null;
 
-function setSozlukCat(cat,el){
-  sozlukCat=cat;
-  document.querySelectorAll('.sozluk-cat').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  renderSozluk();
+async function loadBasliklar(){
+  document.getElementById('eksAddRow').style.display=currentUser?'flex':'none';
+  const{data}=await sb.from('sozluk_basliklar').select('id,baslik,olusturan,created_at').order('created_at',{ascending:false});
+  eksBasliklar=data||[];
+  // entry sayılarını al
+  const{data:counts}=await sb.from('sozluk_entriler').select('baslik_id');
+  const countMap={};
+  (counts||[]).forEach(r=>{countMap[r.baslik_id]=(countMap[r.baslik_id]||0)+1;});
+  eksBasliklar=eksBasliklar.map(b=>({...b,entryCount:countMap[b.id]||0}));
+  renderBasliklar();
 }
 
-function renderSozluk(){
-  const q=(document.getElementById('sozlukSearch')?.value||'').toLowerCase().trim();
-  let items=[...SOZLUK];
-  if(sozlukCat!=='all')items=items.filter(i=>i.cat===sozlukCat);
-  if(q)items=items.filter(i=>i.tr.toLowerCase().includes(q)||i.en.toLowerCase().includes(q)||i.def.toLowerCase().includes(q));
-  // alfabetik sırala
-  items.sort((a,b)=>a.tr.localeCompare(b.tr,'tr'));
-  const grid=document.getElementById('sozlukGrid');
-  const stats=document.getElementById('sozlukStats');
-  if(!grid)return;
-  stats.textContent=`${items.length} terim`+(sozlukCat!=='all'||q?' · filtrelendi':'');
-  if(!items.length){grid.innerHTML='<div class="sozluk-empty">// arama sonucu bulunamadı</div>';return;}
-  const catLabel={teknik:'teknik',tasarim:'tasarım',malzeme:'malzeme',yazilim:'yazılım',kultur:'kültür'};
-  grid.innerHTML=items.map((it,i)=>`
-    <div class="sozluk-item" id="sitem-${i}" onclick="toggleSozlukItem(this)">
-      <div class="sozluk-item-head">
-        <span class="sozluk-term">${esc(it.tr)}</span>
-        <span class="sozluk-en">${esc(it.en)}</span>
-        <span class="sozluk-cat-badge cat-${it.cat}">${catLabel[it.cat]||it.cat}</span>
-      </div>
-      <div class="sozluk-item-body">
-        <div class="sozluk-def">${esc(it.def)}</div>
-        ${it.not?`<div class="sozluk-note">${esc(it.not)}</div>`:''}
-        ${it.ornek?`<div class="sozluk-ornek">${esc(it.ornek)}</div>`:''}
+function renderBasliklar(){
+  const q=(document.getElementById('eksSearch')?.value||'').toLowerCase();
+  const list=document.getElementById('eksBaslikList');
+  const stats=document.getElementById('eksStats');
+  let items=eksBasliklar;
+  if(q)items=items.filter(b=>b.baslik.toLowerCase().includes(q));
+  stats.textContent=`${items.length} başlık`;
+  if(!items.length){list.innerHTML=`<div class="eks-empty">${q?'// sonuç bulunamadı':'// henüz başlık yok — ilk başlığı sen aç'}</div>`;return;}
+  list.innerHTML=items.map(b=>`
+    <div class="eks-baslik-row" onclick="openBaslik(${b.id},'${esc(b.baslik)}')">
+      <span class="eks-baslik-name">${esc(b.baslik)}</span>
+      <span class="eks-baslik-meta">
+        <span>${b.entryCount} entry</span>
+        <span style="color:var(--border2)">@${esc(b.olusturan)}</span>
+      </span>
+    </div>`).join('');
+}
+
+async function openBaslik(id,baslik){
+  currentBaslikId=id;
+  document.getElementById('sozluk-list-view').style.display='none';
+  document.getElementById('sozluk-entry-view').style.display='block';
+  document.getElementById('eksCurrentBaslik').textContent=baslik;
+  document.getElementById('eksEntryRow').style.display=currentUser?'flex':'none';
+  document.getElementById('eksEntryLoginNote').style.display=currentUser?'none':'block';
+  document.getElementById('eksEntryRow').style.flexDirection='column';
+  const{data:entries}=await sb.from('sozluk_entriler').select('*').eq('baslik_id',id).order('created_at',{ascending:true});
+  const el=document.getElementById('eksEntriesList');
+  if(!entries?.length){el.innerHTML='<div class="eks-empty">// henüz entry yok — ilk yazan sen ol</div>';return;}
+  el.innerHTML=entries.map((e,i)=>`
+    <div class="eks-entry">
+      <div class="eks-entry-text">${esc(e.icerik)}</div>
+      <div class="eks-entry-meta">
+        <span class="eks-entry-num">${i+1}</span>
+        <span>@${esc(e.yazar)}</span>
+        <span>${relTime(e.created_at)}</span>
       </div>
     </div>`).join('');
 }
 
-function toggleSozlukItem(el){el.classList.toggle('open');}
+function showBaslikList(){
+  currentBaslikId=null;
+  document.getElementById('sozluk-list-view').style.display='block';
+  document.getElementById('sozluk-entry-view').style.display='none';
+}
+
+async function addBaslik(){
+  if(!currentUser){toast('// giriş yap');return;}
+  const inp=document.getElementById('eksBaslikInput');
+  const val=inp.value.trim();
+  if(!val){toast('// başlık boş olamaz');return;}
+  const{error}=await sb.from('sozluk_basliklar').insert({baslik:val,olusturan:currentUser});
+  if(error){toast(error.code==='23505'?'// bu başlık zaten var':'// hata: '+error.message);return;}
+  inp.value='';
+  toast('// başlık eklendi');
+  await loadBasliklar();
+}
+
+async function addEntry(){
+  if(!currentUser){toast('// giriş yap');return;}
+  const inp=document.getElementById('eksEntryInput');
+  const val=inp.value.trim();
+  if(!val){toast('// entry boş olamaz');return;}
+  if(!currentBaslikId)return;
+  const{error}=await sb.from('sozluk_entriler').insert({baslik_id:currentBaslikId,yazar:currentUser,icerik:val});
+  if(error){toast('// hata: '+error.message);return;}
+  inp.value='';
+  const b=eksBasliklar.find(x=>x.id===currentBaslikId);
+  if(b)openBaslik(currentBaslikId,b.baslik);
+}
 
 // ── ÖLÇEK HESAPLAYICI ──
 function olcekHesapla(){
