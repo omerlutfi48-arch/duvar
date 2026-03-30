@@ -394,9 +394,9 @@ textarea:focus{border-bottom-color:var(--red)}
 .eks-add-btn:hover{border-color:var(--yellow);color:var(--yellow)}
 .eks-stats{font-family:var(--ff-mono);font-size:.65rem;color:var(--muted);margin-bottom:.8rem}
 .eks-list{display:flex;flex-direction:column;gap:1px}
-.eks-baslik-row{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.1rem;background:var(--surface);border:1px solid var(--border);cursor:pointer;transition:all .15s}
+.eks-baslik-row{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.1rem;background:var(--surface);border:1px solid var(--border);transition:all .15s}
 .eks-baslik-row:hover{border-color:var(--border2);background:var(--surface2)}
-.eks-baslik-name{font-family:var(--ff-mono);font-size:.85rem;color:var(--text);letter-spacing:.02em}
+.eks-baslik-name{font-family:var(--ff-mono);font-size:.85rem;color:var(--text);letter-spacing:.02em;cursor:pointer;flex:1}
 .eks-baslik-meta{font-family:var(--ff-mono);font-size:.62rem;color:var(--muted);display:flex;gap:.8rem;align-items:center}
 .eks-back{font-family:var(--ff-mono);font-size:.7rem;color:var(--muted);background:transparent;border:none;cursor:pointer;padding:0;margin-bottom:1.2rem;display:block;transition:color .15s}
 .eks-back:hover{color:var(--text)}
@@ -406,6 +406,8 @@ textarea:focus{border-bottom-color:var(--red)}
 .eks-entry-text{font-family:var(--ff-body);font-size:.92rem;color:var(--text);line-height:1.9;font-weight:300}
 .eks-entry-meta{font-family:var(--ff-mono);font-size:.62rem;color:var(--muted);margin-top:.6rem;display:flex;gap:.8rem}
 .eks-entry-num{color:var(--red)}
+.eks-del-btn{font-family:var(--ff-mono);font-size:.6rem;color:var(--red);background:transparent;border:none;cursor:pointer;padding:0;opacity:.5;transition:opacity .15s;margin-left:auto}
+.eks-del-btn:hover{opacity:1}
 .eks-entry-row{display:flex;flex-direction:column;gap:.5rem;border-top:1px dashed var(--border);padding-top:1rem}
 .eks-entry-input{background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--yellow);color:var(--text);font-family:var(--ff-body);font-size:.9rem;padding:.7rem .9rem;outline:none;resize:vertical;line-height:1.7}
 .eks-login-note{font-family:var(--ff-mono);font-size:.7rem;color:var(--muted);padding-top:1rem;border-top:1px dashed var(--border)}

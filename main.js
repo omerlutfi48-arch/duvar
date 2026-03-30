@@ -2177,11 +2177,12 @@ function renderBasliklar(){
   stats.textContent=`${items.length} başlık`;
   if(!items.length){list.innerHTML=`<div class="eks-empty">${q?'// sonuç bulunamadı':'// henüz başlık yok — ilk başlığı sen aç'}</div>`;return;}
   list.innerHTML=items.map(b=>`
-    <div class="eks-baslik-row" onclick="openBaslik(${b.id},'${esc(b.baslik)}')">
-      <span class="eks-baslik-name">${esc(b.baslik)}</span>
+    <div class="eks-baslik-row">
+      <span class="eks-baslik-name" onclick="openBaslik(${b.id},'${esc(b.baslik)}')">${esc(b.baslik)}</span>
       <span class="eks-baslik-meta">
         <span>${b.entryCount} entry</span>
         <span style="color:var(--border2)">@${esc(b.olusturan)}</span>
+        ${isModerator?`<button class="eks-del-btn" onclick="deleteBaslik(${b.id})">sil</button>`:''}
       </span>
     </div>`).join('');
 }
@@ -2204,8 +2205,27 @@ async function openBaslik(id,baslik){
         <span class="eks-entry-num">${i+1}</span>
         <span>@${esc(e.yazar)}</span>
         <span>${relTime(e.created_at)}</span>
+        ${(isModerator||e.yazar===currentUser)?`<button class="eks-del-btn" onclick="deleteEntry(${e.id})">sil</button>`:''}
       </div>
     </div>`).join('');
+}
+
+async function deleteEntry(id){
+  if(!confirm('// bu entry silinsin mi?'))return;
+  const{error}=await sb.from('sozluk_entriler').delete().eq('id',id);
+  if(error){toast('// hata: '+error.message);return;}
+  toast('// entry silindi');
+  const b=eksBasliklar.find(x=>x.id===currentBaslikId);
+  if(b)openBaslik(currentBaslikId,b.baslik);
+}
+
+async function deleteBaslik(id){
+  if(!confirm('// bu başlık ve tüm entryleri silinsin mi?'))return;
+  await sb.from('sozluk_entriler').delete().eq('baslik_id',id);
+  const{error}=await sb.from('sozluk_basliklar').delete().eq('id',id);
+  if(error){toast('// hata: '+error.message);return;}
+  toast('// başlık silindi');
+  await loadBasliklar();
 }
 
 function showBaslikList(){
