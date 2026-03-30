@@ -1059,12 +1059,12 @@ window.addEventListener('popstate',e=>{
   switchNav(valid.includes(tab)?tab:'duvar',false);
 });
 
-// İlk yüklemede hash kontrolü
-(()=>{
+// İlk yüklemede hash kontrolü — defer ile const'lar hazır olsun
+setTimeout(()=>{
   const hash=location.hash.replace('#','');
   const valid=['rehber','sozluk','araclar','mimarlar','ilanlar','etkinlik'];
   if(valid.includes(hash))switchNav(hash,false);
-})();
+},0);
 
 // ── FILTER ──
 function setFilter(val,el,kind='all'){
