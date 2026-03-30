@@ -3,8 +3,8 @@ const {createClient}=supabase;
 const sb=createClient('https://tnxflwddhucvlejmoihj.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRueGZsd2RkaHVjdmxlam1vaWhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjU5OTcsImV4cCI6MjA5MDA0MTk5N30.XFwCgn8lseNGsYDzigmHKDIBBRqByJ9gOpaPRmkT4Vs');
 
 // ── CLOUDINARY ──
-const CLOUDINARY_URL='https://api.cloudinary.com/v1_1/duvar.site/image/upload';
-const CLOUDINARY_PRESET='e794cefb-aa4e-4065-a58a-ee80b9e0f1fd';
+const CLOUDINARY_URL='https://api.cloudinary.com/v1_1/dxsvzlv1m/image/upload';
+const CLOUDINARY_PRESET='duvar.site';
 let currentImageUrl=null;
 
 // ── WEB PUSH ──
