@@ -2,6 +2,11 @@
 const {createClient}=supabase;
 const sb=createClient('https://tnxflwddhucvlejmoihj.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRueGZsd2RkaHVjdmxlam1vaWhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjU5OTcsImV4cCI6MjA5MDA0MTk5N30.XFwCgn8lseNGsYDzigmHKDIBBRqByJ9gOpaPRmkT4Vs');
 
+// ── CLOUDINARY ──
+const CLOUDINARY_URL='https://api.cloudinary.com/v1_1/duvar.site/image/upload';
+const CLOUDINARY_PRESET='e794cefb-aa4e-4065-a58a-ee80b9e0f1fd';
+let currentImageUrl=null;
+
 // ── WEB PUSH ──
 const VAPID_PUBLIC_KEY='BAAjoBB1iDgAJNTOFh5V5o4K8nG06aSn55v3xxJz4HeAfGewcXFa-psingFnsHT2nI-G_brpC36k_awSsbVz9-8';
 
@@ -133,9 +138,10 @@ async function loadPosts(){
   render();
 }
 
-async function sbAddPost(author,text,mood,type,options=null){
+async function sbAddPost(author,text,mood,type,options=null,imageUrl=null){
   const row={author,text,mood,type};
   if(options)row.options=options;
+  if(imageUrl)row.image_url=imageUrl;
   const {data,error}=await sb.from('posts').insert(row).select().single();
   if(error){toast('// hata: gönderi kaydedilemedi');return null;}
   return data;
@@ -1147,6 +1153,7 @@ function render(){
       </div>
       ${(mB||tB)?`<div class="post-badges">${tB}${mB}</div>`:''}
       <div class="post-text">${renderText(needsTrunc?p.text.slice(0,TRUNCATE_LEN).trimEnd():p.text)}${needsTrunc?`<button class="devami-btn" data-pid="${p.id}"> devamını oku →</button>`:''}</div>
+      ${p.image_url?`<div class="post-img-wrap"><img src="${esc(p.image_url)}" class="post-img" loading="lazy" onclick="openImageModal('${esc(p.image_url)}')"></div>`:''}
       ${anketHtml}
       <div class="post-bottom">
         <span class="post-time">${relTime(p.time)}</span>
@@ -1223,7 +1230,7 @@ async function addPost(){
     if(opts.length>=2)options=opts;
     else if(opts.length===1){toast('// en az 2 seçenek gir');return;}
   }
-  const newPost=await sbAddPost(currentUser,val,selectedMood,selectedType,options);
+  const newPost=await sbAddPost(currentUser,val,selectedMood,selectedType,options,currentImageUrl);
   if(!newPost)return;
   document.getElementById('mainInput').value='';
   document.getElementById('charCount').textContent='500 karakter kaldı';
@@ -1231,6 +1238,7 @@ async function addPost(){
   selectedMood=null;selectedType=null;
   document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
   if(anketOpen)toggleAnket();
+  removeImage();
   toast('// duvara yazıldı');
   await loadPosts();
 }
@@ -1276,6 +1284,48 @@ async function sendComment(id){
   if(p)addNotif(p.author,currentUser,p.type==='soru'?'💬 sorunuzu cevapladı':'💬 yorum yaptı');
   const ok=await sbComment(id,currentUser,val);
   if(ok){document.getElementById('c-'+id)?.classList.add('open');toast('// iletildi');}
+}
+
+// ── GÖRSEL YÜKLEME ──
+async function handleImageSelect(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  if(file.size>5*1024*1024){toast('// max 5MB yükleyebilirsin');return;}
+  const btn=document.getElementById('imgUploadBtn');
+  btn.textContent='// yükleniyor...';btn.disabled=true;
+  try{
+    const fd=new FormData();
+    fd.append('file',file);
+    fd.append('upload_preset',CLOUDINARY_PRESET);
+    fd.append('eager','w_1200,q_auto,f_auto');
+    const res=await fetch(CLOUDINARY_URL,{method:'POST',body:fd});
+    const data=await res.json();
+    if(data.secure_url){
+      currentImageUrl=data.secure_url;
+      const preview=document.getElementById('imgPreview');
+      preview.classList.remove('hidden');
+      preview.innerHTML=`<img src="${currentImageUrl}" alt="önizleme"><button class="img-remove-btn" onclick="removeImage()">✕ görseli kaldır</button>`;
+      btn.textContent='✓ görsel eklendi';
+    }else{
+      toast('// yükleme başarısız');
+      btn.textContent='🖼 görsel ekle';btn.disabled=false;
+    }
+  }catch(err){
+    toast('// yükleme hatası: '+err.message);
+    btn.textContent='🖼 görsel ekle';btn.disabled=false;
+  }
+}
+function removeImage(){
+  currentImageUrl=null;
+  const preview=document.getElementById('imgPreview');
+  preview.classList.add('hidden');preview.innerHTML='';
+  const btn=document.getElementById('imgUploadBtn');
+  btn.textContent='🖼 görsel ekle';btn.disabled=false;
+  document.getElementById('imgFileInput').value='';
+}
+function openImageModal(url){
+  document.getElementById('imgModalImg').src=url;
+  document.getElementById('imgModal').classList.remove('hidden');
 }
 
 // ── BİLDİRİMLER ──

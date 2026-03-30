@@ -235,7 +235,12 @@
         </div>
       </div>
       <textarea id="mainInput" placeholder="dert anlat, soru sor, kaynak paylaş — ya da sadece bir şey söyle." maxlength="500" rows="4"></textarea>
-      <button class="anket-toggle" id="anketToggle">📊 anket ekle</button>
+      <input type="file" id="imgFileInput" accept="image/*" style="display:none" onchange="handleImageSelect(event)">
+      <div class="write-btns-row">
+        <button class="anket-toggle" id="anketToggle">📊 anket ekle</button>
+        <button class="anket-toggle" id="imgUploadBtn" onclick="document.getElementById('imgFileInput').click()">🖼 görsel ekle</button>
+      </div>
+      <div id="imgPreview" class="img-preview-wrap hidden"></div>
       <div class="anket-inputs hidden" id="anketInputs">
         <input class="anket-opt-input" id="anket-opt-0" placeholder="seçenek 1" maxlength="80">
         <input class="anket-opt-input" id="anket-opt-1" placeholder="seçenek 2" maxlength="80">
@@ -829,6 +834,11 @@
       <button class="feedback-cancel" id="feedbackCancelBtn">iptal</button>
     </div>
   </div>
+</div>
+
+<!-- GÖRSEL MODAL -->
+<div class="img-modal hidden" id="imgModal" onclick="this.classList.add('hidden')">
+  <img id="imgModalImg" src="" alt="görsel">
 </div>
 
 <div class="toast" id="toast"></div>
