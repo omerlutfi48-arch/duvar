@@ -1297,9 +1297,9 @@ async function handleImageSelect(e){
     const fd=new FormData();
     fd.append('file',file);
     fd.append('upload_preset',CLOUDINARY_PRESET);
-    fd.append('eager','w_1200,q_auto,f_auto');
     const res=await fetch(CLOUDINARY_URL,{method:'POST',body:fd});
     const data=await res.json();
+    if(data.error){toast('// cloudinary: '+data.error.message);btn.textContent='🖼 görsel ekle';btn.disabled=false;return;}
     if(data.secure_url){
       currentImageUrl=data.secure_url;
       const preview=document.getElementById('imgPreview');
