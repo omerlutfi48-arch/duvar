@@ -77,7 +77,7 @@ header{position:relative;z-index:10;padding:2rem 2rem 1.5rem;border-bottom:2px s
 /* NAV */
 nav{position:relative;z-index:10;max-width:900px;margin:0 auto;border-bottom:1px solid var(--border);display:flex;overflow-x:auto}
 nav::-webkit-scrollbar{display:none}
-.nav-tab{font-family:var(--ff-mono);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text);background:transparent;border:none;border-bottom:2px solid transparent;padding:.9rem 1.2rem;cursor:pointer;transition:all .15s;margin-bottom:-1px;white-space:nowrap}
+.nav-tab{font-family:var(--ff-mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text);background:transparent;border:none;border-bottom:2px solid transparent;padding:.9rem .85rem;cursor:pointer;transition:all .15s;margin-bottom:-1px;white-space:nowrap}
 .nav-tab:hover{color:var(--text)}
 .nav-tab.active{color:var(--text);border-bottom-color:var(--red)}
 #tab-duvar{color:var(--red)}
