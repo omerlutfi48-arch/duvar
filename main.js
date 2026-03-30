@@ -1034,7 +1034,7 @@ function switchNav(tab,pushState=true){
   ['rehber','sozluk','araclar','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('section-'+t).classList.toggle('active',t===tab));
   ['duvar','rehber','sozluk','araclar','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active',t===tab));
   updateBottomNav(tab);
-  if(tab==='sozluk')loadBasliklar();
+  if(tab==='sozluk'){renderSozluk();}
   if(tab==='mimarlar')renderMimarlar();
   if(tab==='araclar')renderSayac();
   if(tab==='ilanlar')renderIlanlar();
@@ -2111,6 +2111,48 @@ const SOZLUK=[
   {tr:'Metabolizm',en:'Metabolism',cat:'kultur',def:'1960\'lı yıllarda Japon mimarların geliştirdiği, yapıları değiştirilebilir modüller halinde tasarlayan fütüristik akım.',not:'Kurokawa, Kikutake öncü isimler. Nakagin Capsule Tower bunun sembolüydü.',ornek:'"Metabolizm: bina artık değişen bir organizma"'},
   {tr:'Art Deco',en:'Art Deco',cat:'kultur',def:'1920-30\'larda hakim olan, geometrik süsleme, zengin malzeme ve gösterişli cephelerle tanınan tasarım akımı.',not:'Chrysler Binası Art Deco\'nun zirvesidir.',ornek:'"Binanın girişindeki süslemeler Art Deco\'dan ilham alıyor"'},
 ];
+
+// ── TERİMLER SÖZLÜĞÜ ──
+let sozlukCat='all';
+function setSozlukCat(cat,el){
+  sozlukCat=cat;
+  document.querySelectorAll('.sozluk-cat').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderSozluk();
+}
+function renderSozluk(){
+  const q=(document.getElementById('sozlukSearch')?.value||'').toLowerCase().trim();
+  let items=[...SOZLUK];
+  if(sozlukCat!=='all')items=items.filter(i=>i.cat===sozlukCat);
+  if(q)items=items.filter(i=>i.tr.toLowerCase().includes(q)||i.en.toLowerCase().includes(q)||i.def.toLowerCase().includes(q));
+  items.sort((a,b)=>a.tr.localeCompare(b.tr,'tr'));
+  const grid=document.getElementById('sozlukGrid');
+  const stats=document.getElementById('sozlukStats');
+  if(!grid)return;
+  stats.textContent=`${items.length} terim`+(sozlukCat!=='all'||q?' · filtrelendi':'');
+  if(!items.length){grid.innerHTML='<div class="sozluk-empty">// arama sonucu bulunamadı</div>';return;}
+  const catLabel={teknik:'teknik',tasarim:'tasarım',malzeme:'malzeme',yazilim:'yazılım',kultur:'kültür'};
+  grid.innerHTML=items.map((it,i)=>`
+    <div class="sozluk-item" id="sitem-${i}" onclick="this.classList.toggle('open')">
+      <div class="sozluk-item-head">
+        <span class="sozluk-term">${esc(it.tr)}</span>
+        <span class="sozluk-en">${esc(it.en)}</span>
+        <span class="sozluk-cat-badge cat-${it.cat}">${catLabel[it.cat]||it.cat}</span>
+      </div>
+      <div class="sozluk-item-body">
+        <div class="sozluk-def">${esc(it.def)}</div>
+        ${it.not?`<div class="sozluk-note">${esc(it.not)}</div>`:''}
+        ${it.ornek?`<div class="sozluk-ornek">${esc(it.ornek)}</div>`:''}
+      </div>
+    </div>`).join('');
+}
+function switchSozlukTab(tab){
+  document.getElementById('sozluk-terimler-view').style.display=tab==='terimler'?'block':'none';
+  document.getElementById('sozluk-kolektif-view').style.display=tab==='kolektif'?'block':'none';
+  document.getElementById('stab-terimler').classList.toggle('active',tab==='terimler');
+  document.getElementById('stab-kolektif').classList.toggle('active',tab==='kolektif');
+  if(tab==='kolektif')loadBasliklar();
+}
 
 // ── EKŞİ SÖZLÜK ──
 let eksBasliklar=[];

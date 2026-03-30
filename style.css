@@ -347,9 +347,46 @@ textarea:focus{border-bottom-color:var(--red)}
 .sozluk-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.08em;color:var(--text)}
 .sozluk-sub{font-family:var(--ff-mono);font-size:.7rem;color:var(--text2);line-height:1.7;margin-top:.3rem}
 .sozluk-sub span{color:var(--yellow)}
+.sozluk-tabs{display:flex;gap:0;margin-bottom:1.2rem;border-bottom:1px solid var(--border)}
+.sozluk-tab{font-family:var(--ff-mono);font-size:.7rem;letter-spacing:.1em;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--muted);padding:.6rem 1.1rem;cursor:pointer;margin-bottom:-1px;transition:all .15s}
+.sozluk-tab:hover{color:var(--text)}
+.sozluk-tab.active{color:var(--text);border-bottom-color:var(--red)}
 .sozluk-search{width:100%;background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--red);color:var(--text);font-family:var(--ff-mono);font-size:.75rem;padding:.55rem .9rem;outline:none;caret-color:var(--red);transition:border-color .15s;margin-bottom:.7rem;box-sizing:border-box}
 .sozluk-search::placeholder{color:var(--muted)}
 .sozluk-search:focus{border-color:var(--red)}
+.sozluk-controls{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+.sozluk-cats{display:flex;gap:.3rem;flex-wrap:wrap}
+.sozluk-cat{font-family:var(--ff-mono);font-size:.65rem;letter-spacing:.06em;background:transparent;border:1px solid var(--border);color:var(--muted);padding:.3rem .75rem;cursor:pointer;transition:all .15s;white-space:nowrap}
+.sozluk-cat:hover{border-color:var(--border2);color:var(--text)}
+.sozluk-cat.active{border-color:var(--red);color:#ff6b6b;background:#1f0808}
+[data-theme="light"] .sozluk-cat.active{background:#fff0f0;color:var(--red)}
+.sozluk-stats{font-family:var(--ff-mono);font-size:.65rem;color:var(--muted);letter-spacing:.08em;margin-bottom:1rem}
+.sozluk-grid{display:flex;flex-direction:column;gap:1px}
+.sozluk-item{background:var(--surface);border:1px solid var(--border);border-left:3px solid transparent;cursor:pointer;transition:border-color .15s}
+.sozluk-item:hover{border-color:var(--border2)}
+.sozluk-item.open{border-left-color:var(--red)}
+.sozluk-item-head{display:flex;align-items:center;gap:.8rem;padding:.9rem 1.2rem;flex-wrap:wrap}
+.sozluk-term{font-family:var(--ff-mono);font-size:.88rem;color:var(--text);letter-spacing:.04em;font-weight:700}
+.sozluk-en{font-family:var(--ff-mono);font-size:.65rem;color:var(--muted);letter-spacing:.06em;font-style:italic}
+.sozluk-cat-badge{font-family:var(--ff-mono);font-size:.58rem;letter-spacing:.08em;padding:.15rem .5rem;border:1px solid;margin-left:auto;white-space:nowrap}
+.cat-teknik{color:#93c5fd;border-color:#2a3a5a;background:#0d1520}
+.cat-tasarim{color:#c4b5fd;border-color:#3a2a5a;background:#150d20}
+.cat-malzeme{color:#86efac;border-color:#1a4a2a;background:#0d2018}
+.cat-yazilim{color:#fcd34d;border-color:#4a3a00;background:#1a1500}
+.cat-kultur{color:#fca5a5;border-color:#5a2020;background:#200d0d}
+[data-theme="light"] .cat-teknik{color:#1a5a9a;border-color:#1a3a7a;background:#eff6ff}
+[data-theme="light"] .cat-tasarim{color:#5a1a9a;border-color:#5a1a9a;background:#f5f0ff}
+[data-theme="light"] .cat-malzeme{color:#1a5a2a;border-color:#1a5a2a;background:#f0fff4}
+[data-theme="light"] .cat-yazilim{color:#8a5a00;border-color:#8a5a00;background:#fffbeb}
+[data-theme="light"] .cat-kultur{color:#9a1a1a;border-color:#9a1a1a;background:#fff0f0}
+.sozluk-item-body{display:none;padding:0 1.2rem 1.1rem;border-top:1px dashed var(--border)}
+.sozluk-item.open .sozluk-item-body{display:block}
+.sozluk-def{font-family:var(--ff-body);font-size:.92rem;color:var(--text);line-height:1.8;margin-top:.9rem;font-weight:300}
+.sozluk-note{font-family:var(--ff-mono);font-size:.7rem;color:var(--text2);line-height:1.7;margin-top:.7rem;border-left:2px solid var(--border2);padding-left:.8rem}
+.sozluk-note::before{content:'// ';color:var(--red)}
+.sozluk-ornek{font-family:var(--ff-mono);font-size:.68rem;color:var(--muted);margin-top:.6rem;font-style:italic}
+.sozluk-ornek::before{content:'örn: ';color:var(--yellow);font-style:normal}
+.sozluk-empty{font-family:var(--ff-mono);font-size:.75rem;color:var(--muted);padding:3rem 1rem;text-align:center;letter-spacing:.08em}
 .eks-controls{margin-bottom:.5rem}
 .eks-add-row{display:flex;gap:.5rem;margin-bottom:.8rem;flex-wrap:wrap}
 .eks-baslik-input{flex:1;min-width:180px;background:var(--surface);border:1px solid var(--border);border-left:2px solid var(--yellow);color:var(--text);font-family:var(--ff-mono);font-size:.75rem;padding:.5rem .9rem;outline:none}
