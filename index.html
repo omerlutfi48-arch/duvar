@@ -236,11 +236,14 @@
       </div>
       <textarea id="mainInput" placeholder="dert anlat, soru sor, kaynak paylaş — ya da sadece bir şey söyle." maxlength="500" rows="4"></textarea>
       <input type="file" id="imgFileInput" accept="image/*" style="display:none" onchange="handleImageSelect(event)">
+      <input type="file" id="fileInput" accept=".dwg,.dxf,.pdf,.zip,.rvt,.skp,.3dm,.ifc,.doc,.docx,.ppt,.pptx,.xlsx" style="display:none" onchange="handleFileSelect(event)">
       <div class="write-btns-row">
         <button class="anket-toggle" id="anketToggle">📊 anket ekle</button>
         <button class="anket-toggle" id="imgUploadBtn" onclick="document.getElementById('imgFileInput').click()">🖼 görsel ekle</button>
+        <button class="anket-toggle" id="fileUploadBtn" onclick="document.getElementById('fileInput').click()">📎 dosya ekle</button>
       </div>
       <div id="imgPreview" class="img-preview-wrap hidden"></div>
+      <div id="filePreview" class="file-preview-wrap hidden"></div>
       <div class="anket-inputs hidden" id="anketInputs">
         <input class="anket-opt-input" id="anket-opt-0" placeholder="seçenek 1" maxlength="80">
         <input class="anket-opt-input" id="anket-opt-1" placeholder="seçenek 2" maxlength="80">

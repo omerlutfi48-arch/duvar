@@ -4,8 +4,11 @@ const sb=createClient('https://tnxflwddhucvlejmoihj.supabase.co','eyJhbGciOiJIUz
 
 // ── CLOUDINARY ──
 const CLOUDINARY_URL='https://api.cloudinary.com/v1_1/dxsvzlv1m/image/upload';
+const CLOUDINARY_RAW_URL='https://api.cloudinary.com/v1_1/dxsvzlv1m/raw/upload';
 const CLOUDINARY_PRESET='duvar.site';
 let currentImageUrl=null;
+let currentFileUrl=null;
+let currentFileName=null;
 
 // ── WEB PUSH ──
 const VAPID_PUBLIC_KEY='BAAjoBB1iDgAJNTOFh5V5o4K8nG06aSn55v3xxJz4HeAfGewcXFa-psingFnsHT2nI-G_brpC36k_awSsbVz9-8';
@@ -138,10 +141,12 @@ async function loadPosts(){
   render();
 }
 
-async function sbAddPost(author,text,mood,type,options=null,imageUrl=null){
+async function sbAddPost(author,text,mood,type,options=null,imageUrl=null,fileUrl=null,fileName=null){
   const row={author,text,mood,type};
   if(options)row.options=options;
   if(imageUrl)row.image_url=imageUrl;
+  if(fileUrl)row.file_url=fileUrl;
+  if(fileName)row.file_name=fileName;
   const {data,error}=await sb.from('posts').insert(row).select().single();
   if(error){toast('// hata: gönderi kaydedilemedi');return null;}
   return data;
@@ -1154,6 +1159,7 @@ function render(){
       ${(mB||tB)?`<div class="post-badges">${tB}${mB}</div>`:''}
       <div class="post-text">${renderText(needsTrunc?p.text.slice(0,TRUNCATE_LEN).trimEnd():p.text)}${needsTrunc?`<button class="devami-btn" data-pid="${p.id}"> devamını oku →</button>`:''}</div>
       ${p.image_url?`<div class="post-img-wrap"><img src="${esc(p.image_url)}" class="post-img" loading="lazy" onclick="openImageModal('${esc(p.image_url)}')"></div>`:''}
+      ${p.file_url?`<a href="${esc(p.file_url)}" class="post-file-attach" target="_blank" download="${esc(p.file_name||'dosya')}">📎 ${esc(p.file_name||'dosyayı indir')} <span style="color:var(--muted)">↓ indir</span></a>`:''}
       ${anketHtml}
       <div class="post-bottom">
         <span class="post-time">${relTime(p.time)}</span>
@@ -1230,7 +1236,7 @@ async function addPost(){
     if(opts.length>=2)options=opts;
     else if(opts.length===1){toast('// en az 2 seçenek gir');return;}
   }
-  const newPost=await sbAddPost(currentUser,val,selectedMood,selectedType,options,currentImageUrl);
+  const newPost=await sbAddPost(currentUser,val,selectedMood,selectedType,options,currentImageUrl,currentFileUrl,currentFileName);
   if(!newPost)return;
   document.getElementById('mainInput').value='';
   document.getElementById('charCount').textContent='500 karakter kaldı';
@@ -1238,7 +1244,7 @@ async function addPost(){
   selectedMood=null;selectedType=null;
   document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
   if(anketOpen)toggleAnket();
-  removeImage();
+  removeImage();removeFile();
   toast('// duvara yazıldı');
   await loadPosts();
 }
@@ -1322,6 +1328,41 @@ function removeImage(){
   const btn=document.getElementById('imgUploadBtn');
   btn.textContent='🖼 görsel ekle';btn.disabled=false;
   document.getElementById('imgFileInput').value='';
+}
+async function handleFileSelect(e){
+  const file=e.target.files[0];
+  if(!file)return;
+  if(file.size>50*1024*1024){toast('// max 50MB yükleyebilirsin');return;}
+  const btn=document.getElementById('fileUploadBtn');
+  btn.textContent='// yükleniyor...';btn.disabled=true;
+  try{
+    const fd=new FormData();
+    fd.append('file',file);
+    fd.append('upload_preset',CLOUDINARY_PRESET);
+    const res=await fetch(CLOUDINARY_RAW_URL,{method:'POST',body:fd});
+    const data=await res.json();
+    if(data.error){toast('// cloudinary: '+data.error.message);btn.textContent='📎 dosya ekle';btn.disabled=false;return;}
+    if(data.secure_url){
+      currentFileUrl=data.secure_url;
+      currentFileName=file.name;
+      const preview=document.getElementById('filePreview');
+      preview.classList.remove('hidden');
+      preview.innerHTML=`<span class="file-name">📎 ${esc(file.name)}</span><button class="img-remove-btn" onclick="removeFile()">✕</button>`;
+      btn.textContent='✓ dosya eklendi';
+    }else{
+      toast('// yükleme başarısız');btn.textContent='📎 dosya ekle';btn.disabled=false;
+    }
+  }catch(err){
+    toast('// yükleme hatası: '+err.message);btn.textContent='📎 dosya ekle';btn.disabled=false;
+  }
+}
+function removeFile(){
+  currentFileUrl=null;currentFileName=null;
+  const preview=document.getElementById('filePreview');
+  preview.classList.add('hidden');preview.innerHTML='';
+  const btn=document.getElementById('fileUploadBtn');
+  btn.textContent='📎 dosya ekle';btn.disabled=false;
+  document.getElementById('fileInput').value='';
 }
 function openImageModal(url){
   document.getElementById('imgModalImg').src=url;
