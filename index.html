@@ -203,6 +203,7 @@
   <button class="nav-tab" id="tab-rehber" data-nav="rehber">// rehber</button>
   <button class="nav-tab" id="tab-sozluk" data-nav="sozluk">// sözlük</button>
   <button class="nav-tab" id="tab-araclar" data-nav="araclar">// araçlar</button>
+  <button class="nav-tab" id="tab-kesit" data-nav="kesit">// kesit</button>
   <button class="nav-tab" id="tab-mimarlar" data-nav="mimarlar">// mimarlar</button>
   <button class="nav-tab" id="tab-ilanlar" data-nav="ilanlar">// ilanlar</button>
   <button class="nav-tab" id="tab-etkinlik" data-nav="etkinlik">// etkinlik</button>
@@ -754,51 +755,48 @@
       <div class="sozluk-eyebrow">// mimarlık sözlüğü</div>
       <div class="sozluk-title">SÖZLÜK</div>
     </div>
-    <div class="sozluk-tabs">
-      <button class="sozluk-tab active" id="stab-terimler" onclick="switchSozlukTab('terimler')">// terimler</button>
-      <button class="sozluk-tab" id="stab-kolektif" onclick="switchSozlukTab('kolektif')">// kolektif</button>
+    <div class="sozluk-controls">
+      <input class="sozluk-search" id="sozlukSearch" type="text" placeholder="// terim ara..." oninput="renderSozluk()">
+      <div class="sozluk-cats">
+        <button class="sozluk-cat active" onclick="setSozlukCat('all',this)">tümü</button>
+        <button class="sozluk-cat" onclick="setSozlukCat('teknik',this)">teknik</button>
+        <button class="sozluk-cat" onclick="setSozlukCat('tasarim',this)">tasarım</button>
+        <button class="sozluk-cat" onclick="setSozlukCat('malzeme',this)">malzeme</button>
+        <button class="sozluk-cat" onclick="setSozlukCat('yazilim',this)">yazılım</button>
+        <button class="sozluk-cat" onclick="setSozlukCat('kultur',this)">kültür</button>
+      </div>
     </div>
+    <div class="sozluk-stats" id="sozlukStats"></div>
+    <div class="sozluk-grid" id="sozlukGrid"></div>
+  </div>
 
-    <!-- TERİMLER -->
-    <div id="sozluk-terimler-view">
-      <div class="sozluk-controls">
-        <input class="sozluk-search" id="sozlukSearch" type="text" placeholder="// terim ara..." oninput="renderSozluk()">
-        <div class="sozluk-cats">
-          <button class="sozluk-cat active" onclick="setSozlukCat('all',this)">tümü</button>
-          <button class="sozluk-cat" onclick="setSozlukCat('teknik',this)">teknik</button>
-          <button class="sozluk-cat" onclick="setSozlukCat('tasarim',this)">tasarım</button>
-          <button class="sozluk-cat" onclick="setSozlukCat('malzeme',this)">malzeme</button>
-          <button class="sozluk-cat" onclick="setSozlukCat('yazilim',this)">yazılım</button>
-          <button class="sozluk-cat" onclick="setSozlukCat('kultur',this)">kültür</button>
-        </div>
-      </div>
-      <div class="sozluk-stats" id="sozlukStats"></div>
-      <div class="sozluk-grid" id="sozlukGrid"></div>
+  <!-- KESİT -->
+  <div class="guide-section" id="section-kesit">
+    <div class="sozluk-header">
+      <div class="sozluk-eyebrow">// kolektif mimarlık sözlüğü</div>
+      <div class="sozluk-title">KESİT</div>
+      <div class="sozluk-sub">Mimarlık öğrencilerinin kendi dilinden tanımlar. <span>Başlık aç, entry yaz.</span></div>
     </div>
-
-    <!-- KOLEKTİF -->
-    <div id="sozluk-kolektif-view" style="display:none">
-      <div id="sozluk-list-view">
-        <div class="eks-controls">
-          <input class="sozluk-search" id="eksSearch" type="text" placeholder="// başlık ara..." oninput="renderBasliklar()">
-        </div>
-        <div id="eksAddRow" class="eks-add-row" style="display:none">
-          <input id="eksBaslikInput" class="eks-baslik-input" placeholder="// yeni başlık aç..." maxlength="100">
-          <button class="eks-add-btn" onclick="addBaslik()">+ başlık ekle</button>
-        </div>
-        <div class="eks-stats" id="eksStats"></div>
-        <div class="eks-list" id="eksBaslikList"></div>
+    <div id="kesit-list-view">
+      <div class="eks-controls">
+        <input class="sozluk-search" id="eksSearch" type="text" placeholder="// başlık ara..." oninput="renderBasliklar()">
       </div>
-      <div id="sozluk-entry-view" style="display:none">
-        <button class="eks-back" onclick="showBaslikList()">← geri</button>
-        <div class="eks-current-baslik" id="eksCurrentBaslik"></div>
-        <div class="eks-entries-list" id="eksEntriesList"></div>
-        <div id="eksEntryRow" class="eks-entry-row" style="display:none">
-          <textarea class="eks-entry-input" id="eksEntryInput" placeholder="// entry yaz..." maxlength="1000" rows="3"></textarea>
-          <button class="eks-add-btn" onclick="addEntry()">yaz →</button>
-        </div>
-        <div id="eksEntryLoginNote" class="eks-login-note" style="display:none">// yazmak için giriş yap</div>
+      <div id="eksAddRow" class="eks-add-row" style="display:none">
+        <input id="eksBaslikInput" class="eks-baslik-input" placeholder="// yeni başlık aç..." maxlength="100">
+        <button class="eks-add-btn" onclick="addBaslik()">+ başlık ekle</button>
       </div>
+      <div class="eks-stats" id="eksStats"></div>
+      <div class="eks-list" id="eksBaslikList"></div>
+    </div>
+    <div id="kesit-entry-view" style="display:none">
+      <button class="eks-back" onclick="showBaslikList()">← geri</button>
+      <div class="eks-current-baslik" id="eksCurrentBaslik"></div>
+      <div class="eks-entries-list" id="eksEntriesList"></div>
+      <div id="eksEntryRow" class="eks-entry-row" style="display:none">
+        <textarea class="eks-entry-input" id="eksEntryInput" placeholder="// entry yaz..." maxlength="1000" rows="3"></textarea>
+        <button class="eks-add-btn" onclick="addEntry()">yaz →</button>
+      </div>
+      <div id="eksEntryLoginNote" class="eks-login-note" style="display:none">// yazmak için giriş yap</div>
     </div>
   </div>
 

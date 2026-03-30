@@ -1026,15 +1026,21 @@ const NAV_META={
     title:'Mimarlık Etkinlikleri & Yarışmalar — DUVAR',
     desc:'Mimarlık öğrencilerine yönelik etkinlikler, workshoplar, seminerler ve yarışmalar.',
     url:'https://duvar.site/#etkinlik'
+  },
+  kesit:{
+    title:'KESİT — Kolektif Mimarlık Sözlüğü — DUVAR',
+    desc:'Mimarlık öğrencilerinin kendi dilinden tanımlar. Başlık aç, entry yaz. Ekşi Sözlük tarzı kolektif mimarlık sözlüğü.',
+    url:'https://duvar.site/#kesit'
   }
 };
 
 function switchNav(tab,pushState=true){
   document.getElementById('section-duvar').style.display=tab==='duvar'?'block':'none';
-  ['rehber','sozluk','araclar','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('section-'+t).classList.toggle('active',t===tab));
-  ['duvar','rehber','sozluk','araclar','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active',t===tab));
+  ['rehber','sozluk','araclar','kesit','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('section-'+t).classList.toggle('active',t===tab));
+  ['duvar','rehber','sozluk','araclar','kesit','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active',t===tab));
   updateBottomNav(tab);
   if(tab==='sozluk'){renderSozluk();}
+  if(tab==='kesit')loadBasliklar();
   if(tab==='mimarlar')renderMimarlar();
   if(tab==='araclar')renderSayac();
   if(tab==='ilanlar')renderIlanlar();
@@ -1055,14 +1061,14 @@ function switchNav(tab,pushState=true){
 // Hash'ten sekmeye git
 window.addEventListener('popstate',e=>{
   const tab=(e.state?.tab)||(location.hash.replace('#',''))||'duvar';
-  const valid=['duvar','rehber','sozluk','araclar','mimarlar','ilanlar','etkinlik'];
+  const valid=['duvar','rehber','sozluk','araclar','kesit','mimarlar','ilanlar','etkinlik'];
   switchNav(valid.includes(tab)?tab:'duvar',false);
 });
 
 // İlk yüklemede hash kontrolü — defer ile const'lar hazır olsun
 setTimeout(()=>{
   const hash=location.hash.replace('#','');
-  const valid=['rehber','sozluk','araclar','mimarlar','ilanlar','etkinlik'];
+  const valid=['rehber','sozluk','araclar','kesit','mimarlar','ilanlar','etkinlik'];
   if(valid.includes(hash))switchNav(hash,false);
 },0);
 
@@ -2146,14 +2152,6 @@ function renderSozluk(){
       </div>
     </div>`).join('');
 }
-function switchSozlukTab(tab){
-  document.getElementById('sozluk-terimler-view').style.display=tab==='terimler'?'block':'none';
-  document.getElementById('sozluk-kolektif-view').style.display=tab==='kolektif'?'block':'none';
-  document.getElementById('stab-terimler').classList.toggle('active',tab==='terimler');
-  document.getElementById('stab-kolektif').classList.toggle('active',tab==='kolektif');
-  if(tab==='kolektif')loadBasliklar();
-}
-
 // ── EKŞİ SÖZLÜK ──
 let eksBasliklar=[];
 let currentBaslikId=null;
@@ -2190,8 +2188,8 @@ function renderBasliklar(){
 
 async function openBaslik(id,baslik){
   currentBaslikId=id;
-  document.getElementById('sozluk-list-view').style.display='none';
-  document.getElementById('sozluk-entry-view').style.display='block';
+  document.getElementById('kesit-list-view').style.display='none';
+  document.getElementById('kesit-entry-view').style.display='block';
   document.getElementById('eksCurrentBaslik').textContent=baslik;
   document.getElementById('eksEntryRow').style.display=currentUser?'flex':'none';
   document.getElementById('eksEntryLoginNote').style.display=currentUser?'none':'block';
@@ -2212,8 +2210,8 @@ async function openBaslik(id,baslik){
 
 function showBaslikList(){
   currentBaslikId=null;
-  document.getElementById('sozluk-list-view').style.display='block';
-  document.getElementById('sozluk-entry-view').style.display='none';
+  document.getElementById('kesit-list-view').style.display='block';
+  document.getElementById('kesit-entry-view').style.display='none';
 }
 
 async function addBaslik(){
