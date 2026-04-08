@@ -168,7 +168,8 @@ async function sbDislike(id,nick){
 async function sbComment(postId,nick,text){
   const {error}=await sb.from('yorumlar').insert({post_id:postId,nick,text});
   if(error){toast('// hata: yorum kaydedilemedi');return false;}
-  await loadPosts();
+  // Realtime zaten tetikleyecek; çift render'ı önlemek için debounce kullan
+  debouncedLoadPosts();
   return true;
 }
 
@@ -183,10 +184,14 @@ async function sbFeedback(tip,mesaj){
   return !error;
 }
 
+// Debounce: çok sık tetiklenen loadPosts'u birleştir
+let _lpTimer=null;
+function debouncedLoadPosts(){clearTimeout(_lpTimer);_lpTimer=setTimeout(loadPosts,400);}
+
 // Realtime: yeni post, güncelleme, yorum gelince otomatik yükle
 sb.channel('duvar-realtime')
-  .on('postgres_changes',{event:'*',schema:'public',table:'posts'},()=>loadPosts())
-  .on('postgres_changes',{event:'INSERT',schema:'public',table:'yorumlar'},()=>loadPosts())
+  .on('postgres_changes',{event:'*',schema:'public',table:'posts'},()=>debouncedLoadPosts())
+  .on('postgres_changes',{event:'INSERT',schema:'public',table:'yorumlar'},()=>debouncedLoadPosts())
   .on('postgres_changes',{event:'INSERT',schema:'public',table:'mesajlar'},()=>{
     loadDMDot();
     if(dmConversation)openConversation(dmConversation);
@@ -1129,6 +1134,15 @@ function render(){
   }
 
   renderGununEnIyisi();
+  // ── Re-render öncesi yorum kutusu ve input durumunu kaydet ──
+  const _openComments=new Set();
+  const _savedInputs={};
+  document.querySelectorAll('.comments-wrap.open').forEach(el=>{
+    const id=el.id.slice(2);
+    _openComments.add(id);
+    const inp=document.getElementById('ci-'+id);
+    if(inp&&inp.value)_savedInputs[id]=inp.value;
+  });
   const toShow=filtered.slice(0,visibleCount);
   grid.innerHTML=toShow.map((p,i)=>{
     const isMine=p.author===currentUser;
@@ -1190,6 +1204,12 @@ function render(){
       </div>
     </div>`;
   }).join('');
+  // ── Yorum kutusu ve input durumunu geri yükle ──
+  _openComments.forEach(id=>{
+    const wrap=document.getElementById('c-'+id);
+    if(wrap)wrap.classList.add('open');
+    if(_savedInputs[id]){const inp=document.getElementById('ci-'+id);if(inp)inp.value=_savedInputs[id];}
+  });
   // "Daha fazla yükle" butonu
   if(filtered.length>visibleCount){
     const rem=filtered.length-visibleCount;
