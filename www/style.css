@@ -123,8 +123,9 @@ main{max-width:900px;margin:0 auto;padding:1.5rem 2rem 4rem;position:relative;z-
 .uprofile-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:550;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
 .uprofile-overlay.hidden{display:none}
 .uprofile-box{background:var(--surface);border:1px solid var(--border);border-top:2px solid var(--red);padding:2rem;width:min(480px,92vw);max-height:80vh;overflow-y:auto}
-.uprofile-nick{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.1em;margin-bottom:.8rem}
-.uprofile-nick::before{content:'@';color:var(--muted);font-size:1.2rem}
+.uprofile-nick{display:flex;align-items:center;gap:.75rem;margin-bottom:.8rem}
+.uprofile-nick::before{content:''}
+.uprofile-nick span{font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.1em}
 /* ANKET & GÖRSEL */
 .write-btns-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.5rem}
 .anket-toggle{font-family:var(--ff-mono);font-size:.65rem;color:var(--muted);background:transparent;border:1px dashed var(--border);padding:.3rem .8rem;cursor:pointer;display:inline-block;transition:all .15s}
@@ -197,6 +198,9 @@ textarea:focus{border-bottom-color:var(--red)}
 .submit-btn{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.15em;background:var(--red);color:#fff;border:none;padding:.55rem 1.8rem;cursor:pointer;transition:background .15s,transform .1s;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)}
 .submit-btn:hover{background:var(--red2);transform:skewX(-1deg)}
 .submit-btn:active{transform:scale(.97)}
+
+/* NICK AVATAR */
+.nick-av{display:inline-flex;align-items:center;justify-content:center;font-family:var(--ff-mono);font-weight:700;color:#fff;flex-shrink:0;border-radius:2px;vertical-align:middle;line-height:1;letter-spacing:0;user-select:none}
 
 /* WALL */
 .wall-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem}

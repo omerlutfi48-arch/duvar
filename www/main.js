@@ -345,7 +345,7 @@ function openUserProfile(nick){
   if(nick===currentUser){openProfile();return;}
   const userPosts=posts.filter(p=>p.author===nick);
   const tF=userPosts.reduce((s,p)=>s+(p.fire||0),0);
-  document.getElementById('uprofileNick').textContent=nick;
+  document.getElementById('uprofileNick').innerHTML=`${nickAvatar(nick,38)}<span>@${esc(nick)}</span>`;
   document.getElementById('uprofileStats').innerHTML=`
     <div class="panel-stat"><div class="panel-stat-num">${userPosts.length}</div><div class="panel-stat-label">gönderi</div></div>
     <div class="panel-stat"><div class="panel-stat-num">${tF}</div><div class="panel-stat-label">❤️ toplam</div></div>
@@ -1105,6 +1105,11 @@ function relTime(val){
 }
 
 // ── RENDER ──
+// ── AVATAR (harf + deterministik renk) ──
+const _AV_PAL=['#c0392b','#e67e22','#d4a017','#27ae60','#16a085','#2980b9','#7d3c98','#d35400','#1abc9c','#2471a3','#b7950b','#117a65'];
+function nickColor(nick){let h=0;for(let i=0;i<nick.length;i++)h=(h*31+nick.charCodeAt(i))>>>0;return _AV_PAL[h%_AV_PAL.length];}
+function nickAvatar(nick,size=22){const bg=nickColor(nick);const letter=(nick||'?').charAt(0).toUpperCase();return`<span class="nick-av" style="background:${bg};width:${size}px;height:${size}px;font-size:${Math.round(size*.52)}px">${letter}</span>`;}
+
 const moodL={yorgun:'😮‍💨 yorgunum',yardim:'🆘 yardım lazım',iyi:'✓ iyiyim',tesekkur:'♡ teşekkür'};
 const typeL={dert:'// dert',soru:'? soru',kaynak:'↗ kaynak',acil:'! acil'};
 
@@ -1171,6 +1176,7 @@ function render(){
     return`<div class="post${isMine?' mine':''}${p.pinned?' pinned-post':''}" data-pid="${p.id}" style="animation-delay:${Math.min(i,6)*.05}s">
       <div class="post-header">
         <span class="post-number">#${String(filtered.length-i).padStart(3,'0')}</span>
+        ${nickAvatar(p.author)}
         <button class="post-author-link post-author${isMine?' me':''}" onclick="openUserProfile('${esc(p.author)}')">${esc(p.author)}</button>
         ${!isMine&&currentUser?`<button class="dm-btn" onclick="openConversation('${esc(p.author)}')" title="mesaj gönder">✉</button>`:''}
         ${isMine?'<span class="mini-tag mine-tag">sen</span>':''}
@@ -1195,7 +1201,7 @@ function render(){
         </div>
       </div>
       <div class="comments-wrap"id="c-${p.id}">
-        ${p.comments.map(c=>`<div class="comment"><button class="post-author-link comment-nick${c.nick===currentUser?' me':''}" onclick="openUserProfile('${esc(c.nick)}')">${esc(c.nick)}</button>${esc(c.text)}</div>`).join('')}
+        ${p.comments.map(c=>`<div class="comment">${nickAvatar(c.nick,18)}<button class="post-author-link comment-nick${c.nick===currentUser?' me':''}" onclick="openUserProfile('${esc(c.nick)}')">${esc(c.nick)}</button>${esc(c.text)}</div>`).join('')}
         <div class="comment-row">
           <input class="comment-input"id="ci-${p.id}"placeholder="${currentUser?(p.type==='soru'?'cevapla...':'destek yaz...'):'yazmak için giriş yap'}"maxlength="200"${!currentUser?' disabled':''}>
           <button class="comment-send"onclick="sendComment(${p.id})"${!currentUser?' disabled':''}>${p.type==='soru'?'cevapla':'gönder'}</button>
