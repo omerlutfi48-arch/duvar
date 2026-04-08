@@ -890,6 +890,8 @@ function loginSuccess(nick,isMod=false){
   document.getElementById('aiFloatBtn').style.display='';
   checkNotifDot();loadDMDot();render();subscribeNotifs();
   checkPushStatus();
+  // Kendi avatarını hemen yükle
+  loadAvatarUrls([nick]).then(()=>render());
 }
 function enterAsGuest(){
   currentUser=null;
@@ -1357,7 +1359,8 @@ async function uploadAvatar(file){
     const res=await fetch(CLOUDINARY_URL,{method:'POST',body:fd});
     const d=await res.json();
     if(d.error||!d.secure_url){toast('// yükleme başarısız');btn.textContent='📷 fotoğraf değiştir';btn.disabled=false;return;}
-    await sb.from('kullanicilar').update({avatar_url:d.secure_url}).eq('nick',currentUser);
+    const{error:dbErr}=await sb.from('kullanicilar').update({avatar_url:d.secure_url}).eq('nick',currentUser);
+    if(dbErr){toast('// kayıt hatası: '+dbErr.message);btn.textContent='📷 fotoğraf değiştir';btn.disabled=false;return;}
     avatarCache[currentUser]=d.secure_url;
     toast('// profil fotoğrafı güncellendi');
     openProfile();
