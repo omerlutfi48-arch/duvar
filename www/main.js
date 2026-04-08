@@ -8,6 +8,7 @@ const CLOUDINARY_RAW_URL='https://api.cloudinary.com/v1_1/dxsvzlv1m/raw/upload';
 const CLOUDINARY_PRESET='duvar.site';
 let currentImageUrl=null;
 let currentFileUrl=null;
+const avatarCache={};
 let currentFileName=null;
 
 // ── WEB PUSH ──
@@ -95,6 +96,16 @@ function nickToEmail(nick){
 const MOD_EMAILS=['omerlutfi48@gmail.com'];
 
 // ── SUPABASE VERİ FONKSİYONLARI ──
+async function loadAvatarUrls(nicks){
+  const toLoad=nicks.filter(n=>n&&!(n in avatarCache));
+  if(!toLoad.length)return;
+  try{
+    const{data}=await sb.from('kullanicilar').select('nick,avatar_url').in('nick',toLoad);
+    (data||[]).forEach(r=>{avatarCache[r.nick]=r.avatar_url||null;});
+    toLoad.forEach(n=>{if(!(n in avatarCache))avatarCache[n]=null;});
+  }catch(e){toLoad.forEach(n=>{avatarCache[n]=null;});}
+}
+
 async function loadPosts(){
   const {data,error}=await sb.from('posts').select('*, yorumlar(*)').eq('aktif',true).order('created_at',{ascending:false}).limit(200);
   if(error){console.error('posts yüklenemedi:',error);return;}
@@ -121,6 +132,9 @@ async function loadPosts(){
     (allDislikes||[]).forEach(r=>{dislikeCounts[r.post_id]=(dislikeCounts[r.post_id]||0)+1;});
     posts.forEach(p=>{if(dislikeCounts[p.id])p.disfire=dislikeCounts[p.id];});
   }
+  // Avatar URL'leri yükle
+  const allNicks=[...new Set([...posts.map(p=>p.author),...posts.flatMap(p=>p.comments.map(c=>c.nick))].filter(Boolean))];
+  await loadAvatarUrls(allNicks);
   // Anket oyları
   const pollPosts=posts.filter(p=>p.options?.length>=2);
   if(pollPosts.length){
@@ -1108,7 +1122,12 @@ function relTime(val){
 // ── AVATAR (harf + deterministik renk) ──
 const _AV_PAL=['#c0392b','#e67e22','#d4a017','#27ae60','#16a085','#2980b9','#7d3c98','#d35400','#1abc9c','#2471a3','#b7950b','#117a65'];
 function nickColor(nick){let h=0;for(let i=0;i<nick.length;i++)h=(h*31+nick.charCodeAt(i))>>>0;return _AV_PAL[h%_AV_PAL.length];}
-function nickAvatar(nick,size=22){const bg=nickColor(nick);const letter=(nick||'?').charAt(0).toUpperCase();return`<span class="nick-av" style="background:${bg};width:${size}px;height:${size}px;font-size:${Math.round(size*.52)}px">${letter}</span>`;}
+function nickAvatar(nick,size=22){
+  const url=avatarCache[nick];
+  if(url)return`<img class="nick-av nick-av-img" src="${url}" style="width:${size}px;height:${size}px" alt="">`;
+  const bg=nickColor(nick);const letter=(nick||'?').charAt(0).toUpperCase();
+  return`<span class="nick-av" style="background:${bg};width:${size}px;height:${size}px;font-size:${Math.round(size*.52)}px">${letter}</span>`;
+}
 
 const moodL={yorgun:'😮‍💨 yorgunum',yardim:'🆘 yardım lazım',iyi:'✓ iyiyim',tesekkur:'♡ teşekkür'};
 const typeL={dert:'// dert',soru:'? soru',kaynak:'↗ kaynak',acil:'! acil'};
@@ -1325,6 +1344,26 @@ async function sendComment(id){
 }
 
 // ── GÖRSEL YÜKLEME ──
+async function uploadAvatar(file){
+  if(!file)return;
+  if(file.size>5*1024*1024){toast('// max 5MB');return;}
+  const btn=document.getElementById('avatarUploadBtn');
+  btn.textContent='// yükleniyor...';btn.disabled=true;
+  try{
+    const fd=new FormData();
+    fd.append('file',file);
+    fd.append('upload_preset',CLOUDINARY_PRESET);
+    const res=await fetch(CLOUDINARY_URL,{method:'POST',body:fd});
+    const d=await res.json();
+    if(d.error||!d.secure_url){toast('// yükleme başarısız');btn.textContent='📷 fotoğraf değiştir';btn.disabled=false;return;}
+    await sb.from('kullanicilar').update({avatar_url:d.secure_url}).eq('nick',currentUser);
+    avatarCache[currentUser]=d.secure_url;
+    toast('// profil fotoğrafı güncellendi');
+    openProfile();
+    render();
+  }catch(err){toast('// hata: '+err.message);btn.textContent='📷 fotoğraf değiştir';btn.disabled=false;}
+}
+
 async function handleImageSelect(e){
   const file=e.target.files[0];
   if(!file)return;
@@ -1457,6 +1496,9 @@ function openProfile(){
   if(!currentUser)return;
   closePanels();
   document.getElementById('profileNick').textContent=currentUser;
+  document.getElementById('profileAvatarImg').innerHTML=nickAvatar(currentUser,64);
+  const avBtn=document.getElementById('avatarUploadBtn');
+  avBtn.textContent='📷 fotoğraf değiştir';avBtn.disabled=false;
   const myPosts=posts.filter(p=>p.author===currentUser);
   const tF=myPosts.reduce((s,p)=>s+(p.fire||0),0);
   document.getElementById('profileStats').innerHTML=`

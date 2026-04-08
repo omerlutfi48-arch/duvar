@@ -103,7 +103,12 @@
     <button class="panel-close">✕ kapat</button>
   </div>
   <div class="panel-body">
-    <div class="panel-nick" id="profileNick"></div>
+    <div class="profile-av-wrap">
+      <div id="profileAvatarImg"></div>
+      <div class="panel-nick" id="profileNick"></div>
+    </div>
+    <input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="uploadAvatar(this.files[0])">
+    <button class="panel-btn" id="avatarUploadBtn" onclick="document.getElementById('avatarFileInput').click()" style="margin-bottom:.8rem">📷 fotoğraf değiştir</button>
     <div class="panel-stats" id="profileStats"></div>
     <div class="rozet-wrap" id="profileRozetler"></div>
     <div class="panel-section-title">// gönderilerim</div>
