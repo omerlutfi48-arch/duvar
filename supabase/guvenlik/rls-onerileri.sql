@@ -144,3 +144,21 @@ create trigger kullanicilar_koru before insert or update on public.kullanicilar
 -- ise herkes başka nick'ler göndererek beğeni sayısını şişirebilir. Fonksiyonun
 -- içinde p_nick yerine public.my_nick() kullan (parametre imzası aynı kalabilir):
 --   if p_nick is distinct from public.my_nick() then raise exception 'yetkisiz'; end if;
+
+
+-- ── ADIM 5 (isteğe bağlı): Değer kısıtları ──────────────────────────────────
+-- Bunlar tabloya kısıt ekler (veriyi değiştirmez, ama mevcut veride aykırı değer varsa
+-- eklenemez — önce kontrol sorgusunu çalıştır). İstemci artık bu alanları kaçırarak
+-- basıyor; kısıt, ileride yazılacak kodu da korur.
+-- select distinct type from posts; select distinct mood from posts; select distinct tip from feedback;
+-- alter table public.posts    add constraint posts_type_chk check (type is null or type in ('soru','dert','kaynak','acil'));
+-- alter table public.posts    add constraint posts_mood_chk check (mood is null or mood in ('yorgun','yardim','iyi','tesekkur'));
+-- alter table public.feedback add constraint feedback_tip_chk check (tip in ('oneri','sikayet'));
+-- alter table public.kullanicilar add constraint kullanicilar_nick_chk check (nick ~ '^[a-z0-9_çğıöşü]{2,20}$');
+
+
+-- ── ADIM 6: Edge Function secret'ları (Dashboard → Edge Functions → Secrets) ──
+-- ADMIN_EMAIL     → delete-user için admin e-postası (koddan kaldırıldı)
+-- WEBHOOK_SECRET  → send-push için uzun rastgele bir değer; Database Webhook'una
+--                   "x-webhook-secret: <aynı değer>" başlığı eklenmeli. Ayarlanmazsa
+--                   send-push hiçbir isteği kabul etmez (bildirimler durur).

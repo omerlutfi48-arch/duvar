@@ -62,15 +62,21 @@ def config_oku():
         return json.load(f)
 
 
+class SiraliKume(dict):
+    """Ekleme sırasını koruyan küme: en eski kayıtlar budanabilsin (set sırasızdır)."""
+    def add(self, k):
+        self[k] = None
+
+
 def goruldu_oku():
     if not os.path.exists(GORULDU_FILE):
-        return set()
+        return SiraliKume()
     with open(GORULDU_FILE, 'r', encoding='utf-8') as f:
-        return set(json.load(f))
+        return SiraliKume.fromkeys(json.load(f))
 
 
 def goruldu_kaydet(goruldu):
-    # En fazla 2000 kayıt tut (bellek şişmesin)
+    # En fazla 2000 kayıt tut (bellek şişmesin) — en yeniler kalır
     liste = list(goruldu)[-2000:]
     with open(GORULDU_FILE, 'w', encoding='utf-8') as f:
         json.dump(liste, f, ensure_ascii=False)
