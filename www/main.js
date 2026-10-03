@@ -971,16 +971,19 @@ async function changeNick(){
   if(existing?.auth_id){err.textContent='// bu nickname alınmış';return;}
   err.textContent='// güncelleniyor...';
   const oldNick=currentUser;
-  // Sadece metadata'yı güncelle, email değiştirme (onay mekanizması login'i bozuyor)
+  // Tüm tablolardaki nick'i veritabanında tek işlemde değiştir (nick_degistir RPC; sadece kendi nick'i)
+  const {error:rpcErr}=await sb.rpc('nick_degistir',{p_yeni:newNick});
+  if(rpcErr&&rpcErr.code!=='PGRST202'){err.textContent='// '+(rpcErr.message||'güncellenemedi');return;}
+  if(rpcErr){
+    // RPC henüz veritabanında yoksa (geçiş dönemi) eski yöntem
+    await Promise.all([
+      sb.from('kullanicilar').update({nick:newNick}).eq('nick',oldNick),
+      sb.from('posts').update({author:newNick}).eq('author',oldNick),
+      sb.from('yorumlar').update({nick:newNick}).eq('nick',oldNick),
+    ]);
+  }
+  // Metadata'yı da güncelle (email değiştirilmez; onay mekanizması login'i bozuyor)
   await sb.auth.updateUser({data:{nick:newNick}});
-  // Supabase tablo güncellemeleri
-  await Promise.all([
-    sb.from('kullanicilar').update({nick:newNick}).eq('nick',oldNick),
-    sb.from('posts').update({author:newNick}).eq('author',oldNick),
-    sb.from('yorumlar').update({nick:newNick}).eq('nick',oldNick),
-    sb.from('mesajlar').update({gonderen:newNick}).eq('gonderen',oldNick),
-    sb.from('mesajlar').update({alici:newNick}).eq('alici',oldNick),
-  ]);
   currentUser=newNick;
   document.getElementById('userNickDisplay').textContent=newNick;
   document.getElementById('nickChangeForm').classList.add('hidden');
@@ -996,18 +999,21 @@ async function deleteAccount(){
   const nick=currentUser;
   const {data:{session}}=await sb.auth.getSession();
   const authId=session?.user?.id;
-  // Önce kullanicilar satırını sil — başarısız olursa dur
-  const {error:kulErr}=await sb.from('kullanicilar').delete().eq('nick',nick);
-  if(kulErr){toast('// hesap silinemedi: '+kulErr.message);return;}
-  // Diğer verileri sil
+  // Önce bağlı verileri sil (güvenlik kuralları "kendi nick'in" kontrolünü kullanicilar
+  // satırı üzerinden yapıyor; satır önce silinirse bu silmeler reddedilir)
   await Promise.all([
     sb.from('posts').delete().eq('author',nick),
     sb.from('yorumlar').delete().eq('nick',nick),
     sb.from('mesajlar').delete().eq('gonderen',nick),
     sb.from('mesajlar').delete().eq('alici',nick),
     sb.from('begeni').delete().eq('nick',nick),
+    sb.from('begenmeme').delete().eq('nick',nick),
     sb.from('anket_oylar').delete().eq('nick',nick),
+    sb.from('push_subscriptions').delete().eq('nick',nick),
   ]);
+  // En son kullanicilar satırı — başarısız olursa dur
+  const {error:kulErr}=await sb.from('kullanicilar').delete().eq('nick',nick);
+  if(kulErr){toast('// hesap silinemedi: '+kulErr.message);return;}
   // Supabase Auth kaydını da sil (nick tekrar alınabilsin)
   if(authId){
     const res=await fetch('https://tnxflwddhucvlejmoihj.supabase.co/functions/v1/delete-user',{

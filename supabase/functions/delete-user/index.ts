@@ -1,8 +1,17 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-// Admin e-postası koda yazılmaz: Supabase → Edge Functions → Secrets → ADMIN_EMAIL.
-// Ayarlanmazsa kimse admin sayılmaz (sadece kendi hesabını silme çalışır).
+// Admin e-postası koda açık metin yazılmaz: ADMIN_EMAIL secret'ı varsa o, yoksa SHA-256 özeti
+// (istemcideki utils.js ile aynı) karşılaştırılır.
 const ADMIN_EMAIL = (Deno.env.get('ADMIN_EMAIL') || '').trim().toLowerCase()
+const ADMIN_EMAIL_SHA256 = '72cb38c5f992a10da19d9de490b9ccf9d5171a9d28afc0ff2c3ece34e79e0697'
+async function isAdminEmail(email: string | undefined): Promise<boolean> {
+  const e = (email || '').trim().toLowerCase()
+  if (!e) return false
+  if (ADMIN_EMAIL) return e === ADMIN_EMAIL
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(e))
+  const hex = [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('')
+  return hex === ADMIN_EMAIL_SHA256
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -36,7 +45,7 @@ Deno.serve(async (req) => {
   const { data: { user }, error: authErr } = await userClient.auth.getUser()
   if (authErr || !user) return errResp('Unauthorized', 401)
 
-  const isAdmin = !!ADMIN_EMAIL && (user.email || '').toLowerCase() === ADMIN_EMAIL
+  const isAdmin = await isAdminEmail(user.email)
 
   const adminClient = createClient(
     Deno.env.get('SUPABASE_URL')!,
