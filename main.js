@@ -1105,7 +1105,7 @@ function nickAvatar(nick,size=22){
 
 // ── RENDER ──
 const moodL={yorgun:'😮‍💨 yorgunum',yardim:'🆘 yardım lazım',iyi:'✓ iyiyim',tesekkur:'♡ teşekkür'};
-const typeL={dert:'// dert',soru:'? soru',kaynak:'↗ kaynak',acil:'! acil'};
+const typeL={dert:'Dert',soru:'Soru',kaynak:'Kaynak',acil:'Acil'};
 
 function render(){
   const grid=document.getElementById('postsGrid');
@@ -1149,8 +1149,9 @@ function render(){
     const isRep=reportedPosts.has(p.id);
     const isExp=expandedPosts.has(p.id);
     const needsTrunc=!isExp&&p.text.length>TRUNCATE_LEN;
-    const mB=p.mood?`<span class="badge badge-mood-${p.mood}">${moodL[p.mood]||p.mood}</span>`:'';
-    const tB=p.type?`<span class="badge badge-type-${p.type}">${typeL[p.type]||p.type}</span>`:'';
+    // Duygu rozetleri artık gösterilmiyor (eski verideki mood alanı korunuyor)
+    const mB='';
+    const tB=typeL[p.type]?`<span class="badge badge-type-${p.type}">${typeL[p.type]}</span>`:'';
     // Anket HTML
     let anketHtml='';
     if(p.options&&p.options.length>=2){
@@ -2552,7 +2553,7 @@ async function renderEtkinlikler(){
       <div class="etkinlik-meta">
         ${e.sehir?`<span>📍 ${esc(e.sehir)}</span>`:''}
         ${etkinlikTarih?`<span>📅 ${etkinlikTarih.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'})}</span>`:''}
-        ${son?`<span style="${gecti?'color:var(--red)':''}">⏳ son başvuru: ${son.toLocaleDateString('tr-TR',{day:'numeric',month:'long'})}${gecti?' (sona erdi)':''}</span>`:''}
+        ${son?`<span style="${gecti?'color:var(--muted)':''}">⏳ son başvuru: ${son.toLocaleDateString('tr-TR',{day:'numeric',month:'long'})}${gecti?' (sona erdi)':''}</span>`:''}
       </div>
       ${e.link?`<div class="etkinlik-link">→ ${esc(e.link)}</div>`:''}
     </div>`;
@@ -2596,7 +2597,7 @@ async function renderIlanlar(){
       <div class="ilan-aciklama">${esc(il.aciklama)}</div>
       <div class="ilan-meta">
         ${il.sehir?`<span>📍 ${esc(il.sehir)}</span>`:''}
-        ${sonStr?`<span style="${gecti?'color:var(--red)':''}">⏳ son: ${sonStr}${gecti?' (sona erdi)':''}</span>`:''}
+        ${sonStr?`<span style="${gecti?'color:var(--muted)':''}">⏳ son: ${sonStr}${gecti?' (sona erdi)':''}</span>`:''}
         ${il.tarih?`<span>📅 ${new Date(il.tarih).toLocaleDateString('tr-TR')}</span>`:''}
       </div>
       ${il.link?`<div class="ilan-iletisim">→ ${esc(il.link)}</div>`:''}
