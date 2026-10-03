@@ -68,11 +68,7 @@ header{position:relative;z-index:10;padding:2rem 2rem 1.5rem;border-bottom:2px s
 #notifBtn:hover{color:#ffd280;border-color:#f5a623}
 .notif-dot{position:absolute;top:-3px;right:-3px;width:7px;height:7px;background:var(--red);border-radius:50%;display:none}
 .notif-dot.show{display:block}
-.site-subtitle{font-family:var(--ff-mono);font-size:.72rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-top:.6rem}
-.site-subtitle span{color:var(--yellow)}
-.header-tags{display:flex;gap:.4rem;margin-top:.8rem;flex-wrap:wrap}
-.tag{font-family:var(--ff-mono);font-size:.68rem;letter-spacing:.1em;padding:.2rem .55rem;border:1px solid var(--border);color:var(--muted);text-transform:uppercase}
-.tag.hot{border-color:var(--red);color:var(--red)}
+.site-subtitle{font-family:var(--ff-body);font-size:1rem;font-weight:400;color:var(--text2);line-height:1.5;margin-top:.6rem}
 
 /* NAV */
 nav{position:relative;z-index:10;max-width:900px;margin:0 auto;border-bottom:1px solid var(--border);display:flex;overflow-x:auto}
@@ -723,7 +719,6 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
   .write-box{padding:1rem}
   .post{padding:1rem}
   .write-selectors{flex-direction:column}
-  .header-tags{display:none}
   .filter-bar{gap:.25rem}
   .filter-chip{font-size:.57rem;padding:.2rem .5rem}
   footer{padding:1.2rem 1rem 1.5rem}

@@ -905,7 +905,11 @@ function enterAsGuest(){
   document.getElementById('aiFloatBtn').style.display='none';
   render();
 }
-function showAuth(){document.getElementById('authModal').classList.remove('hidden');}
+function showAuth(){
+  // Kullanım koşulları daha önce kabul edilmediyse önce onları göster; kapatınca giriş açılır.
+  if(!localStorage.getItem('duvar_terms')){openTerms(true);return;}
+  document.getElementById('authModal').classList.remove('hidden');
+}
 async function deleteMyPost(id){
   if(!currentUser)return;
   if(!confirm('Bu gönderiyi silmek istediğine emin misin?'))return;
@@ -1689,16 +1693,6 @@ function closeTerms(){
 }
 function toggleCard(el){el.classList.toggle('open');}
 
-// ── WELCOME ──
-function dismissWelcome(){
-  document.getElementById('welcomeScreen').classList.add('hidden');
-  localStorage.setItem('duvar_welcomed','1');
-  if(!localStorage.getItem('duvar_terms')){
-    openTerms(true); // ilk ziyarette terms göster
-  } else {
-    document.getElementById('authModal').classList.remove('hidden');
-  }
-}
 
 // ── ARAÇLAR: ALT SEKME ──
 function switchArac(tab){
@@ -2632,9 +2626,6 @@ document.getElementById('postsGrid').addEventListener('click',e=>{
   if(db&&db.dataset.pid)expandPost(parseInt(db.dataset.pid));
 });
 
-// Welcome
-document.querySelectorAll('.welcome-cta,.welcome-skip').forEach(b=>b.addEventListener('click',dismissWelcome));
-
 // Auth sekmeler
 document.querySelectorAll('.modal-tab[data-tab]').forEach(b=>b.addEventListener('click',()=>switchAuthTab(b.dataset.tab)));
 
@@ -2873,10 +2864,9 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-function showWelcomeOrAuth(){
-  if(localStorage.getItem('duvar_welcomed')){document.getElementById('authModal').classList.remove('hidden');}
-  else{document.getElementById('welcomeScreen').classList.remove('hidden');}
-}
+// Oturum yoksa: karşılama/giriş penceresi açılmaz, duvar okunabilir halde gelir.
+// Giriş penceresi sadece kullanıcı "GİR" veya yazma kutusuna tıklayınca açılır.
+function showGuestState(){enterAsGuest();}
 
 // ── CANLI ZAMAN ──
 setInterval(()=>render(),60000);
@@ -2900,11 +2890,11 @@ if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');l
       // Ban + mod kontrolü (nick bulunamazsa auth_id ile dene, ikisi de yoksa hesap silinmiş demektir)
       let {data:row}=await sb.from('kullanicilar').select('nick,banli,mod').eq('nick',nick).maybeSingle();
       if(!row){const {data:r2}=await sb.from('kullanicilar').select('nick,banli,mod').eq('auth_id',session.user.id).maybeSingle();if(r2){row=r2;}}
-      if(!row){await sb.auth.signOut();showWelcomeOrAuth();return;}
+      if(!row){await sb.auth.signOut();showGuestState();return;}
       if(row&&!row.banli){loginSuccess(row.nick||nick, row.mod===true);}
-      else{await sb.auth.signOut();showWelcomeOrAuth();}
-    }else{await sb.auth.signOut();showWelcomeOrAuth();}
-  }else{showWelcomeOrAuth();}
+      else{await sb.auth.signOut();showGuestState();}
+    }else{await sb.auth.signOut();showGuestState();}
+  }else{showGuestState();}
   await loadPosts();
   loadBasliklar(); // sidebar için arka planda yükle
   handlePermalink();
