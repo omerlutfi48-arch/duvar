@@ -28,7 +28,7 @@ async function adminLogin() {
       document.getElementById('adminPass').value = '';
       return;
     }
-    if (data.user.email !== ADMIN_EMAIL) {
+    if (!(await isAdminEmail(data.user.email))) {
       await sb.auth.signOut();
       err.textContent = '// bu hesabın admin yetkisi yok';
       return;
@@ -108,12 +108,12 @@ async function initPanel() {
   }, 60000);
 }
 
-const ADMIN_EMAIL = 'omerlutfi48@gmail.com';
+// Admin e-postası açık metin tutulmuyor: utils.js → isAdminEmail()
 
 // Oturum kontrolü — sadece admin e-postası kabul edilir
 (async () => {
   const {data:{session}} = await sb.auth.getSession();
-  if (session && session.user.email === ADMIN_EMAIL) {
+  if (session && await isAdminEmail(session.user.email)) {
     isAdmin = true;
     document.getElementById('loginScreen').classList.add('hidden');
     initPanel();
@@ -242,9 +242,9 @@ async function renderReports() {
       <div class="report-meta">bildiren: @${esc(r.bildiren || '?')} · ${new Date(r.created_at).toLocaleString('tr-TR')}</div>
       <div class="report-post-preview">"${esc(preview)}"</div>
       <div class="item-actions">
-        <button class="action-btn warn" onclick="resolveReport(${r.id})">✓ çözüldü / sil</button>
-        ${post ? `<button class="action-btn danger" onclick="confirmDeletePost(${r.post_id})">gönderiyi sil</button>` : ''}
-        ${post ? `<button class="action-btn danger" onclick="confirmBan('${post.author}')">@${esc(post?.author||'?')} banla</button>` : ''}
+        <button class="action-btn warn" onclick="resolveReport(${Number(r.id)})">✓ çözüldü / sil</button>
+        ${post ? `<button class="action-btn danger" onclick="confirmDeletePost(${Number(r.post_id)})">gönderiyi sil</button>` : ''}
+        ${post ? `<button class="action-btn danger" data-nick="${esc(post.author)}" onclick="confirmBan(this.dataset.nick)">@${esc(post?.author||'?')} banla</button>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -289,9 +289,9 @@ async function renderPosts() {
         </div>
         <div class="item-text">${esc(p.text)}</div>
         <div class="item-actions">
-          <button class="action-btn success" onclick="togglePin(${p.id},${p.pinned})">${p.pinned ? '📌 sabiti kaldır' : '📌 sabitle'}</button>
-          <button class="action-btn danger" onclick="confirmDeletePost(${p.id})">🗑 sil</button>
-          <button class="action-btn danger" onclick="confirmBan('${p.author}')">🚫 @${esc(p.author)} banla</button>
+          <button class="action-btn success" onclick="togglePin(${Number(p.id)},${!!p.pinned})">${p.pinned ? '📌 sabiti kaldır' : '📌 sabitle'}</button>
+          <button class="action-btn danger" onclick="confirmDeletePost(${Number(p.id)})">🗑 sil</button>
+          <button class="action-btn danger" data-nick="${esc(p.author)}" onclick="confirmBan(this.dataset.nick)">🚫 @${esc(p.author)} banla</button>
         </div>
       </div>
       <div class="item-right">
@@ -337,13 +337,13 @@ async function renderUsers() {
         </div>
       </div>
       <div class="item-actions">
-        <button class="action-btn ${isMod ? 'warning' : 'secondary'}" onclick="toggleMod('${nick}',${isMod})">
+        <button class="action-btn ${isMod ? 'warning' : 'secondary'}" data-nick="${esc(nick)}" onclick="toggleMod(this.dataset.nick,${!!isMod})">
           ${isMod ? '⚡ mod al' : '⚡ mod ver'}
         </button>
-        <button class="action-btn ${isBanned ? 'success' : 'danger'}" onclick="toggleBan('${nick}',${isBanned})">
+        <button class="action-btn ${isBanned ? 'success' : 'danger'}" data-nick="${esc(nick)}" onclick="toggleBan(this.dataset.nick,${!!isBanned})">
           ${isBanned ? '✓ banı kaldır' : '🚫 banla'}
         </button>
-        <button class="action-btn danger" onclick="confirmDeleteUser('${nick}')">🗑 hesabı sil</button>
+        <button class="action-btn danger" data-nick="${esc(nick)}" onclick="confirmDeleteUser(this.dataset.nick)">🗑 hesabı sil</button>
       </div>
     </div>`;
   }).join('');
@@ -463,8 +463,8 @@ async function renderFeedback() {
       <div class="report-meta">${new Date(f.created_at).toLocaleString('tr-TR')}</div>
       <div class="item-text" style="margin:0.5rem 0">${esc(f.mesaj)}</div>
       <div class="item-actions">
-        ${!f.okundu ? `<button class="action-btn warn" onclick="markFeedbackRead(${f.id})">✓ okundu</button>` : '<span style="font-family:Space Mono,monospace;font-size:0.6rem;color:#333;letter-spacing:0.08em">// okundu</span>'}
-        <button class="action-btn danger" onclick="deleteFeedback(${f.id})">🗑 sil</button>
+        ${!f.okundu ? `<button class="action-btn warn" onclick="markFeedbackRead(${Number(f.id)})">✓ okundu</button>` : '<span style="font-family:Space Mono,monospace;font-size:0.6rem;color:#333;letter-spacing:0.08em">// okundu</span>'}
+        <button class="action-btn danger" onclick="deleteFeedback(${Number(f.id)})">🗑 sil</button>
       </div>
     </div>`;
   }).join('');
@@ -518,8 +518,8 @@ async function renderEtkinlikAdmin() {
         <div class="item-text">${esc((e.aciklama||'').slice(0,120))}${(e.aciklama||'').length>120?'...':''}</div>
         ${e.link ? `<div style="font-family:Space Mono,monospace;font-size:0.62rem;color:#c084fc;margin-bottom:0.5rem">${esc(e.link)}</div>` : ''}
         <div class="item-actions">
-          <button class="action-btn warn" onclick="etkinlikArsiv(${e.id},${e.aktif})">${!e.aktif ? '↺ yeniden yayınla' : '📦 arşivle'}</button>
-          <button class="action-btn danger" onclick="etkinlikSil(${e.id})">🗑 sil</button>
+          <button class="action-btn warn" onclick="etkinlikArsiv(${Number(e.id)},${!!e.aktif})">${!e.aktif ? '↺ yeniden yayınla' : '📦 arşivle'}</button>
+          <button class="action-btn danger" onclick="etkinlikSil(${Number(e.id)})">🗑 sil</button>
         </div>
       </div>
     </div>`).join('');
@@ -567,8 +567,8 @@ async function renderIlanlarAdmin() {
         <div class="item-text">${esc(il.baslik)} — ${esc((il.aciklama||'').slice(0,100))}${(il.aciklama||'').length>100?'...':''}</div>
         ${il.link ? `<div style="font-family:Space Mono,monospace;font-size:0.62rem;color:var(--yellow);margin-bottom:0.5rem">${esc(il.link)}</div>` : ''}
         <div class="item-actions">
-          <button class="action-btn warn" onclick="ilanArsiv(${il.id},${il.aktif})">${!il.aktif ? '↺ yeniden yayınla' : '📦 arşivle'}</button>
-          <button class="action-btn danger" onclick="ilanSil(${il.id})">🗑 sil</button>
+          <button class="action-btn warn" onclick="ilanArsiv(${Number(il.id)},${!!il.aktif})">${!il.aktif ? '↺ yeniden yayınla' : '📦 arşivle'}</button>
+          <button class="action-btn danger" onclick="ilanSil(${Number(il.id)})">🗑 sil</button>
         </div>
       </div>
     </div>`).join('');

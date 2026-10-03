@@ -98,7 +98,7 @@ function nickToEmail(nick){
 const DM_ENABLED=false;
 
 // ── MOD YETKİLİ E-POSTALAR ──
-const MOD_EMAILS=['omerlutfi48@gmail.com'];
+// Mod e-postaları artık açık metin değil: utils.js → isAdminEmail() (SHA-256 karşılaştırması)
 
 // ── SUPABASE VERİ FONKSİYONLARI ──
 async function loadAvatarUrls(nicks){
@@ -246,7 +246,7 @@ async function modLogin(){
   try{
     const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
     if(error){err.textContent='// '+( error.message==='Invalid login credentials'?'e-posta veya şifre yanlış':error.message);return;}
-    if(!MOD_EMAILS.includes(data.user.email)){
+    if(!(await isAdminEmail(data.user.email))){
       await sb.auth.signOut();
       err.textContent='// bu hesabın moderatör yetkisi yok';
       return;
@@ -1439,7 +1439,7 @@ async function handleImageSelect(e){
       currentImageUrl=data.secure_url;
       const preview=document.getElementById('imgPreview');
       preview.classList.remove('hidden');
-      preview.innerHTML=`<img src="${currentImageUrl}" alt="önizleme"><button class="img-remove-btn" onclick="removeImage()">✕ görseli kaldır</button>`;
+      preview.innerHTML=`<img src="${safeUrl(currentImageUrl)}" alt="önizleme"><button class="img-remove-btn" onclick="removeImage()">✕ görseli kaldır</button>`;
       btn.textContent='Görsel ✓';
     }else{
       toast('// yükleme başarısız');
@@ -2590,13 +2590,14 @@ async function renderEtkinlikler(){
     const etkinlikTarih=e.tarih?new Date(e.tarih):null;
     const son=e.son?new Date(e.son):null;
     const gecti=son&&son.getTime()<bugun;
-    return`<div class="etkinlik-card ${e.tip}">
+    const tip=tipLabel[e.tip]?e.tip:'';
+    return`<div class="etkinlik-card ${tip}">
       <div class="etkinlik-head">
         <div>
           <div class="etkinlik-baslik">${esc(e.baslik)}</div>
           ${e.yer?`<div class="etkinlik-org">${esc(e.yer)}</div>`:''}
         </div>
-        <span class="etkinlik-tip-badge tip-${e.tip}">${tipLabel[e.tip]||e.tip}</span>
+        <span class="etkinlik-tip-badge tip-${tip}">${tipLabel[tip]||esc(e.tip||'')}</span>
       </div>
       <div class="etkinlik-aciklama">${esc(e.aciklama)}</div>
       <div class="etkinlik-meta">
@@ -2635,13 +2636,14 @@ async function renderIlanlar(){
     const son=il.son?new Date(il.son):null;
     const gecti=son&&son.getTime()<bugun;
     const sonStr=son?son.toLocaleDateString('tr-TR',{day:'numeric',month:'long',year:'numeric'}):'';
-    return`<div class="ilan-card ${il.tip}">
+    const tip=tipLabel[il.tip]?il.tip:'';
+    return`<div class="ilan-card ${tip}">
       <div class="ilan-head">
         <div>
           <div class="ilan-ofis">${esc(il.sirket||il.ofis||'')}</div>
           <div class="ilan-baslik">${esc(il.baslik)}</div>
         </div>
-        <span class="ilan-tip-badge ilan-tip-${il.tip}">${tipLabel[il.tip]||il.tip}</span>
+        <span class="ilan-tip-badge ilan-tip-${tip}">${tipLabel[tip]||esc(il.tip||'')}</span>
       </div>
       <div class="ilan-aciklama">${esc(il.aciklama)}</div>
       <div class="ilan-meta">
@@ -3015,7 +3017,6 @@ async function aiCall(mode,messages){
     return{err:'fetch: '+e.message};
   }
   const json=await resp.json().catch(()=>({}));
-  console.log('[AI] status:',resp.status,'json:',json);
   if(!resp.ok)return{err:json.error||'HTTP '+resp.status};
   return{text:json.text||''};
 }
@@ -3055,9 +3056,13 @@ async function sendAiMessage(){
     +'<div class="ai-msg assistant ai-loading">// düşünüyor...</div>';
   el.scrollTop=el.scrollHeight;
   try{
-    const result=await aiCall('chat',aiMessages.map(m=>({role:m.role,content:m.content})));
-    aiMessages.push({role:'assistant',content:result.err?'// hata: '+result.err:(result.text||'// yanıt alınamadı')});
-  }catch(e){aiMessages.push({role:'assistant',content:'// bağlantı hatası: '+e.message});}
+    // Sunucu en fazla 20 mesaj kabul ediyor; hata satırlarını gönderme, ilk mesaj kullanıcıdan olsun
+    let hist=aiMessages.filter(m=>!m.err).slice(-20).map(m=>({role:m.role,content:String(m.content).slice(0,2000)}));
+    while(hist.length&&hist[0].role!=='user')hist.shift();
+    const result=await aiCall('chat',hist);
+    if(result.err||!result.text)aiMessages.push({role:'assistant',err:true,content:result.err?'// hata: '+result.err:'// yanıt alınamadı'});
+    else aiMessages.push({role:'assistant',content:result.text});
+  }catch(e){aiMessages.push({role:'assistant',err:true,content:'// bağlantı hatası: '+e.message});}
   renderAiMessages();
   sendBtn.disabled=false;inp.disabled=false;
   setTimeout(()=>inp.focus(),50);
