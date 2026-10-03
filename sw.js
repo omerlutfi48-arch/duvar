@@ -1,4 +1,4 @@
-const CACHE = 'duvar-v6';
+const CACHE = 'duvar-v7';
 const ASSETS = [
   '/',
   '/index.html',

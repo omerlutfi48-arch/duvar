@@ -750,6 +750,7 @@ function renderAi(tab){
   if(!el)return;
   const kategoriler=AI_DATA[tab]||[];
   let html='<div class="yazilim-kategoriler">';
+  if(tab==='gorsel')html+='<a class="ai-rehber-link" href="/rehber/ekran-goruntusunden-render/"><span>// adım adım rehber</span>Ekran görüntüsünden render: modelini kütlesini bozmadan render’a çevir →</a>';
   kategoriler.forEach(function(kat){
     html+='<div class="yazilim-kat">'
       +'<div class="yazilim-kat-baslik">'+kat.baslik+' <span style="font-size:.58rem;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">// '+kat.arac+'</span></div>'
@@ -1122,16 +1123,20 @@ function switchNav(tab,pushState=true){
 
 // Hash'ten sekmeye git
 window.addEventListener('popstate',e=>{
-  const tab=(e.state?.tab)||(location.hash.replace('#',''))||'duvar';
+  const [hNav,hArac]=location.hash.replace('#','').split('/');
+  const tab=(e.state?.tab)||hNav||'duvar';
   const valid=['duvar','rehber','sozluk','araclar','kesit','mimarlar','ilanlar','etkinlik'];
   switchNav(valid.includes(tab)?tab:'duvar',false);
+  if(tab==='araclar'){const a=e.state?.arac||hArac;if(a)switchArac(a,false);}
 });
 
 // İlk yüklemede hash kontrolü — defer ile const'lar hazır olsun
 setTimeout(()=>{
-  const hash=location.hash.replace('#','');
+  // "#araclar/juri" gibi adresler doğrudan o aracı açar
+  const [hash,arac]=location.hash.replace('#','').split('/');
   const valid=['rehber','sozluk','araclar','kesit','mimarlar','ilanlar','etkinlik'];
   if(valid.includes(hash))switchNav(hash,false);
+  if(hash==='araclar'&&arac)switchArac(arac);
 },0);
 
 // ── GÖRÜNÜM (Hepsi / Sorular / Kaynaklar) ──
@@ -1770,7 +1775,14 @@ document.querySelectorAll('.guide-card:not(a)').forEach(c=>{
 
 
 // ── ARAÇLAR: ALT SEKME ──
-function switchArac(tab){
+const ARAC_LIST=['sayac','juri','olcek','alan','bingo','fikir','yazilim','program2','palet','cv','ai'];
+function switchArac(tab,setUrl=true){
+  if(!ARAC_LIST.includes(tab))tab='sayac';
+  if(setUrl&&document.getElementById('section-araclar').classList.contains('active')){
+    try{history.replaceState({tab:'araclar',arac:tab},'','#araclar/'+tab);}catch(e){}
+  }
+  const aktifSekme=document.getElementById('arac-tab-'+tab);
+  if(aktifSekme&&aktifSekme.scrollIntoView)aktifSekme.scrollIntoView({block:'nearest',inline:'center'});
   ['sayac','juri','olcek','alan','bingo','fikir','yazilim','program2','palet','cv','ai'].forEach(t=>{
     document.getElementById('arac-'+t).classList.toggle('active',t===tab);
     document.getElementById('arac-tab-'+t).classList.toggle('active',t===tab);
@@ -1928,18 +1940,23 @@ function selectJuriType(el,type){
 function juriUret(){
   const konsept=document.getElementById('juriKonsept').value.trim();
   const genel=[...JURI_HAVUZ.genel];
-  const ozel=juriType!=='genel'?[...(JURI_HAVUZ[juriType]||[])]:[...JURI_HAVUZ.genel];
+  const ozel=juriType!=='genel'?[...(JURI_HAVUZ[juriType]||[])]:[];
   // Karıştır
   const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
   shuffle(genel);shuffle(ozel);
   // 4 genel + 3 türe özel
-  const secilen=[...genel.slice(0,4),...ozel.slice(0,3)];
+  // "genel" seçiliyken tek havuzdan 7 soru: aynı soru iki kez gelmesin
+  let secilen=ozel.length?[...genel.slice(0,4),...ozel.slice(0,3)]:genel.slice(0,7);
+  const gorulen=new Set();
+  secilen=secilen.filter(q=>!gorulen.has(q.s)&&gorulen.add(q.s));
+  // konsept sorusu her zaman listede kalsın
+  if(konsept)secilen=secilen.slice(0,6);
   // Konseptten 1 özel soru üret
   if(konsept){
     const templates=[
       `"${konsept}" kavramını yapının hangi mekansal kararında en net hissedebiliyoruz?`,
       `"${konsept}" fikri cephe tasarımına nasıl yansıdı?`,
-      `"${konsept}" konseptini ilk kez nasıl buldun, nasıl geliştirdi?`,
+      `"${konsept}" konseptini ilk kez nasıl buldun, nasıl geliştirdin?`,
       `"${konsept}" ile bu program arasındaki ilişkiyi açıklar mısın?`,
     ];
     secilen.unshift({s:templates[Math.floor(Math.random()*templates.length)],t:'Konseptine özel bu soruyu güçlü cevapla — jüri burada seni dinliyor.'});
