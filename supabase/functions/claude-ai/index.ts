@@ -13,13 +13,21 @@ const RATE_WINDOW_MS = 10 * 60 * 1000
 const RATE_MAX = 20              // kullanıcı başına 10 dakikada 20 istek
 // Not: bu sayaç fonksiyon örneği (instance) başınadır; kalıcı ve kesin limit için
 // bir tablo gerekir. Yine de tek kullanıcının sınırsız istek atmasını büyük ölçüde keser.
+const GLOBAL_WINDOW_MS = 60 * 60 * 1000
+const GLOBAL_MAX = 400           // tüm kullanıcılar toplamı, saatte (örnek başına) — maliyet tavanı
 const rateMap = new Map<string, number[]>()
+let globalTimes: number[] = []
 function rateLimited(userId: string): boolean {
   const now = Date.now()
+  globalTimes = globalTimes.filter(t => now - t < GLOBAL_WINDOW_MS)
+  if (globalTimes.length >= GLOBAL_MAX) return true
   const times = (rateMap.get(userId) || []).filter(t => now - t < RATE_WINDOW_MS)
   if (times.length >= RATE_MAX) { rateMap.set(userId, times); return true }
-  times.push(now); rateMap.set(userId, times)
-  if (rateMap.size > 5000) rateMap.clear()
+  times.push(now); rateMap.set(userId, times); globalTimes.push(now)
+  // Eski kayıtları buda (herkesin sayacını sıfırlayan toplu temizlik yok)
+  if (rateMap.size > 5000) {
+    for (const [k, v] of rateMap) if (!v.length || now - v[v.length - 1] >= RATE_WINDOW_MS) rateMap.delete(k)
+  }
   return false
 }
 
@@ -68,7 +76,8 @@ Deno.serve(async (req) => {
 
   // Banlı kullanıcı AI kullanamasın
   const { data: kul } = await userClient.from('kullanicilar').select('banli').eq('auth_id', user.id).maybeSingle()
-  if (kul?.banli) return errResp('Hesap askıya alınmış', 403)
+  // Profil satırı olmayan (sadece auth kaydı açılmış) hesaplar ve banlılar kullanamaz
+  if (!kul || kul.banli) return errResp('Bu hesap AI kullanamaz', 403)
 
   if (rateLimited(user.id)) return errResp('Çok fazla istek — birkaç dakika sonra tekrar dene', 429)
 

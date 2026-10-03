@@ -1,6 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const ADMIN_EMAIL = 'omerlutfi48@gmail.com'
+// Admin e-postası koda yazılmaz: Supabase → Edge Functions → Secrets → ADMIN_EMAIL.
+// Ayarlanmazsa kimse admin sayılmaz (sadece kendi hesabını silme çalışır).
+const ADMIN_EMAIL = (Deno.env.get('ADMIN_EMAIL') || '').trim().toLowerCase()
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -34,51 +36,58 @@ Deno.serve(async (req) => {
   const { data: { user }, error: authErr } = await userClient.auth.getUser()
   if (authErr || !user) return errResp('Unauthorized', 401)
 
-  const { auth_id: rawAuthId, nick } = await req.json()
+  const isAdmin = !!ADMIN_EMAIL && (user.email || '').toLowerCase() === ADMIN_EMAIL
 
   const adminClient = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
   )
 
-  let targetAuthId = rawAuthId
-  let targetNick = nick
+  let targetAuthId: string | undefined
+  let targetNick: string | null = null
 
-  // auth_id yoksa nick'ten email türet ve kullanıcıyı listeden bul
-  if (!targetAuthId && nick) {
-    const email = nickToEmail(nick)
-    console.log('auth_id yok, email ile aranıyor:', email)
-    const { data: usersPage } = await adminClient.auth.admin.listUsers({ page: 1, perPage: 1000 })
-    const found = usersPage?.users?.find((u: { email: string; id: string }) => u.email === email)
-    targetAuthId = found?.id
-    console.log('Bulunan auth_id:', targetAuthId)
-  }
-
-  // nick yoksa auth_id ile kullanicilar'dan bul
-  if (!targetNick && targetAuthId) {
-    const { data: kulRow } = await adminClient.from('kullanicilar').select('nick').eq('auth_id', targetAuthId).maybeSingle()
-    targetNick = kulRow?.nick
-    console.log('auth_id ile bulunan nick:', targetNick)
-  }
-
-  if (!targetAuthId) {
-    console.error('auth_id bulunamadı, nick:', nick)
-    return errResp('auth_id veya geçerli nick gerekli', 400)
-  }
-
-  const isAdmin = user.email === ADMIN_EMAIL
-  const isSelf = user.id === targetAuthId
-  if (!isAdmin && !isSelf) return errResp('Forbidden', 403)
-
-  // Admin değilse silinecek nick istemciden alınmaz: yetki auth_id ile kontrol edildi,
-  // silme de aynı auth_id'ye ait satırla sınırlı olmalı. (Aksi halde kendi auth_id'si +
-  // başkasının nick'i gönderilerek başka bir kullanıcının satırı silinebiliyordu.)
   if (!isAdmin) {
-    const { data: ownRow } = await adminClient.from('kullanicilar').select('nick').eq('auth_id', targetAuthId).maybeSingle()
+    // Normal kullanıcı: istek gövdesi tamamen yok sayılır, sadece kendi hesabı silinir.
+    targetAuthId = user.id
+    const { data: ownRow } = await adminClient.from('kullanicilar').select('nick').eq('auth_id', user.id).maybeSingle()
     targetNick = ownRow?.nick ?? null
+  } else {
+    let body: Record<string, unknown> = {}
+    try { body = await req.json() } catch { /* boş gövde */ }
+    const rawAuthId = typeof body.auth_id === 'string' ? body.auth_id : undefined
+    const nick = typeof body.nick === 'string' ? body.nick : undefined
+    targetAuthId = rawAuthId
+    targetNick = nick ?? null
+
+    // auth_id yoksa nick'ten email türet ve kullanıcıyı bul (sadece admin)
+    if (!targetAuthId && nick) {
+      const email = nickToEmail(nick)
+      for (let page = 1; page <= 20 && !targetAuthId; page++) {
+        const { data: usersPage } = await adminClient.auth.admin.listUsers({ page, perPage: 1000 })
+        const users = usersPage?.users || []
+        targetAuthId = users.find((u: { email: string; id: string }) => u.email === email)?.id
+        if (users.length < 1000) break
+      }
+    }
+    // nick yoksa auth_id ile kullanicilar'dan bul
+    if (!targetNick && targetAuthId) {
+      const { data: kulRow } = await adminClient.from('kullanicilar').select('nick').eq('auth_id', targetAuthId).maybeSingle()
+      targetNick = kulRow?.nick ?? null
+    }
+    if (!targetAuthId) return errResp('Kullanıcı bulunamadı', 400)
+
+    // kullanicilar.auth_id istemciden yazılabildiği için ona körü körüne güvenme: silinecek auth
+    // hesabı gerçekten bu nick'e mi ait? (Aksi halde biri kendi satırına başkasının auth_id'sini
+    // yazıp, admin onu silerken kurbanın hesabını sildirebilirdi.)
+    if (targetNick) {
+      const { data: au } = await adminClient.auth.admin.getUserById(targetAuthId)
+      const authUser = au?.user
+      const owns = !!authUser && (authUser.user_metadata?.nick === targetNick || authUser.email === nickToEmail(targetNick))
+      if (!owns) return errResp('auth_id ile nick eşleşmiyor — silme durduruldu', 409)
+    }
   }
 
-  console.log('Siliniyor:', targetAuthId, 'nick:', targetNick, '| isAdmin:', isAdmin, '| isSelf:', isSelf)
+  console.log('Siliniyor:', targetAuthId, 'nick:', targetNick, '| isAdmin:', isAdmin)
 
   // 1. kullanicilar satırını service role ile sil (RLS'i bypass eder)
   if (targetNick) {
@@ -93,7 +102,7 @@ Deno.serve(async (req) => {
   const { error: deleteErr } = await adminClient.auth.admin.deleteUser(targetAuthId)
   if (deleteErr) {
     console.error('Auth silme hatası:', deleteErr.message)
-    return errResp(deleteErr.message, 500)
+    return errResp('Hesap silinemedi', 500)
   }
 
   console.log('Başarıyla silindi:', targetAuthId)
