@@ -1,4 +1,4 @@
-const CACHE = 'duvar-v4';
+const CACHE = 'duvar-v5';
 const ASSETS = [
   '/',
   '/index.html',
@@ -38,7 +38,12 @@ self.addEventListener('push', e => {
 
 self.addEventListener('notificationclick', e => {
   e.notification.close();
-  const url = e.notification.data?.url || '/';
+  // Bildirimdeki adres sadece bu sitenin içine gidebilir (başka siteye yönlendirme yok)
+  let url = '/';
+  try {
+    const u = new URL(e.notification.data?.url || '/', self.location.origin);
+    if (u.origin === self.location.origin) url = u.pathname + u.search + u.hash;
+  } catch (_) {}
   e.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(wins => {
       const existing = wins.find(w => w.url.includes('duvar.site') || w.url.includes('localhost'));

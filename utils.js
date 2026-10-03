@@ -6,6 +6,20 @@
 // kullanıcı verisini handler'a data-* attribute ile verin.
 const esc = t => String(t ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
+// Kullanıcı medyası (avatar, gönderi görseli, dosya) sadece sitenin Cloudinary hesabından gelebilir.
+// Başka adres (izleme pikseli, oltalama linki) basılmaz.
+const MEDIA_PREFIX = 'https://res.cloudinary.com/dxsvzlv1m/';
+function safeMediaUrl(u) {
+  const s = String(u ?? '').trim();
+  return s.startsWith(MEDIA_PREFIX) ? esc(s) : '';
+}
+
+// PostgREST .or() filtresine değer koyarken: çift tırnak içine al, \ ve " kaçır
+// (virgül/parantez içeren bir değer filtreyi genişletemesin).
+function pgVal(v) {
+  return '"' + String(v ?? '').replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
+}
+
 // URL'yi src/href'e koymadan önce: sadece http(s) şemasına izin ver, değilse boş döner.
 function safeUrl(u) {
   const s = String(u ?? '').trim();
