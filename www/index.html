@@ -45,12 +45,14 @@
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap"></noscript>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 
-<!-- WELCOME -->
-<div class="welcome-overlay hidden" id="welcomeScreen">
+<!-- KARŞILAMA — DEVRE DIŞI. Artık hiçbir yerden açılmıyor.
+     Blok silinmedi: içindeki "182 ALO Psikiyatri Hattı" satırı doğrulanana kadar
+     metne dokunulmayacak. Doğrulandıktan sonra bu blok tamamen kaldırılabilir. -->
+<div class="welcome-overlay hidden" id="welcomeScreen" hidden aria-hidden="true">
   <div class="welcome-inner">
     <div class="welcome-eyebrow">// ilk kez hoş geldin</div>
     <div class="welcome-title">DU<span>VAR</span></div>
@@ -78,14 +80,14 @@
       <button class="modal-tab" data-tab="register">kayıt ol</button>
     </div>
     <div class="modal-err" id="authErr"></div>
-    <div class="field"><label>nickname</label><input type="text" id="authNick" placeholder="ör: gece_studiocu" maxlength="20" autocomplete="off"></div>
-    <div class="field"><label>şifre</label><input type="password" id="authPass" placeholder="en az 8 karakter" maxlength="50"></div>
+    <div class="field"><label for="authNick">nickname</label><input type="text" id="authNick" placeholder="ör: gece_studiocu" maxlength="20" autocomplete="username" autocapitalize="off" spellcheck="false"></div>
+    <div class="field"><label for="authPass">şifre</label><input type="password" id="authPass" placeholder="en az 8 karakter" maxlength="50" autocomplete="current-password"></div>
     <div class="hidden" id="passReqs" style="margin:-0.6rem 0 1rem;display:flex;flex-direction:column;gap:.25rem">
       <span class="preq" id="preq-len">✗ en az 8 karakter</span>
       <span class="preq" id="preq-num">✗ en az 1 rakam</span>
       <span class="preq" id="preq-upper">✗ en az 1 büyük harf</span>
     </div>
-    <div class="field hidden" id="authConfirmField"><label>şifre tekrar</label><input type="password" id="authPassConfirm" placeholder="şifreni tekrar yaz" maxlength="50"></div>
+    <div class="field hidden" id="authConfirmField"><label for="authPassConfirm">şifre tekrar</label><input type="password" id="authPassConfirm" placeholder="şifreni tekrar yaz" maxlength="50" autocomplete="new-password"></div>
     <button class="modal-btn" id="authBtn">GİRİŞ YAP</button>
     <div class="modal-note" id="authForgotNote">// şifreni unuttuysan yeni hesap açman gerekiyor — anonim platform, kurtarma yok.</div>
     <div class="modal-note hidden" id="authRegisterNote">// gerçek isim girme. nickname bir kez alınır, başkası alamaz.<br><span class="sifre-uyari">⚠ ŞİFRENİ UNUTMA — kurtarma yok, sıfırlama yok.</span></div>
@@ -123,7 +125,7 @@
     <div class="modal-err" id="nickChangeErr" style="font-size:.62rem;min-height:.8rem"></div>
     <button class="panel-btn" id="pushToggleBtn" style="margin-top:.5rem">🔔 bildirimleri aç</button>
     <button class="panel-btn" id="logoutBtn">çıkış yap</button>
-    <button class="panel-btn" id="deleteAccountBtn" style="border-color:#5a0000;color:#c0392b;margin-top:2rem">⚠ hesabı sil</button>
+    <button class="panel-btn" id="deleteAccountBtn" style="border-color:var(--red);color:var(--text);margin-top:2rem">⚠ hesabı sil</button>
   </div>
 </div>
 
@@ -176,7 +178,7 @@
       <div class="welcome-line"><span class="num">04 —</span><p><strong>Yalnız değilsin.</strong> Zor bir gün geçiriyorsan buradayız. Acil durumlarda <strong>182 ALO Psikiyatri Hattı</strong>'nı ara.</p></div>
     </div>
     <div style="padding:.8rem 1rem;border-left:3px solid var(--red);background:var(--surface2);margin-bottom:1.5rem">
-      <span style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.08em;color:var(--red)">YALNIZ DEĞİLSİN.</span>
+      <span style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.08em;color:var(--text)">YALNIZ DEĞİLSİN.</span>
     </div>
     <button class="terms-close" id="termsCloseBtn">KAPAT</button>
   </div>
@@ -185,69 +187,55 @@
 <!-- HEADER -->
 <header>
   <div class="header-top">
-    <div class="site-title" onclick="switchNav('duvar');window.scrollTo({top:0,behavior:'smooth'})" style="cursor:pointer">DUVAR<span class="beta-badge">BETA v1.0</span></div>
+    <h1 class="site-title"><a href="./" id="homeLink" class="site-title-link">DUVAR</a><span class="beta-badge">BETA v1.0</span></h1>
     <div class="header-controls">
       <button class="icon-btn" id="themeBtn" title="tema">◑</button>
       <button class="icon-btn" id="dmBtn" title="mesajlar" style="display:none">✉<span class="notif-dot" id="dmDot"></span></button>
       <button class="icon-btn" id="notifBtn" title="bildirimler" style="display:none">◉<span class="notif-dot" id="notifDot"></span></button>
       <span class="user-nick" id="userNickDisplay" style="display:none;cursor:pointer" title="profil"></span>
-      <button class="icon-btn" id="loginBtn" title="giriş yap / kayıt ol" style="border-color:var(--red);color:var(--red)">GİR →</button>
+      <button class="icon-btn" id="loginBtn" title="giriş yap / kayıt ol" style="border-color:var(--red);color:var(--text)">GİR →</button>
     </div>
   </div>
-  <div class="site-subtitle">mim okulu · yardımlaşma & dayanışma · <span>anonim</span></div>
-  <div class="header-tags">
-    <span class="tag hot">anonim</span>
-    <span class="tag">soru & cevap</span>
-    <span class="tag">kaynak</span>
-    <span class="tag">dayanışma</span>
-  </div>
+  <p class="site-subtitle">Mimarlık öğrencileri için rehberler ve soru duvarı.</p>
 </header>
 
-<nav>
-  <button class="nav-tab active" id="tab-duvar" data-nav="duvar">// duvar</button>
-  <button class="nav-tab" id="tab-kesit" data-nav="kesit">// kesit</button>
-  <button class="nav-tab" id="tab-rehber" data-nav="rehber">// rehber</button>
-  <button class="nav-tab" id="tab-sozluk" data-nav="sozluk">// sözlük</button>
-  <button class="nav-tab" id="tab-araclar" data-nav="araclar">// araçlar</button>
-  <button class="nav-tab" id="tab-mimarlar" data-nav="mimarlar">// mimarlar</button>
-  <button class="nav-tab" id="tab-ilanlar" data-nav="ilanlar">// ilanlar</button>
-  <button class="nav-tab" id="tab-etkinlik" data-nav="etkinlik">// etkinlik</button>
+<nav class="top-nav" aria-label="Ana gezinme">
+  <button class="nav-tab active" id="tab-duvar" data-nav="duvar">Duvar</button>
+  <button class="nav-tab" id="tab-rehber" data-nav="rehber">Rehberler</button>
+  <button class="nav-tab more-trigger" id="tab-more" aria-haspopup="menu" aria-expanded="false" aria-controls="moreMenu">Daha fazla ▾</button>
 </nav>
+
+<!-- DAHA FAZLA MENÜSÜ — üst gezinme ve alt menü ortak kullanır. Hiçbir bölüm silinmedi. -->
+<div class="pop-menu more-menu" id="moreMenu" role="menu" aria-label="Daha fazla" hidden>
+  <button type="button" role="menuitem" data-go="sozluk">Sözlük</button>
+  <button type="button" role="menuitem" data-go="kesit">Kesit <span class="menu-hint">kolektif sözlük</span></button>
+  <button type="button" role="menuitem" data-go="etkinlik">Etkinlikler</button>
+  <button type="button" role="menuitem" data-go="ilanlar">İlanlar</button>
+  <button type="button" role="menuitem" data-view-go="anket">Anketler</button>
+  <div class="menu-sep" role="separator"></div>
+  <button type="button" role="menuitem" data-go="araclar">Araçlar</button>
+  <button type="button" role="menuitem" data-go="mimarlar">Mimarlar</button>
+  <button type="button" role="menuitem" data-view-go="saved">Kaydettiklerim</button>
+  <div class="menu-sep" role="separator"></div>
+  <button type="button" role="menuitem" data-action="ai" id="moreAiBtn" hidden>AI asistan</button>
+  <button type="button" role="menuitem" data-action="radio">Teslim gecesi radyosu</button>
+  <button type="button" role="menuitem" data-action="feedback">Öneri / şikayet</button>
+</div>
 
 <main>
   <!-- DUVAR -->
   <div id="section-duvar">
-    <div class="write-lock-notice" id="lockNotice">// yazmak için <a id="lockNoticeLink" style="cursor:pointer">giriş yap veya kayıt ol</a> — okumak her zaman ücretsiz.</div>
     <div class="write-box" id="writeBox">
-      <div class="write-as">yazan: <strong id="writeAsNick">—</strong></div>
-      <div class="write-selectors">
-        <div class="selector-group">
-          <div class="selector-label">// nasıl hissediyorsun</div>
-          <div class="pill-row">
-            <button class="pill mood-yorgun" data-mood="yorgun">😮‍💨 yorgunum</button>
-            <button class="pill mood-yardim" data-mood="yardim">🆘 yardım lazım</button>
-            <button class="pill mood-iyi" data-mood="iyi">✓ iyiyim</button>
-            <button class="pill mood-tesekkur" data-mood="tesekkur">♡ teşekkür</button>
-          </div>
-        </div>
-        <div class="selector-group">
-          <div class="selector-label">// ne paylaşıyorsun</div>
-          <div class="pill-row">
-            <button class="pill type-dert" data-type="dert">// dert</button>
-            <button class="pill type-soru" data-type="soru">? soru</button>
-            <button class="pill type-kaynak" data-type="kaynak">↗ kaynak</button>
-            <button class="pill type-acil" data-type="acil">! acil</button>
-          </div>
-        </div>
+      <label class="sr-only" for="mainInput">Duvara yaz</label>
+      <textarea id="mainInput" placeholder="Bir soru sor ya da bir şey paylaş…" maxlength="500" rows="3"></textarea>
+      <div class="write-type" id="writeType" role="group" aria-label="Tür (isteğe bağlı)" hidden>
+        <span class="write-type-label">tür <span class="opt">(isteğe bağlı)</span></span>
+        <button type="button" class="pill" data-type="soru" aria-pressed="false">Soru</button>
+        <button type="button" class="pill" data-type="dert" aria-pressed="false">Dert</button>
+        <button type="button" class="pill" data-type="kaynak" aria-pressed="false">Kaynak</button>
       </div>
-      <textarea id="mainInput" placeholder="dert anlat, soru sor, kaynak paylaş — ya da sadece bir şey söyle." maxlength="500" rows="4"></textarea>
       <input type="file" id="imgFileInput" accept="image/*" style="display:none" onchange="handleImageSelect(event)">
       <input type="file" id="fileInput" accept=".dwg,.dxf,.pdf,.zip,.rvt,.skp,.3dm,.ifc,.doc,.docx,.ppt,.pptx,.xlsx" style="display:none" onchange="handleFileSelect(event)">
-      <div class="write-btns-row">
-        <button class="anket-toggle" id="anketToggle">📊 anket ekle</button>
-        <button class="anket-toggle" id="imgUploadBtn" onclick="document.getElementById('imgFileInput').click()">🖼 görsel ekle</button>
-        <button class="anket-toggle" id="fileUploadBtn" onclick="document.getElementById('fileInput').click()">📎 dosya ekle</button>
-      </div>
       <div id="imgPreview" class="img-preview-wrap hidden"></div>
       <div id="filePreview" class="file-preview-wrap hidden"></div>
       <div class="anket-inputs hidden" id="anketInputs">
@@ -257,43 +245,33 @@
         <input class="anket-opt-input" id="anket-opt-3" placeholder="seçenek 4 (isteğe bağlı)" maxlength="80">
       </div>
       <div class="write-footer">
-        <div style="display:flex;align-items:center;gap:.8rem">
-          <span class="char-left" id="charCount">500 karakter kaldı</span>
-          <span class="draft-saved" id="draftSaved">💾 taslak</span>
+        <div class="ekle-wrap">
+          <button type="button" class="ekle-btn" id="ekleBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="ekleMenu">+ Ekle</button>
+          <div class="pop-menu ekle-menu" id="ekleMenu" role="menu" hidden>
+            <button type="button" role="menuitem" id="imgUploadBtn">Görsel</button>
+            <button type="button" role="menuitem" id="fileUploadBtn">Dosya</button>
+            <button type="button" role="menuitem" id="anketToggle">Anket</button>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;gap:.7rem">
-          <span class="ctrl-hint">ctrl+↵</span>
-          <button class="submit-btn" id="addPostBtn">DUVARA YAZ</button>
+        <div class="write-footer-right">
+          <span class="draft-saved" id="draftSaved">taslak kaydedildi</span>
+          <span class="char-left" id="charCount" aria-live="polite"></span>
+          <button type="button" class="submit-btn" id="addPostBtn">Duvara yaz</button>
         </div>
       </div>
     </div>
 
-    <div class="filter-bar">
-      <span class="filter-label">filtre:</span>
-      <button class="filter-chip active" data-filter="all">tümü</button>
-      <span class="filter-sep">·</span>
-      <button class="filter-chip" data-filter="acil" data-kind="type">! acil</button>
-      <button class="filter-chip" data-filter="soru" data-kind="type">? soru</button>
-      <button class="filter-chip" data-filter="kaynak" data-kind="type">↗ kaynak</button>
-      <button class="filter-chip" data-filter="dert" data-kind="type">// dert</button>
-      <span class="filter-sep">·</span>
-      <button class="filter-chip" data-filter="yardim" data-kind="mood">🆘 yardım</button>
-      <button class="filter-chip" data-filter="yorgun" data-kind="mood">😮‍💨 yorgun</button>
-      <button class="filter-chip" data-filter="iyi" data-kind="mood">✓ iyi</button>
-      <button class="filter-chip" data-filter="tesekkur" data-kind="mood">♡ teşekkür</button>
-    </div>
-
-    <div class="search-sort-bar" id="searchSortBar">
-      <input class="search-input" id="searchInput" type="text" placeholder="// gönderilerde ara...">
-      <div class="sort-btns">
-        <button class="sort-btn active" id="sort-new" data-sort="new">↓ yeni</button>
-        <button class="sort-btn" id="sort-top" data-sort="top">⚡ popüler</button>
-        <button class="sort-btn" id="sort-week" data-sort="week">📅 bu hafta</button>
-        <button class="sort-btn saved-btn" id="sort-saved" data-sort="saved">🔖 kaydettiklerim</button>
+    <div class="wall-tabs-row">
+      <div class="wall-tabs" role="tablist" aria-label="Duvar görünümü">
+        <button class="wall-tab active" role="tab" aria-selected="true" data-view="all">Hepsi</button>
+        <button class="wall-tab" role="tab" aria-selected="false" data-view="soru">Sorular</button>
+        <button class="wall-tab" role="tab" aria-selected="false" data-view="kaynak">Kaynaklar</button>
       </div>
+      <label class="sr-only" for="searchInput">Gönderilerde ara</label>
+      <input class="search-input" id="searchInput" type="search" placeholder="ara…" autocomplete="off">
     </div>
+    <div class="view-note hidden" id="viewNote"></div>
 
-    <div id="gunEnIyisi" class="gun-en-iyisi" style="display:none"></div>
     <div class="wall-header">
       <div class="wall-label">// DUVAR</div>
       <div class="wall-stats" id="wallStats"></div>
@@ -861,8 +839,6 @@
   </div>
 </div>
 
-<!-- FEEDBACK FLOAT -->
-<button class="feedback-float" id="feedbackFloatBtn" title="öneri & şikayet">💬 öneri / şikayet</button>
 
 <!-- GERİ BİLDİRİM MODAL -->
 <div class="feedback-modal hidden" id="feedbackModal">
@@ -886,7 +862,7 @@
   <img id="imgModalImg" src="" alt="görsel">
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <footer>
   <div class="footer-left">© 2026 DUVAR · tüm hakları saklıdır · içerikler kullanıcıya aittir</div>
@@ -911,7 +887,7 @@
       <label class="field-label">şifre</label>
       <input class="field-input" type="password" id="modPass" placeholder="••••••••">
     </div>
-    <div style="font-family:var(--ff-mono);font-size:.62rem;color:var(--red);min-height:1rem;margin-bottom:.8rem" id="modErr"></div>
+    <div style="font-family:var(--ff-mono);font-size:.8rem;color:var(--yellow);min-height:1rem;margin-bottom:.8rem" id="modErr"></div>
     <button class="welcome-cta" style="background:var(--yellow);color:#000" id="modLoginBtn2">GİRİŞ YAP</button>
     <button class="welcome-skip" id="modCloseBtn">iptal</button>
   </div>
@@ -923,21 +899,15 @@
 </div>
 
 <!-- MOBİL BOTTOM NAV -->
-<nav class="bottom-nav" id="bottomNav">
-  <button class="bnav-btn active" id="bnav-duvar" onclick="switchNav('duvar');updateBottomNav('duvar')">
-    <span class="bnav-icon">⬚</span>duvar
+<nav class="bottom-nav" id="bottomNav" aria-label="Alt menü">
+  <button class="bnav-btn active" id="bnav-duvar" onclick="switchNav('duvar');window.scrollTo({top:0})">
+    <span class="bnav-icon" aria-hidden="true">⬚</span>Duvar
   </button>
-  <button class="bnav-btn" id="bnav-ilanlar" onclick="switchNav('ilanlar');updateBottomNav('ilanlar')">
-    <span class="bnav-icon">💼</span>ilanlar
+  <button class="bnav-btn" id="bnav-rehber" onclick="switchNav('rehber');window.scrollTo({top:0})">
+    <span class="bnav-icon" aria-hidden="true">▤</span>Rehberler
   </button>
-  <button class="bnav-btn" id="bnav-etkinlik" onclick="switchNav('etkinlik');updateBottomNav('etkinlik')">
-    <span class="bnav-icon">📅</span>etkinlik
-  </button>
-  <button class="bnav-btn" id="bnav-notif" onclick="openNotifs()">
-    <span class="bnav-notif bnav-icon">◉<span class="bnav-dot" id="bnavNotifDot"></span></span>bildirim
-  </button>
-  <button class="bnav-btn" id="bnav-profil" onclick="currentUser?openProfile():showAuth()">
-    <span class="bnav-icon">◎</span>profil
+  <button class="bnav-btn more-trigger" id="bnav-more" aria-haspopup="menu" aria-expanded="false" aria-controls="moreMenu">
+    <span class="bnav-icon" aria-hidden="true">···</span>Daha fazla
   </button>
 </nav>
 
@@ -955,8 +925,6 @@
 </div>
 
 <!-- TESLİM GECESİ RADYOSU -->
-<button class="radio-float-btn" id="radioFloatBtn" title="Teslim Gecesi Radyosu">📻</button>
-<button class="ai-float-btn" id="aiFloatBtn" onclick="openAiChat()" title="AI asistan" style="display:none">✦</button>
 
 <div class="radio-player" id="radioPlayer">
   <div class="radio-header">
@@ -970,7 +938,7 @@
   <div class="radio-body">
     <div class="radio-panel active" id="radio-youtube">
       <iframe
-        src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&controls=1&rel=0"
+        data-src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&controls=1&rel=0"
         allow="autoplay; encrypted-media"
         allowfullscreen
         style="width:100%;height:200px;border:none;display:block"
@@ -980,7 +948,7 @@
     </div>
     <div class="radio-panel" id="radio-spotify">
       <iframe
-        src="https://open.spotify.com/embed/playlist/37i9dQZF1DX8Uebhn9wzrS?utm_source=generator&theme=0"
+        data-src="https://open.spotify.com/embed/playlist/37i9dQZF1DX8Uebhn9wzrS?utm_source=generator&theme=0"
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
         loading="lazy"
         style="width:100%;height:200px;border:none;border-radius:0;display:block"
@@ -991,7 +959,7 @@
   </div>
 </div>
 
-<script src="utils.js"></script>
-<script src="main.js"></script>
+<script src="utils.js?v=2"></script>
+<script src="main.js?v=2"></script>
 </body>
 </html>
