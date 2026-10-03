@@ -1762,7 +1762,8 @@ function closeTerms(accept=false){
 }
 function toggleCard(el){el.setAttribute('aria-expanded',el.classList.toggle('open'));}
 // Rehber kartları klavyeyle de açılabilsin (Enter / Boşluk)
-document.querySelectorAll('.guide-card').forEach(c=>{
+// (bağlantı olan kartlar <a> zaten klavyeyle açılır; onlara düğme rolü verilmez)
+document.querySelectorAll('.guide-card:not(a)').forEach(c=>{
   c.setAttribute('role','button');c.setAttribute('tabindex','0');c.setAttribute('aria-expanded','false');
   c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleCard(c);}});
 });
@@ -2821,7 +2822,7 @@ document.querySelector('.write-box').addEventListener('click',e=>{
 
 // Guide card'lar (delegation)
 document.querySelectorAll('.guide-grid').forEach(g=>g.addEventListener('click',e=>{
-  const card=e.target.closest('.guide-card');
+  const card=e.target.closest('.guide-card:not(a)');
   if(card)toggleCard(card);
 }));
 
