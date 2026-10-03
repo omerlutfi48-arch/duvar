@@ -292,6 +292,7 @@ let posts=[];
 let bookmarks=JSON.parse(localStorage.getItem('duvar_bookmarks')||'[]');
 let reportedPosts=new Set(JSON.parse(localStorage.getItem('duvar_reported')||'[]'));
 let expandedPosts=new Set();
+let seenPostIds=new Set(); // giriş animasyonu sadece ilk kez görünen gönderilerde
 let dislikedPosts=new Set();
 const TRUNCATE_LEN=200;
 let anketOpen=false;
@@ -1207,7 +1208,8 @@ function render(){
         </div>`;
       }).join('')}<div class="vote-count">// ${total} oy</div></div>`;
     }
-    return`<div class="post${isMine?' mine':''}${p.pinned?' pinned-post':''}" data-pid="${p.id}" style="animation-delay:${Math.min(i,6)*.05}s">
+    const isNew=!seenPostIds.has(p.id);
+    return`<div class="post${isMine?' mine':''}${p.pinned?' pinned-post':''}${isNew?' post-new':''}" data-pid="${p.id}"${isNew?` style="animation-delay:${Math.min(i,6)*.05}s"`:''}>
       <div class="post-header">
         <span class="post-number">#${String(filtered.length-i).padStart(3,'0')}</span>
         ${nickAvatar(p.author)}
@@ -1264,6 +1266,7 @@ function render(){
     btn.onclick=()=>{visibleCount+=PAGE_SIZE;render();};
     grid.appendChild(btn);
   }
+  toShow.forEach(p=>seenPostIds.add(p.id));
   syncBnavDot();
   requestAnimationFrame(()=>window.scrollTo(0,savedScroll));
 }
@@ -1717,7 +1720,12 @@ function closeTerms(){
     btn._firstTime=false;
   }
 }
-function toggleCard(el){el.classList.toggle('open');}
+function toggleCard(el){el.setAttribute('aria-expanded',el.classList.toggle('open'));}
+// Rehber kartları klavyeyle de açılabilsin (Enter / Boşluk)
+document.querySelectorAll('.guide-card').forEach(c=>{
+  c.setAttribute('role','button');c.setAttribute('tabindex','0');c.setAttribute('aria-expanded','false');
+  c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggleCard(c);}});
+});
 
 
 // ── ARAÇLAR: ALT SEKME ──
@@ -2714,6 +2722,9 @@ document.getElementById('dmBtn').addEventListener('click',openDMs);
 document.getElementById('notifBtn').addEventListener('click',openNotifs);
 document.getElementById('userNickDisplay').addEventListener('click',openProfile);
 document.getElementById('loginBtn').addEventListener('click',showAuth);
+
+// Logo: ana sayfaya (duvar) dön
+document.getElementById('homeLink').addEventListener('click',e=>{e.preventDefault();switchNav('duvar');window.scrollTo({top:0});});
 
 // Nav tabları
 document.querySelectorAll('.nav-tab[data-nav]').forEach(b=>b.addEventListener('click',()=>switchNav(b.dataset.nav)));
