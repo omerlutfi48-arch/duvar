@@ -898,21 +898,15 @@
 </div>
 
 <!-- MOBİL BOTTOM NAV -->
-<nav class="bottom-nav" id="bottomNav">
-  <button class="bnav-btn active" id="bnav-duvar" onclick="switchNav('duvar');updateBottomNav('duvar')">
-    <span class="bnav-icon">⬚</span>duvar
+<nav class="bottom-nav" id="bottomNav" aria-label="Alt menü">
+  <button class="bnav-btn active" id="bnav-duvar" onclick="switchNav('duvar');window.scrollTo({top:0})">
+    <span class="bnav-icon" aria-hidden="true">⬚</span>Duvar
   </button>
-  <button class="bnav-btn" id="bnav-ilanlar" onclick="switchNav('ilanlar');updateBottomNav('ilanlar')">
-    <span class="bnav-icon">💼</span>ilanlar
+  <button class="bnav-btn" id="bnav-rehber" onclick="switchNav('rehber');window.scrollTo({top:0})">
+    <span class="bnav-icon" aria-hidden="true">▤</span>Rehberler
   </button>
-  <button class="bnav-btn" id="bnav-etkinlik" onclick="switchNav('etkinlik');updateBottomNav('etkinlik')">
-    <span class="bnav-icon">📅</span>etkinlik
-  </button>
-  <button class="bnav-btn" id="bnav-notif" onclick="openNotifs()">
-    <span class="bnav-notif bnav-icon">◉<span class="bnav-dot" id="bnavNotifDot"></span></span>bildirim
-  </button>
-  <button class="bnav-btn" id="bnav-profil" onclick="currentUser?openProfile():showAuth()">
-    <span class="bnav-icon">◎</span>profil
+  <button class="bnav-btn more-trigger" id="bnav-more" aria-haspopup="menu" aria-expanded="false" aria-controls="moreMenu">
+    <span class="bnav-icon" aria-hidden="true">···</span>Daha fazla
   </button>
 </nav>
 

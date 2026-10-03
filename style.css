@@ -72,7 +72,7 @@ header{position:relative;z-index:10;padding:2rem 2rem 1.5rem;border-bottom:2px s
 
 /* NAV */
 nav{position:relative;z-index:10;max-width:900px;margin:0 auto;border-bottom:1px solid var(--border);display:flex;overflow-x:auto}
-.more-menu{position:absolute;z-index:470;min-width:220px}
+.more-menu{position:absolute;z-index:900;min-width:220px}
 .menu-sep{height:1px;background:var(--border2);margin:.3rem 0}
 .menu-hint{color:var(--muted);font-family:var(--ff-mono);font-size:.75rem;margin-left:.4rem}
 nav::-webkit-scrollbar{display:none}
@@ -686,10 +686,9 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
 .load-more-btn:hover{border-color:var(--yellow);color:var(--yellow);background:var(--surface2)}
 
 /* BOTTOM NAV */
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:450;background:var(--surface);border-top:2px solid var(--border);padding:.3rem 0 calc(.3rem + env(safe-area-inset-bottom))}
-.bnav-btn{display:flex;flex-direction:column;align-items:center;gap:.18rem;background:transparent;border:none;color:var(--muted);font-family:var(--ff-mono);font-size:.5rem;letter-spacing:.05em;cursor:pointer;padding:.4rem .6rem;transition:color .15s;flex:1;text-transform:uppercase}
-.bnav-btn.active{color:var(--yellow)}
-.bnav-btn.active .bnav-icon{color:var(--yellow)}
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:450;background:var(--surface);border-top:1px solid var(--border);padding:0 0 env(safe-area-inset-bottom)}
+.bnav-btn{display:flex;flex-direction:column;align-items:center;gap:.25rem;background:transparent;border:none;border-top:3px solid transparent;color:var(--text2);font-family:var(--ff-mono);font-size:.8rem;cursor:pointer;padding:.45rem .6rem .35rem;transition:color .15s;flex:1;min-height:3.2rem}
+.bnav-btn.active{color:var(--text);border-top-color:var(--red)}
 .bnav-icon{font-size:1rem;line-height:1}
 .bnav-notif{position:relative;display:inline-block}
 .bnav-dot{position:absolute;top:-2px;right:-4px;width:6px;height:6px;background:var(--red);border-radius:50%;display:none}
@@ -700,7 +699,7 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
   header{padding:1.2rem 1rem 1rem}
   main{padding:1rem 1rem 5.5rem}
   nav{padding:0 .5rem}
-  .nav-tab{padding:.75rem .8rem;font-size:.85rem}
+  .top-nav{display:none}
   .more-menu{position:fixed;left:0;right:0;bottom:calc(3.6rem + env(safe-area-inset-bottom));top:auto;min-width:0;max-height:70vh;overflow-y:auto;border-left:none;border-right:none;padding:.4rem 0}
   .more-menu button{padding:.85rem 1.2rem;font-size:1rem}
   .write-box{padding:1rem}
