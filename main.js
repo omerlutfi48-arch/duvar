@@ -113,7 +113,12 @@ async function loadAvatarUrls(nicks){
 
 async function loadPosts(){
   const {data,error}=await sb.from('posts').select('*, yorumlar(*)').eq('aktif',true).order('created_at',{ascending:false}).limit(200);
-  if(error){console.error('posts yüklenemedi:',error);return;}
+  if(error){
+    console.error('posts yüklenemedi:',error);
+    // İlk yükleme başarısızsa iskelet sonsuza kadar kalmasın
+    if(!posts.length)document.getElementById('postsGrid').innerHTML='<div class="empty-state"><div class="big">Duvar yüklenemedi. Bağlantını kontrol et.</div><button type="button" class="load-more-btn" onclick="loadPosts()" style="margin-top:1rem">tekrar dene</button></div>';
+    return;
+  }
   posts=(data||[]).map(p=>({
     ...p,time:p.created_at,fired:[],disfire:p.disfire||0,
     comments:(p.yorumlar||[]).map(c=>({nick:c.nick,text:c.text,id:c.id}))
@@ -224,8 +229,9 @@ sb.channel('duvar-realtime')
   })
   .subscribe();
 
-// Yedek: realtime çalışmasa da 30 saniyede bir güncelle
-setInterval(loadPosts, 30000);
+// Yedek: realtime çalışmasa da 30 saniyede bir güncelle (sekme gizliyken boşuna sorgu atma)
+setInterval(()=>{if(!document.hidden)loadPosts();}, 30000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)debouncedLoadPosts();});
 
 // ── MODERATÖR ──
 function openModLogin(){document.getElementById('modLoginModal').classList.remove('hidden');document.getElementById('modEmail').focus();}
@@ -2750,8 +2756,9 @@ document.querySelector('.wall-tabs').addEventListener('click',e=>{
 });
 document.getElementById('viewNote').addEventListener('click',e=>{if(e.target.closest('.view-note-clear'))setView('all');});
 
-// Search
-document.getElementById('searchInput').addEventListener('input',render);
+// Search (her tuşta değil, yazmayı bırakınca)
+let _searchTimer=null;
+document.getElementById('searchInput').addEventListener('input',()=>{clearTimeout(_searchTimer);_searchTimer=setTimeout(()=>{visibleCount=PAGE_SIZE;render();},150);});
 
 
 // Ekle menüsü: görsel / dosya / anket
@@ -2936,7 +2943,7 @@ document.addEventListener('keydown',e=>{
 function showGuestState(){enterAsGuest();}
 
 // ── CANLI ZAMAN ──
-setInterval(()=>render(),60000);
+setInterval(()=>{if(!document.hidden)render();},60000);
 
 // Eski localStorage auth sisteminden temizlik (bir kerelik)
 if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');localStorage.removeItem('duvar_session');}
