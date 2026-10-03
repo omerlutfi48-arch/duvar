@@ -10,3 +10,8 @@ takip/log.txt
 # OS
 .DS_Store
 Thumbs.db
+
+# Android imza anahtarları — asla commit'lenmemeli
+duvar-key.jks
+*.jks
+*.keystore

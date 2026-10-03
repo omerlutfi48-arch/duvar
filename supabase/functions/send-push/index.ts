@@ -6,15 +6,35 @@ const VAPID_PRIVATE = Deno.env.get("VAPID_PRIVATE_KEY")!;
 const SB_URL        = Deno.env.get("SUPABASE_URL")!;
 const SB_SERVICE    = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
+// ZORUNLU paylaşılan sır: Supabase Database Webhook'una "x-webhook-secret" başlığı eklenmeli
+// ve aynı değer Edge Function secret'ı olarak WEBHOOK_SECRET'a yazılmalı. Sır ayarlı değilse
+// fonksiyon hiçbir isteği kabul etmez (herkesin bildiği anon anahtarla çağrılmasın diye).
+const WEBHOOK_SECRET = Deno.env.get("WEBHOOK_SECRET") || "";
+// Webhook'tan gelen kayıt bu süreden eskiyse bildirim gönderilmez (eski kayıtlarla tekrar tetikleme / spam).
+const MAX_AGE_MS = 5 * 60 * 1000;
+
 webpush.setVapidDetails("mailto:admin@duvar.site", VAPID_PUBLIC, VAPID_PRIVATE);
 
 Deno.serve(async (req) => {
   try {
+    if (req.method !== "POST") return new Response("method not allowed", { status: 405 });
+    if (!WEBHOOK_SECRET || req.headers.get("x-webhook-secret") !== WEBHOOK_SECRET) {
+      return new Response("forbidden", { status: 403 });
+    }
     const body = await req.json();
-    const record = body.record;
-    const table  = body.table;
+    const table  = body?.table;
+    const recId  = body?.record?.id;
+    if ((table !== "mesajlar" && table !== "yorumlar") || recId == null) return new Response("ok");
 
     const sb = createClient(SB_URL, SB_SERVICE);
+
+    // Gövdedeki kayda güvenme: bu fonksiyon herkesin bildiği anon anahtarla da çağrılabiliyor.
+    // Kaydı id ile veritabanından yeniden oku; nick'ler ve post_id sadece oradan gelsin.
+    const { data: record } = await sb.from(table).select("*").eq("id", recId).maybeSingle();
+    if (!record) return new Response("ok");
+    // created_at kolonu yoksa yaş kontrolü atlanır (bildirimler bozulmasın)
+    const createdAt = record.created_at ? new Date(record.created_at).getTime() : 0;
+    if (createdAt && Date.now() - createdAt > MAX_AGE_MS) return new Response("ok");
 
     let recipientNick: string;
     let title: string;
@@ -35,7 +55,7 @@ Deno.serve(async (req) => {
       recipientNick = post.author;
       title   = "💬 Yeni yorum";
       message = `@${record.nick} gönderine yorum yaptı`;
-      url     = `/?p=${record.post_id}`;
+      url     = `/?post=${Number(record.post_id)}`;
     } else {
       return new Response("ok");
     }

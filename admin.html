@@ -3,10 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- Güvenlik: sadece listelenen kaynaklardan script/bağlantı. Yeni bir dış servis eklenirse buraya da eklenmeli. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://tnxflwddhucvlejmoihj.supabase.co wss://tnxflwddhucvlejmoihj.supabase.co; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'">
+<meta name="referrer" content="strict-origin-when-cross-origin">
 <title>DUVAR // ADMIN</title>
 <meta name="robots" content="noindex, nofollow">
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="admin-style.css">
 </head>
 <body>
@@ -25,7 +28,7 @@
       <input type="password" id="adminPass" placeholder="••••••••" maxlength="50">
     </div>
     <div class="login-err" id="loginErr"></div>
-    <button class="login-btn" onclick="adminLogin()">GİRİŞ</button>
+    <button class="login-btn" data-action="adminLogin">GİRİŞ</button>
   </div>
 </div>
 
@@ -36,7 +39,7 @@
     <div class="confirm-msg" id="confirmMsg"></div>
     <div class="confirm-actions">
       <button class="confirm-ok" id="confirmOk">EVET, DEVAM ET</button>
-      <button class="confirm-cancel" onclick="closeConfirm()">iptal</button>
+      <button class="confirm-cancel" data-action="closeConfirm">iptal</button>
     </div>
   </div>
 </div>
@@ -50,7 +53,7 @@
       <div class="admin-title">DUVAR // <span>ADMİN</span></div>
       <div class="admin-meta" id="adminMeta">// moderasyon paneli</div>
     </div>
-    <button class="logout-admin" onclick="adminLogout()">çıkış yap</button>
+    <button class="logout-admin" data-action="adminLogout">çıkış yap</button>
   </div>
 
   <!-- STATS -->
@@ -67,9 +70,9 @@
     <div class="stat-box"><div class="stat-num green" id="statActive">—</div><div class="stat-label">aktif (30 dk)</div></div>
   </div>
   <div style="margin-bottom:2rem;display:flex;gap:.6rem;flex-wrap:wrap">
-    <button class="action-btn warn" onclick="cleanOldDMs()">🧹 90+ günlük DM'leri sil</button>
-    <button class="action-btn warn" onclick="cleanOldFeedback()">🧹 çözülmüş bildirimleri sil</button>
-    <button class="action-btn warn" onclick="cleanPageViews()">🧹 30+ günlük ziyaret verisini sil</button>
+    <button class="action-btn warn" data-action="cleanOldDMs">🧹 90+ günlük DM'leri sil</button>
+    <button class="action-btn warn" data-action="cleanOldFeedback">🧹 çözülmüş bildirimleri sil</button>
+    <button class="action-btn warn" data-action="cleanPageViews">🧹 30+ günlük ziyaret verisini sil</button>
     <div id="cleanResult" style="font-family:'Space Mono',monospace;font-size:.65rem;color:#4caf50;align-self:center"></div>
   </div>
 
@@ -87,12 +90,12 @@
 
   <!-- TABS -->
   <div class="admin-tabs">
-    <button class="admin-tab active" onclick="switchTab('reports')" id="tab-reports">şikayetler <span class="badge" id="reportBadge">0</span></button>
-    <button class="admin-tab" onclick="switchTab('posts')" id="tab-posts">gönderiler</button>
-    <button class="admin-tab" onclick="switchTab('users')" id="tab-users">kullanıcılar</button>
-    <button class="admin-tab" onclick="switchTab('feedback')" id="tab-feedback">geri bildirimler <span class="badge" id="feedbackBadge">0</span></button>
-    <button class="admin-tab" onclick="switchTab('ilanlar')" id="tab-ilanlar">ilanlar</button>
-    <button class="admin-tab" onclick="switchTab('etkinlik')" id="tab-etkinlik">etkinlikler</button>
+    <button class="admin-tab active" data-action="switchTab" data-args="[&quot;reports&quot;]" id="tab-reports">şikayetler <span class="badge" id="reportBadge">0</span></button>
+    <button class="admin-tab" data-action="switchTab" data-args="[&quot;posts&quot;]" id="tab-posts">gönderiler</button>
+    <button class="admin-tab" data-action="switchTab" data-args="[&quot;users&quot;]" id="tab-users">kullanıcılar</button>
+    <button class="admin-tab" data-action="switchTab" data-args="[&quot;feedback&quot;]" id="tab-feedback">geri bildirimler <span class="badge" id="feedbackBadge">0</span></button>
+    <button class="admin-tab" data-action="switchTab" data-args="[&quot;ilanlar&quot;]" id="tab-ilanlar">ilanlar</button>
+    <button class="admin-tab" data-action="switchTab" data-args="[&quot;etkinlik&quot;]" id="tab-etkinlik">etkinlikler</button>
   </div>
 
   <!-- REPORTS SECTION -->
@@ -103,7 +106,7 @@
   <!-- POSTS SECTION -->
   <div class="admin-section" id="section-posts">
     <div class="search-bar">
-      <input type="text" id="postSearch" placeholder="gönderi ara..." oninput="renderPosts()">
+      <input type="text" id="postSearch" placeholder="gönderi ara..." data-input="renderPosts">
     </div>
     <div id="postsList"></div>
   </div>
@@ -111,7 +114,7 @@
   <!-- USERS SECTION -->
   <div class="admin-section" id="section-users">
     <div class="search-bar">
-      <input type="text" id="userSearch" placeholder="kullanıcı ara..." oninput="renderUsers()">
+      <input type="text" id="userSearch" placeholder="kullanıcı ara..." data-input="renderUsers">
     </div>
     <div id="usersList"></div>
   </div>
@@ -130,7 +133,7 @@
         <div style="grid-column:1/-1"><label class="ilan-label">BAŞVURU / BİLGİ LİNKİ</label><input class="ilan-input" id="etkinlikLink" type="text" placeholder="örn: mimarlarodasi.org/yarisma" maxlength="200"></div>
       </div>
       <div style="margin-bottom:.8rem"><label class="ilan-label">AÇIKLAMA</label><textarea class="ilan-input" id="etkinlikAciklama" rows="3" maxlength="600" placeholder="Etkinlik detayları, katılım koşulları..." style="resize:vertical;width:100%"></textarea></div>
-      <button class="login-btn" style="width:auto;padding:.55rem 2rem;background:#7c3aed" onclick="etkinlikEkle()">DUYURUYU YAYINLA</button>
+      <button class="login-btn" style="width:auto;padding:.55rem 2rem;background:#7c3aed" data-action="etkinlikEkle">DUYURUYU YAYINLA</button>
     </div>
     <div id="etkinlikAdminList"></div>
   </div>
@@ -153,13 +156,13 @@
         <div><label class="ilan-label">İLETİŞİM (e-posta / link)</label><input class="ilan-input" id="ilanIletisim" type="text" placeholder="örn: kariyer@ofis.com" maxlength="120"></div>
       </div>
       <div style="margin-bottom:.8rem"><label class="ilan-label">AÇIKLAMA</label><textarea class="ilan-input" id="ilanAciklama" rows="3" maxlength="600" placeholder="Pozisyon detayları, beklentiler, süre..." style="resize:vertical;width:100%"></textarea></div>
-      <button class="login-btn" style="width:auto;padding:.55rem 2rem" onclick="ilanEkle()">İLANI YAYINLA</button>
+      <button class="login-btn" style="width:auto;padding:.55rem 2rem" data-action="ilanEkle">İLANI YAYINLA</button>
     </div>
     <div id="ilanlarAdminList"></div>
   </div>
 </div>
 
-<script src="utils.js"></script>
-<script src="admin.js"></script>
+<script src="utils.js?v=4"></script>
+<script src="admin.js?v=4"></script>
 </body>
 </html>

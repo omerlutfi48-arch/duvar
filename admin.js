@@ -28,7 +28,7 @@ async function adminLogin() {
       document.getElementById('adminPass').value = '';
       return;
     }
-    if (data.user.email !== ADMIN_EMAIL) {
+    if (!(await isAdminEmail(data.user.email))) {
       await sb.auth.signOut();
       err.textContent = '// bu hesabın admin yetkisi yok';
       return;
@@ -108,12 +108,12 @@ async function initPanel() {
   }, 60000);
 }
 
-const ADMIN_EMAIL = 'omerlutfi48@gmail.com';
+// Admin e-postası açık metin tutulmuyor: utils.js → isAdminEmail()
 
 // Oturum kontrolü — sadece admin e-postası kabul edilir
 (async () => {
   const {data:{session}} = await sb.auth.getSession();
-  if (session && session.user.email === ADMIN_EMAIL) {
+  if (session && await isAdminEmail(session.user.email)) {
     isAdmin = true;
     document.getElementById('loginScreen').classList.add('hidden');
     initPanel();
@@ -242,9 +242,9 @@ async function renderReports() {
       <div class="report-meta">bildiren: @${esc(r.bildiren || '?')} · ${new Date(r.created_at).toLocaleString('tr-TR')}</div>
       <div class="report-post-preview">"${esc(preview)}"</div>
       <div class="item-actions">
-        <button class="action-btn warn" onclick="resolveReport(${r.id})">✓ çözüldü / sil</button>
-        ${post ? `<button class="action-btn danger" onclick="confirmDeletePost(${r.post_id})">gönderiyi sil</button>` : ''}
-        ${post ? `<button class="action-btn danger" onclick="confirmBan('${post.author}')">@${esc(post?.author||'?')} banla</button>` : ''}
+        <button class="action-btn warn" data-action="resolveReport" data-args="${esc(JSON.stringify([Number(r.id)]))}">✓ çözüldü / sil</button>
+        ${post ? `<button class="action-btn danger" data-action="confirmDeletePost" data-args="${esc(JSON.stringify([Number(r.post_id)]))}">gönderiyi sil</button>` : ''}
+        ${post ? `<button class="action-btn danger" data-action="confirmBan" data-args="${esc(JSON.stringify([String(post.author)]))}">@${esc(post?.author||'?')} banla</button>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -283,15 +283,15 @@ async function renderPosts() {
         <div class="item-meta">
           <span class="author">@${esc(p.author)}</span>
           <span class="time">${new Date(p.created_at).toLocaleString('tr-TR')}</span>
-          ${p.type ? `<span class="type-badge">${typeLabels[p.type]||p.type}</span>` : ''}
-          ${p.mood ? `<span class="type-badge">${moodLabels[p.mood]||p.mood}</span>` : ''}
+          ${p.type ? `<span class="type-badge">${esc(typeLabels[p.type]||p.type)}</span>` : ''}
+          ${p.mood ? `<span class="type-badge">${esc(moodLabels[p.mood]||p.mood)}</span>` : ''}
           ${p.pinned ? '<span style="color:#4ade80;border:1px solid #1a3a1a;padding:0.1rem 0.4rem">📌 sabitlendi</span>' : ''}
         </div>
         <div class="item-text">${esc(p.text)}</div>
         <div class="item-actions">
-          <button class="action-btn success" onclick="togglePin(${p.id},${p.pinned})">${p.pinned ? '📌 sabiti kaldır' : '📌 sabitle'}</button>
-          <button class="action-btn danger" onclick="confirmDeletePost(${p.id})">🗑 sil</button>
-          <button class="action-btn danger" onclick="confirmBan('${p.author}')">🚫 @${esc(p.author)} banla</button>
+          <button class="action-btn success" data-action="togglePin" data-args="${esc(JSON.stringify([Number(p.id),!!p.pinned]))}">${p.pinned ? '📌 sabiti kaldır' : '📌 sabitle'}</button>
+          <button class="action-btn danger" data-action="confirmDeletePost" data-args="${esc(JSON.stringify([Number(p.id)]))}">🗑 sil</button>
+          <button class="action-btn danger" data-action="confirmBan" data-args="${esc(JSON.stringify([String(p.author)]))}">🚫 @${esc(p.author)} banla</button>
         </div>
       </div>
       <div class="item-right">
@@ -337,13 +337,13 @@ async function renderUsers() {
         </div>
       </div>
       <div class="item-actions">
-        <button class="action-btn ${isMod ? 'warning' : 'secondary'}" onclick="toggleMod('${nick}',${isMod})">
+        <button class="action-btn ${isMod ? 'warning' : 'secondary'}" data-action="toggleMod" data-args="${esc(JSON.stringify([String(nick),!!isMod]))}">
           ${isMod ? '⚡ mod al' : '⚡ mod ver'}
         </button>
-        <button class="action-btn ${isBanned ? 'success' : 'danger'}" onclick="toggleBan('${nick}',${isBanned})">
+        <button class="action-btn ${isBanned ? 'success' : 'danger'}" data-action="toggleBan" data-args="${esc(JSON.stringify([String(nick),!!isBanned]))}">
           ${isBanned ? '✓ banı kaldır' : '🚫 banla'}
         </button>
-        <button class="action-btn danger" onclick="confirmDeleteUser('${nick}')">🗑 hesabı sil</button>
+        <button class="action-btn danger" data-action="confirmDeleteUser" data-args="${esc(JSON.stringify([String(nick)]))}">🗑 hesabı sil</button>
       </div>
     </div>`;
   }).join('');
@@ -402,7 +402,8 @@ async function deleteUser(nick) {
   await Promise.all([
     sb.from('posts').delete().eq('author', nick),
     sb.from('yorumlar').delete().eq('nick', nick),
-    sb.from('mesajlar').delete().or(`gonderen.eq.${nick},alici.eq.${nick}`),
+    sb.from('mesajlar').delete().eq('gonderen', nick),
+    sb.from('mesajlar').delete().eq('alici', nick),
     sb.from('begeni').delete().eq('nick', nick),
     sb.from('anket_oylar').delete().eq('nick', nick),
   ]);
@@ -459,12 +460,12 @@ async function renderFeedback() {
   const typeLabel = { oneri: '💡 öneri', sikayet: '⚑ şikayet' };
   el.innerHTML = items.map(f => {
     return `<div class="report-card ${f.okundu ? 'resolved' : ''}">
-      <div class="report-reason">${typeLabel[f.tip] || f.tip}</div>
+      <div class="report-reason">${esc(typeLabel[f.tip] || f.tip)}</div>
       <div class="report-meta">${new Date(f.created_at).toLocaleString('tr-TR')}</div>
       <div class="item-text" style="margin:0.5rem 0">${esc(f.mesaj)}</div>
       <div class="item-actions">
-        ${!f.okundu ? `<button class="action-btn warn" onclick="markFeedbackRead(${f.id})">✓ okundu</button>` : '<span style="font-family:Space Mono,monospace;font-size:0.6rem;color:#333;letter-spacing:0.08em">// okundu</span>'}
-        <button class="action-btn danger" onclick="deleteFeedback(${f.id})">🗑 sil</button>
+        ${!f.okundu ? `<button class="action-btn warn" data-action="markFeedbackRead" data-args="${esc(JSON.stringify([Number(f.id)]))}">✓ okundu</button>` : '<span style="font-family:Space Mono,monospace;font-size:0.6rem;color:#333;letter-spacing:0.08em">// okundu</span>'}
+        <button class="action-btn danger" data-action="deleteFeedback" data-args="${esc(JSON.stringify([Number(f.id)]))}">🗑 sil</button>
       </div>
     </div>`;
   }).join('');
@@ -510,7 +511,7 @@ async function renderEtkinlikAdmin() {
       <div>
         <div class="item-meta">
           <span class="author">${esc(e.baslik)}</span>
-          <span class="type-badge">${tipLabel[e.tip]||e.tip}</span>
+          <span class="type-badge">${esc(tipLabel[e.tip]||e.tip)}</span>
           ${e.yer ? `<span>${esc(e.yer)}</span>` : ''}
           ${e.tarih ? `<span>📅 ${new Date(e.tarih).toLocaleDateString('tr-TR')}</span>` : ''}
           ${!e.aktif ? '<span style="color:#555">arşiv</span>' : ''}
@@ -518,8 +519,8 @@ async function renderEtkinlikAdmin() {
         <div class="item-text">${esc((e.aciklama||'').slice(0,120))}${(e.aciklama||'').length>120?'...':''}</div>
         ${e.link ? `<div style="font-family:Space Mono,monospace;font-size:0.62rem;color:#c084fc;margin-bottom:0.5rem">${esc(e.link)}</div>` : ''}
         <div class="item-actions">
-          <button class="action-btn warn" onclick="etkinlikArsiv(${e.id},${e.aktif})">${!e.aktif ? '↺ yeniden yayınla' : '📦 arşivle'}</button>
-          <button class="action-btn danger" onclick="etkinlikSil(${e.id})">🗑 sil</button>
+          <button class="action-btn warn" data-action="etkinlikArsiv" data-args="${esc(JSON.stringify([Number(e.id),!!e.aktif]))}">${!e.aktif ? '↺ yeniden yayınla' : '📦 arşivle'}</button>
+          <button class="action-btn danger" data-action="etkinlikSil" data-args="${esc(JSON.stringify([Number(e.id)]))}">🗑 sil</button>
         </div>
       </div>
     </div>`).join('');
@@ -560,15 +561,15 @@ async function renderIlanlarAdmin() {
       <div>
         <div class="item-meta">
           <span class="author">${esc(il.sirket||il.ofis||'')}</span>
-          <span class="type-badge">${tipLabel[il.tip]||il.tip}</span>
+          <span class="type-badge">${esc(tipLabel[il.tip]||il.tip)}</span>
           ${il.sehir ? `<span>${esc(il.sehir)}</span>` : ''}
           ${!il.aktif ? '<span style="color:#555">arşiv</span>' : ''}
         </div>
         <div class="item-text">${esc(il.baslik)} — ${esc((il.aciklama||'').slice(0,100))}${(il.aciklama||'').length>100?'...':''}</div>
         ${il.link ? `<div style="font-family:Space Mono,monospace;font-size:0.62rem;color:var(--yellow);margin-bottom:0.5rem">${esc(il.link)}</div>` : ''}
         <div class="item-actions">
-          <button class="action-btn warn" onclick="ilanArsiv(${il.id},${il.aktif})">${!il.aktif ? '↺ yeniden yayınla' : '📦 arşivle'}</button>
-          <button class="action-btn danger" onclick="ilanSil(${il.id})">🗑 sil</button>
+          <button class="action-btn warn" data-action="ilanArsiv" data-args="${esc(JSON.stringify([Number(il.id),!!il.aktif]))}">${!il.aktif ? '↺ yeniden yayınla' : '📦 arşivle'}</button>
+          <button class="action-btn danger" data-action="ilanSil" data-args="${esc(JSON.stringify([Number(il.id)]))}">🗑 sil</button>
         </div>
       </div>
     </div>`).join('');
@@ -582,3 +583,30 @@ async function deleteFeedback(id) {
 }
 
 // ── UTILS → utils.js tarafından sağlanır ──
+
+// ── OLAY YÖNLENDİRME ──
+// HTML'de satır içi onclick/oninput yok (CSP 'unsafe-inline' gerektirmesin, kullanıcı verisi
+// JS bağlamına hiç girmesin). Sadece bu listedeki fonksiyonlar çağrılabilir; argümanlar
+// data-args içinde JSON olarak taşınır.
+const ADMIN_ACTIONS = {
+  adminLogin, adminLogout, closeConfirm, cleanOldDMs, cleanOldFeedback, cleanPageViews,
+  switchTab, etkinlikEkle, ilanEkle, resolveReport, confirmDeletePost, confirmBan,
+  togglePin, toggleMod, toggleBan, confirmDeleteUser, markFeedbackRead, deleteFeedback,
+  etkinlikArsiv, etkinlikSil, ilanArsiv, ilanSil, renderPosts, renderUsers,
+};
+function runAdminAction(el, name) {
+  const fn = ADMIN_ACTIONS[name];
+  if (typeof fn !== 'function') return;
+  let args = [];
+  try { args = el.dataset.args ? JSON.parse(el.dataset.args) : []; } catch { return; }
+  if (!Array.isArray(args)) return;
+  fn(...args);
+}
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-action]');
+  if (el) runAdminAction(el, el.dataset.action);
+});
+document.addEventListener('input', e => {
+  const el = e.target.closest('[data-input]');
+  if (el) runAdminAction(el, el.dataset.input);
+});
