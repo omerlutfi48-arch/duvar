@@ -851,3 +851,13 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
 .duvar-sidebar-all:hover{color:var(--yellow)}
 .duvar-sidebar-empty{font-family:var(--ff-mono);font-size:.75rem;color:var(--muted);padding:.2rem 0}
 @media(max-width:600px){.radio-player{width:calc(100vw - 2.4rem);right:1.2rem;bottom:4.5rem}}
+/* REHBER ŞERİDİ — duvar sekmesinin başında, yeni rehbere götürür */
+.guide-strip{display:flex;align-items:stretch;border:1px solid var(--border);border-left:3px solid var(--yellow);background:var(--surface);margin-bottom:1rem}
+.guide-strip a{flex:1;min-width:0;display:flex;flex-wrap:wrap;align-items:baseline;gap:.2rem .7rem;padding:.7rem 1rem;text-decoration:none;color:var(--text)}
+.guide-strip-tag{font-family:var(--ff-mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--yellow)}
+.guide-strip-txt{font-family:var(--ff-body);font-size:.95rem}
+.guide-strip-go{display:inline-block;font-family:var(--ff-mono);color:var(--muted);transition:transform .15s}
+.guide-strip a:hover .guide-strip-go{transform:translateX(3px);color:var(--text)}
+.guide-strip button{flex-shrink:0;width:2.75rem;background:transparent;border:none;border-left:1px solid var(--border);color:var(--muted);font-size:1.1rem;cursor:pointer}
+.guide-strip button:hover{color:var(--text)}
+.guide-strip[hidden]{display:none}
