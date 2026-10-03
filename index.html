@@ -249,30 +249,16 @@
       </div>
     </div>
 
-    <div class="filter-bar">
-      <span class="filter-label">filtre:</span>
-      <button class="filter-chip active" data-filter="all">tümü</button>
-      <span class="filter-sep">·</span>
-      <button class="filter-chip" data-filter="acil" data-kind="type">! acil</button>
-      <button class="filter-chip" data-filter="soru" data-kind="type">? soru</button>
-      <button class="filter-chip" data-filter="kaynak" data-kind="type">↗ kaynak</button>
-      <button class="filter-chip" data-filter="dert" data-kind="type">// dert</button>
-      <span class="filter-sep">·</span>
-      <button class="filter-chip" data-filter="yardim" data-kind="mood">🆘 yardım</button>
-      <button class="filter-chip" data-filter="yorgun" data-kind="mood">😮‍💨 yorgun</button>
-      <button class="filter-chip" data-filter="iyi" data-kind="mood">✓ iyi</button>
-      <button class="filter-chip" data-filter="tesekkur" data-kind="mood">♡ teşekkür</button>
-    </div>
-
-    <div class="search-sort-bar" id="searchSortBar">
-      <input class="search-input" id="searchInput" type="text" placeholder="// gönderilerde ara...">
-      <div class="sort-btns">
-        <button class="sort-btn active" id="sort-new" data-sort="new">↓ yeni</button>
-        <button class="sort-btn" id="sort-top" data-sort="top">⚡ popüler</button>
-        <button class="sort-btn" id="sort-week" data-sort="week">📅 bu hafta</button>
-        <button class="sort-btn saved-btn" id="sort-saved" data-sort="saved">🔖 kaydettiklerim</button>
+    <div class="wall-tabs-row">
+      <div class="wall-tabs" role="tablist" aria-label="Duvar görünümü">
+        <button class="wall-tab active" role="tab" aria-selected="true" data-view="all">Hepsi</button>
+        <button class="wall-tab" role="tab" aria-selected="false" data-view="soru">Sorular</button>
+        <button class="wall-tab" role="tab" aria-selected="false" data-view="kaynak">Kaynaklar</button>
       </div>
+      <label class="sr-only" for="searchInput">Gönderilerde ara</label>
+      <input class="search-input" id="searchInput" type="search" placeholder="ara…" autocomplete="off">
     </div>
+    <div class="view-note hidden" id="viewNote"></div>
 
     <div id="gunEnIyisi" class="gun-en-iyisi" style="display:none"></div>
     <div class="wall-header">

@@ -275,7 +275,9 @@ async function modBan(nick){
 
 
 // ── STATE ──
-let currentUser=null,activeFilter={kind:'all',val:''},selectedMood=null,selectedType=null,activeAuthTab='login',activeSort='new',isModerator=false,aiMessages=[];
+let currentUser=null,selectedMood=null,selectedType=null,activeAuthTab='login',isModerator=false,aiMessages=[];
+// Duvar görünümü: 'all' | 'soru' | 'kaynak' (sekmeler) ya da 'saved' | 'anket' (Daha fazla menüsünden)
+let activeView='all';
 let activeTag=null;
 let visibleCount=20;
 const PAGE_SIZE=20;
@@ -1061,18 +1063,21 @@ setTimeout(()=>{
   if(valid.includes(hash))switchNav(hash,false);
 },0);
 
-// ── FILTER ──
-function setFilter(val,el,kind='all'){
-  activeFilter={kind,val};
-  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');visibleCount=PAGE_SIZE;render();
-}
-
-// ── SORT ──
-function setSort(s,el){
-  activeSort=s;
-  document.querySelectorAll('.sort-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');visibleCount=PAGE_SIZE;render();
+// ── GÖRÜNÜM (Hepsi / Sorular / Kaynaklar) ──
+// Sıralama her zaman en yeni üstte; sadece moderatörün sabitlediği gönderiler en üstte kalır.
+const VIEW_NOTE={saved:'Kaydettiklerin',anket:'Anketler'};
+function setView(view){
+  activeView=view;
+  document.querySelectorAll('.wall-tab[data-view]').forEach(t=>{
+    const on=t.dataset.view===view;
+    t.classList.toggle('active',on);t.setAttribute('aria-selected',on);
+  });
+  const note=document.getElementById('viewNote');
+  if(VIEW_NOTE[view]){
+    note.innerHTML=`<span>${VIEW_NOTE[view]}</span><button type="button" class="view-note-clear">✕ tümünü göster</button>`;
+    note.classList.remove('hidden');
+  }else{note.classList.add('hidden');note.innerHTML='';}
+  visibleCount=PAGE_SIZE;render();
 }
 
 // ── RELATIVE TIME ──
@@ -1107,20 +1112,19 @@ function render(){
   const savedScroll=window.scrollY;
   const q=(document.getElementById('searchInput')?.value||'').toLowerCase().trim();
   let filtered=[...posts];
-  if(activeFilter.kind!=='all'){filtered=filtered.filter(p=>p[activeFilter.kind]===activeFilter.val);}
+  if(activeView==='soru'||activeView==='kaynak'){filtered=filtered.filter(p=>p.type===activeView);}
+  else if(activeView==='saved'){filtered=filtered.filter(p=>bookmarks.includes(p.id));}
+  else if(activeView==='anket'){filtered=filtered.filter(p=>p.options?.length>=2);}
   if(q){filtered=filtered.filter(p=>p.text.toLowerCase().includes(q)||p.author.toLowerCase().includes(q));}
-  if(activeSort==='week'){const w=Date.now()-7*24*60*60*1000;filtered=filtered.filter(p=>new Date(p.time)>=w);}
-  if(activeSort==='saved'){filtered=filtered.filter(p=>bookmarks.includes(p.id));}
   if(activeTag){filtered=filtered.filter(p=>p.text.toLowerCase().includes('#'+activeTag.toLowerCase()));}
-  // sıralama
-  if(activeSort==='top'||activeSort==='week'){
-    filtered.sort((a,b)=>(b.type==='acil'?1:0)-(a.type==='acil'?1:0)||(b.pinned?1:0)-(a.pinned?1:0)||((b.fire||0)-(a.fire||0)));
-  } else {
-    filtered.sort((a,b)=>(b.type==='acil'?1:0)-(a.type==='acil'?1:0)||(b.pinned?1:0)-(a.pinned?1:0));
+  // sıralama: en yeni üstte, sabitlenenler en başta
+  filtered.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0)||new Date(b.time)-new Date(a.time));
+  const isFiltered=activeView!=='all'||q||activeTag;
+  document.getElementById('wallStats').textContent=filtered.length+' gönderi'+(isFiltered?' · filtrelendi':'')+(activeTag?` #${activeTag}`:'');
+  if(!filtered.length){
+    const msg=activeView==='saved'?'Henüz kaydettiğin gönderi yok.':q?'Aramana uyan gönderi yok.':'Burada henüz gönderi yok.';
+    grid.innerHTML=`<div class="empty-state"><div class="big">${msg}</div></div>`;return;
   }
-  const isFiltered=activeFilter.kind!=='all'||q||activeSort==='saved'||activeTag;
-  document.getElementById('wallStats').textContent=filtered.length+' mesaj'+(isFiltered?' · filtrelendi':'')+(activeTag?` #${activeTag}`:'');
-  if(!filtered.length){grid.innerHTML='<div class="empty-state"><div class="big">// bu filtrede gönderi yok</div></div>';return;}
 
   function renderText(t){
     return esc(t).replace(/#([\wçğışöüÇĞİŞÖÜ]+)/g,(m,tag)=>`<span class="tag-link" data-tag="${esc(tag)}">${m}</span>`);
@@ -2662,18 +2666,16 @@ document.getElementById('loginBtn').addEventListener('click',showAuth);
 // Nav tabları
 document.querySelectorAll('.nav-tab[data-nav]').forEach(b=>b.addEventListener('click',()=>switchNav(b.dataset.nav)));
 
-// Filter chips (delegation)
-document.querySelector('.filter-bar').addEventListener('click',e=>{
-  const chip=e.target.closest('.filter-chip[data-filter]');
-  if(!chip)return;
-  setFilter(chip.dataset.filter,chip,chip.dataset.kind||null);
+// Duvar sekmeleri
+document.querySelector('.wall-tabs').addEventListener('click',e=>{
+  const t=e.target.closest('.wall-tab[data-view]');
+  if(t)setView(t.dataset.view);
 });
+document.getElementById('viewNote').addEventListener('click',e=>{if(e.target.closest('.view-note-clear'))setView('all');});
 
 // Search
 document.getElementById('searchInput').addEventListener('input',render);
 
-// Sort butonları
-document.querySelectorAll('.sort-btn[data-sort]').forEach(b=>b.addEventListener('click',()=>setSort(b.dataset.sort,b)));
 
 // Ekle menüsü: görsel / dosya / anket
 document.getElementById('ekleBtn').addEventListener('click',e=>{e.stopPropagation();toggleEkleMenu();});
