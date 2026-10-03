@@ -199,16 +199,24 @@
   <p class="site-subtitle">Mimarlık öğrencileri için rehberler ve soru duvarı.</p>
 </header>
 
-<nav>
-  <button class="nav-tab active" id="tab-duvar" data-nav="duvar">// duvar</button>
-  <button class="nav-tab" id="tab-kesit" data-nav="kesit">// kesit</button>
-  <button class="nav-tab" id="tab-rehber" data-nav="rehber">// rehber</button>
-  <button class="nav-tab" id="tab-sozluk" data-nav="sozluk">// sözlük</button>
-  <button class="nav-tab" id="tab-araclar" data-nav="araclar">// araçlar</button>
-  <button class="nav-tab" id="tab-mimarlar" data-nav="mimarlar">// mimarlar</button>
-  <button class="nav-tab" id="tab-ilanlar" data-nav="ilanlar">// ilanlar</button>
-  <button class="nav-tab" id="tab-etkinlik" data-nav="etkinlik">// etkinlik</button>
+<nav class="top-nav" aria-label="Ana gezinme">
+  <button class="nav-tab active" id="tab-duvar" data-nav="duvar">Duvar</button>
+  <button class="nav-tab" id="tab-rehber" data-nav="rehber">Rehberler</button>
+  <button class="nav-tab more-trigger" id="tab-more" aria-haspopup="menu" aria-expanded="false" aria-controls="moreMenu">Daha fazla ▾</button>
 </nav>
+
+<!-- DAHA FAZLA MENÜSÜ — üst gezinme ve alt menü ortak kullanır. Hiçbir bölüm silinmedi. -->
+<div class="pop-menu more-menu" id="moreMenu" role="menu" aria-label="Daha fazla" hidden>
+  <button type="button" role="menuitem" data-go="sozluk">Sözlük</button>
+  <button type="button" role="menuitem" data-go="kesit">Kesit <span class="menu-hint">kolektif sözlük</span></button>
+  <button type="button" role="menuitem" data-go="etkinlik">Etkinlikler</button>
+  <button type="button" role="menuitem" data-go="ilanlar">İlanlar</button>
+  <button type="button" role="menuitem" data-view-go="anket">Anketler</button>
+  <div class="menu-sep" role="separator"></div>
+  <button type="button" role="menuitem" data-go="araclar">Araçlar</button>
+  <button type="button" role="menuitem" data-go="mimarlar">Mimarlar</button>
+  <button type="button" role="menuitem" data-view-go="saved">Kaydettiklerim</button>
+</div>
 
 <main>
   <!-- DUVAR -->

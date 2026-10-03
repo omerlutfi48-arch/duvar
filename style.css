@@ -72,8 +72,11 @@ header{position:relative;z-index:10;padding:2rem 2rem 1.5rem;border-bottom:2px s
 
 /* NAV */
 nav{position:relative;z-index:10;max-width:900px;margin:0 auto;border-bottom:1px solid var(--border);display:flex;overflow-x:auto}
+.more-menu{position:absolute;z-index:470;min-width:220px}
+.menu-sep{height:1px;background:var(--border2);margin:.3rem 0}
+.menu-hint{color:var(--muted);font-family:var(--ff-mono);font-size:.75rem;margin-left:.4rem}
 nav::-webkit-scrollbar{display:none}
-.nav-tab{font-family:var(--ff-mono);font-size:.8rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text);background:transparent;border:none;border-bottom:2px solid transparent;padding:.9rem .65rem;cursor:pointer;transition:all .15s;margin-bottom:-1px;white-space:nowrap}
+.nav-tab{font-family:var(--ff-mono);font-size:.9rem;letter-spacing:.02em;color:var(--text);background:transparent;border:none;border-bottom:3px solid transparent;padding:.9rem 1rem;cursor:pointer;transition:all .15s;margin-bottom:-1px;white-space:nowrap}
 .nav-tab:hover{color:var(--text)}
 .nav-tab.active{color:var(--text);border-bottom-color:var(--red)}
 
@@ -697,7 +700,9 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
   header{padding:1.2rem 1rem 1rem}
   main{padding:1rem 1rem 5.5rem}
   nav{padding:0 .5rem}
-  .nav-tab{padding:.75rem .8rem;font-size:.75rem}
+  .nav-tab{padding:.75rem .8rem;font-size:.85rem}
+  .more-menu{position:fixed;left:0;right:0;bottom:calc(3.6rem + env(safe-area-inset-bottom));top:auto;min-width:0;max-height:70vh;overflow-y:auto;border-left:none;border-right:none;padding:.4rem 0}
+  .more-menu button{padding:.85rem 1.2rem;font-size:1rem}
   .write-box{padding:1rem}
   .post{padding:1rem}
   footer{padding:1.2rem 1rem 1.5rem}

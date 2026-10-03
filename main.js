@@ -399,12 +399,35 @@ function toggleTheme(){
   }
 })();
 
+// ── DAHA FAZLA MENÜSÜ ──
+// Sözlük, Kesit, Etkinlik, İlan, Anketler, Araçlar, Mimarlar, Kaydettiklerim buradan açılır.
+let moreTrigger=null;
+function toggleMoreMenu(force,trigger){
+  const menu=document.getElementById('moreMenu');
+  const open=force===undefined?menu.hidden:force;
+  menu.hidden=!open;
+  document.querySelectorAll('.more-trigger').forEach(t=>t.setAttribute('aria-expanded',open&&t===trigger));
+  if(!open)return;
+  moreTrigger=trigger||document.getElementById('tab-more');
+  if(window.innerWidth>600){
+    const r=moreTrigger.getBoundingClientRect();
+    menu.style.top=(r.bottom+window.scrollY+4)+'px';
+    menu.style.left=Math.max(8,Math.min(r.left+window.scrollX,window.innerWidth-menu.offsetWidth-8))+'px';
+  }else{menu.style.top='';menu.style.left='';}
+  menu.querySelector('button')?.focus();
+}
+function moreGo(btn){
+  if(btn.dataset.go){switchNav(btn.dataset.go);window.scrollTo({top:0});}
+  else if(btn.dataset.viewGo){switchNav('duvar');setView(btn.dataset.viewGo);}
+  toggleMoreMenu(false);
+}
+
 // ── BOTTOM NAV ──
+const MORE_TABS=['sozluk','araclar','kesit','mimarlar','ilanlar','etkinlik'];
 function updateBottomNav(active){
-  ['duvar','ilanlar','etkinlik'].forEach(id=>{
-    document.getElementById('bnav-'+id)?.classList.toggle('active',id===active);
-  });
-  ['bnav-notif','bnav-profil'].forEach(id=>document.getElementById(id)?.classList.remove('active'));
+  document.getElementById('bnav-duvar')?.classList.toggle('active',active==='duvar');
+  document.getElementById('bnav-rehber')?.classList.toggle('active',active==='rehber');
+  document.getElementById('bnav-more')?.classList.toggle('active',MORE_TABS.includes(active));
 }
 // Bildirim dot'unu bottom nav ile senkronize et
 function syncBnavDot(){
@@ -1027,7 +1050,9 @@ const NAV_META={
 function switchNav(tab,pushState=true){
   document.getElementById('section-duvar').style.display=tab==='duvar'?'block':'none';
   ['rehber','sozluk','araclar','kesit','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('section-'+t).classList.toggle('active',t===tab));
-  ['duvar','rehber','sozluk','araclar','kesit','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('tab-'+t).classList.toggle('active',t===tab));
+  document.querySelectorAll('.nav-tab[data-nav]').forEach(b=>b.classList.toggle('active',b.dataset.nav===tab));
+  document.getElementById('tab-more').classList.toggle('active',tab!=='duvar'&&tab!=='rehber');
+  toggleMoreMenu(false);
   updateBottomNav(tab);
   if(tab==='sozluk'){renderSozluk();}
   if(tab==='kesit')loadBasliklar();
@@ -2696,6 +2721,20 @@ document.getElementById('loginBtn').addEventListener('click',showAuth);
 
 // Nav tabları
 document.querySelectorAll('.nav-tab[data-nav]').forEach(b=>b.addEventListener('click',()=>switchNav(b.dataset.nav)));
+// Daha fazla menüsü
+document.querySelectorAll('.more-trigger').forEach(t=>t.addEventListener('click',e=>{
+  e.stopPropagation();
+  const menu=document.getElementById('moreMenu');
+  toggleMoreMenu(menu.hidden||moreTrigger!==t,t);
+}));
+document.getElementById('moreMenu').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-go],button[data-view-go]');
+  if(b)moreGo(b);
+});
+document.addEventListener('click',e=>{if(!e.target.closest('#moreMenu,.more-trigger'))toggleMoreMenu(false);});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&!document.getElementById('moreMenu').hidden){toggleMoreMenu(false);moreTrigger?.focus();}
+});
 
 // Duvar sekmeleri
 document.querySelector('.wall-tabs').addEventListener('click',e=>{
