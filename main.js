@@ -115,10 +115,11 @@ async function loadPosts(){
   const {data,error}=await sb.from('posts').select('*, yorumlar(*)').eq('aktif',true).order('created_at',{ascending:false}).limit(200);
   if(error){
     console.error('posts yüklenemedi:',error);
-    // İlk yükleme başarısızsa iskelet sonsuza kadar kalmasın
-    if(!posts.length)document.getElementById('postsGrid').innerHTML='<div class="empty-state"><div class="big">Duvar yüklenemedi. Bağlantını kontrol et.</div><button type="button" class="load-more-btn" onclick="loadPosts()" style="margin-top:1rem">tekrar dene</button></div>';
+    postsLoadError=true;
+    render();
     return;
   }
+  postsLoaded=true;postsLoadError=false;
   posts=(data||[]).map(p=>({
     ...p,time:p.created_at,fired:[],disfire:p.disfire||0,
     comments:(p.yorumlar||[]).map(c=>({nick:c.nick,text:c.text,id:c.id}))
@@ -298,7 +299,8 @@ let posts=[];
 let bookmarks=JSON.parse(localStorage.getItem('duvar_bookmarks')||'[]');
 let reportedPosts=new Set(JSON.parse(localStorage.getItem('duvar_reported')||'[]'));
 let expandedPosts=new Set();
-let seenPostIds=new Set(); // giriş animasyonu sadece ilk kez görünen gönderilerde
+let seenPostIds=new Set();
+let postsLoaded=false,postsLoadError=false; // ilk yükleme durumu (iskelet / hata ekranı için) // giriş animasyonu sadece ilk kez görünen gönderilerde
 let dislikedPosts=new Set();
 const TRUNCATE_LEN=200;
 let anketOpen=false;
@@ -420,7 +422,7 @@ function toggleMoreMenu(force,trigger){
   const open=force===undefined?menu.hidden:force;
   menu.hidden=!open;
   document.querySelectorAll('.more-trigger').forEach(t=>t.setAttribute('aria-expanded',open&&t===trigger));
-  if(!open)return;
+  if(!open){menu.style.top='';menu.style.left='';return;}
   moreTrigger=trigger||document.getElementById('tab-more');
   if(window.innerWidth>600){
     const r=moreTrigger.getBoundingClientRect();
@@ -1086,7 +1088,8 @@ function switchNav(tab,pushState=true){
   if(tab==='etkinlik')renderEtkinlikler();
   // URL + meta güncelle
   const m=NAV_META[tab]||NAV_META.duvar;
-  if(pushState)history.pushState({tab},m.title,tab==='duvar'?location.pathname:'#'+tab);
+  const curTab=(history.state?.tab)||location.hash.replace('#','')||'duvar';
+  if(pushState&&curTab!==tab)history.pushState({tab},m.title,tab==='duvar'?location.pathname+location.search:'#'+tab);
   document.title=m.title;
   document.querySelector('meta[name="description"]').setAttribute('content',m.desc);
   document.querySelector('link[rel="canonical"]').setAttribute('href',m.url);
@@ -1157,6 +1160,12 @@ const typeL={dert:'Dert',soru:'Soru',kaynak:'Kaynak',acil:'Acil'};
 
 function render(){
   const grid=document.getElementById('postsGrid');
+  // İlk yükleme başarısızsa iskelet sonsuza kadar kalmasın; sonraki render'lar bu mesajı ezmesin
+  if(postsLoadError&&!posts.length){
+    grid.innerHTML='<div class="empty-state"><div class="big">Duvar yüklenemedi. Bağlantını kontrol et.</div><button type="button" class="load-more-btn" onclick="loadPosts()" style="margin-top:1rem">tekrar dene</button></div>';
+    return;
+  }
+  if(!postsLoaded)return; // ilk yükleme bitene kadar iskelet ekranda kalsın
   const savedScroll=window.scrollY;
   const q=(document.getElementById('searchInput')?.value||'').toLowerCase().trim();
   let filtered=[...posts];
@@ -1299,6 +1308,8 @@ function setWriteLocked(locked){
   box.classList.toggle('locked',locked);
   inp.readOnly=locked;
   inp.placeholder=locked?'Yazmak için giriş yap — okumak serbest.':'Bir soru sor ya da bir şey paylaş…';
+  // Girişe bağlı menü öğeleri (çıkış / hesap silme yollarında da gizlensin)
+  document.getElementById('moreAiBtn').hidden=locked;
 }
 // "Ekle" menüsü (görsel / dosya / anket)
 function toggleEkleMenu(force){
@@ -1712,14 +1723,17 @@ async function submitReport(){
 
 // ── TERMS / GUIDE ──
 function openTerms(firstTime=false){
+  firstTime=firstTime===true; // click handler'dan gelen event nesnesi "ilk kez" sayılmasın
   document.getElementById('termsOverlay').classList.add('open');
   const btn=document.getElementById('termsCloseBtn');
   btn.textContent=firstTime?'OKUDUM, KABUL EDİYORUM →':'KAPAT';
   btn._firstTime=firstTime;
 }
-function closeTerms(){
+// accept=true sadece "OKUDUM, KABUL EDİYORUM" düğmesinden gelir; Escape kabul etmiş sayılmaz
+function closeTerms(accept=false){
   const btn=document.getElementById('termsCloseBtn');
   document.getElementById('termsOverlay').classList.remove('open');
+  if(btn._firstTime&&accept!==true){btn._firstTime=false;return;}
   if(btn._firstTime){
     localStorage.setItem('duvar_terms','1');
     document.getElementById('authModal').classList.remove('hidden');
@@ -2670,7 +2684,7 @@ document.getElementById('postsGrid').addEventListener('click',e=>{
   if(more){
     const menu=more.nextElementSibling;
     const open=menu.hidden;
-    closePostMenus(menu);
+    closePostMenus(menu);toggleMoreMenu(false);toggleEkleMenu(false);
     menu.hidden=!open;more.setAttribute('aria-expanded',open);
     if(open)menu.querySelector('button:not([disabled])')?.focus();
     return;
@@ -2720,7 +2734,7 @@ document.getElementById('reportSendBtn').addEventListener('click',submitReport);
 document.getElementById('reportCancelBtn').addEventListener('click',closeReport);
 
 // Terms
-document.getElementById('termsCloseBtn').addEventListener('click',closeTerms);
+document.getElementById('termsCloseBtn').addEventListener('click',()=>closeTerms(true));
 
 // Header kontrolleri
 document.getElementById('themeBtn').addEventListener('click',toggleTheme);
@@ -2737,6 +2751,7 @@ document.querySelectorAll('.nav-tab[data-nav]').forEach(b=>b.addEventListener('c
 // Daha fazla menüsü
 document.querySelectorAll('.more-trigger').forEach(t=>t.addEventListener('click',e=>{
   e.stopPropagation();
+  closePostMenus();toggleEkleMenu(false);
   const menu=document.getElementById('moreMenu');
   toggleMoreMenu(menu.hidden||moreTrigger!==t,t);
 }));
@@ -2762,7 +2777,7 @@ document.getElementById('searchInput').addEventListener('input',()=>{clearTimeou
 
 
 // Ekle menüsü: görsel / dosya / anket
-document.getElementById('ekleBtn').addEventListener('click',e=>{e.stopPropagation();toggleEkleMenu();});
+document.getElementById('ekleBtn').addEventListener('click',e=>{e.stopPropagation();closePostMenus();toggleMoreMenu(false);toggleEkleMenu();});
 document.getElementById('imgUploadBtn').addEventListener('click',()=>{toggleEkleMenu(false);document.getElementById('imgFileInput').click();});
 document.getElementById('fileUploadBtn').addEventListener('click',()=>{toggleEkleMenu(false);document.getElementById('fileInput').click();});
 document.getElementById('anketToggle').addEventListener('click',()=>{toggleEkleMenu(false);toggleAnket();if(anketOpen)document.getElementById('anket-opt-0').focus();});
@@ -2924,7 +2939,7 @@ document.getElementById('authPassConfirm').addEventListener('keydown',e=>{if(e.k
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&!e.shiftKey&&e.target.classList.contains('comment-input')){
     e.preventDefault();
-    const id=e.target.id.replace('ci-','');
+    const id=parseInt(e.target.id.replace('ci-',''));
     sendComment(id);
   }
 });
@@ -2943,7 +2958,7 @@ document.addEventListener('keydown',e=>{
 function showGuestState(){enterAsGuest();}
 
 // ── CANLI ZAMAN ──
-setInterval(()=>{if(!document.hidden)render();},60000);
+setInterval(()=>{if(!document.hidden&&!document.querySelector('.post-menu:not([hidden])'))render();},60000);
 
 // Eski localStorage auth sisteminden temizlik (bir kerelik)
 if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');localStorage.removeItem('duvar_session');}
@@ -2964,7 +2979,7 @@ if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');l
       // Ban + mod kontrolü (nick bulunamazsa auth_id ile dene, ikisi de yoksa hesap silinmiş demektir)
       let {data:row}=await sb.from('kullanicilar').select('nick,banli,mod').eq('nick',nick).maybeSingle();
       if(!row){const {data:r2}=await sb.from('kullanicilar').select('nick,banli,mod').eq('auth_id',session.user.id).maybeSingle();if(r2){row=r2;}}
-      if(!row){await sb.auth.signOut();showGuestState();return;}
+      if(!row){await sb.auth.signOut();showGuestState();}
       if(row&&!row.banli){loginSuccess(row.nick||nick, row.mod===true);}
       else{await sb.auth.signOut();showGuestState();}
     }else{await sb.auth.signOut();showGuestState();}
