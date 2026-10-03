@@ -9,6 +9,7 @@ import json
 import os
 import sys
 import ssl
+import html
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
@@ -30,8 +31,10 @@ def load_env(env_file):
 # .env dosyasını yükle (varsa)
 load_env(os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env'))
 
-# SSL doğrulamasını devre dışı bırak (bazı siteler için gerekli)
-ssl._create_default_https_context = ssl._create_unverified_context
+# SSL sertifika doğrulaması varsayılan olarak AÇIK (araya girme / sahte içerik riskine karşı).
+# Bir site sertifika hatası veriyorsa ve bilerek kapatmak istersen .env'e TAKIP_SSL_DOGRULAMA=0 yaz.
+if os.environ.get('TAKIP_SSL_DOGRULAMA', '1') == '0':
+    ssl._create_default_https_context = ssl._create_unverified_context
 
 # ── DOSYA YOLLARI ──
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -176,6 +179,12 @@ def email_gonder(config, icerikler):
     konu = f"[DUVAR] {sayi} yeni içerik — {tarih_str}"
 
     def kart_html(ic, i, renk):
+        # RSS içeriği dış kaynaklı: e-postaya HTML olarak basmadan önce kaçır, link sadece http(s)
+        e = lambda v: html.escape(str(v or ''), quote=True)
+        link = str(ic.get('link') or '')
+        link = e(link) if link.lower().startswith(('http://', 'https://')) else '#'
+        ic = {**ic, 'kaynak': e(ic.get('kaynak')), 'eslesen_kelime': e(ic.get('eslesen_kelime')),
+              'baslik': e(ic.get('baslik')), 'ozet': e(ic.get('ozet')), 'link': link}
         return f"""
         <div style="border-left:3px solid {renk};padding:12px 16px;margin-bottom:12px;background:#111;border-radius:2px">
           <div style="font-size:11px;color:#888;margin-bottom:6px;font-family:monospace">
