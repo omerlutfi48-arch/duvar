@@ -1182,22 +1182,27 @@ function render(){
       ${anketHtml}
       <div class="post-bottom">
         <span class="post-time">${relTime(p.time)}</span>
-        <div class="reactions">
-          <button class="rxn${mF?' on':''}"onclick="react(${p.id},'like')" title="beğen">${mF?'❤️':'🤍'} ${p.fire||0}</button>
-          <button class="rxn${mD?' on dislike-on':''}"onclick="dislike(${p.id})" title="beğenme">${mD?'👎':'🖐'} ${p.disfire||0}</button>
-          <button class="rxn"onclick="toggleComments(${p.id})" title="yorum yap">💬 ${p.comments.length}</button>
-          <button class="rxn bkm-btn${isBkm?' on':''}"onclick="toggleBookmark(${p.id})"title="${isBkm?'kaydı kaldır':'kaydet'}">${isBkm?'🔖':'🏷️'}</button>
-          <button class="rxn" onclick="copyPostLink(${p.id})" title="linki kopyala">🔗</button>
-          ${!isMine?`<button class="rxn report-btn${isRep?' reported':''}"onclick="${isRep?'':` openReport(${p.id})`}"title="şikayet"${isRep?' disabled':''}>${isRep?'⚑':'···'}</button>`:''}
-          ${isMine?`<button class="rxn"onclick="deleteMyPost(${p.id})"title="gönderimi sil"style="color:#c0392b">🗑</button>`:''}
-          ${isModerator?`<button class="rxn"onclick="modDeletePost(${p.id})"title="sil"style="color:#c0392b">🗑</button><button class="rxn"onclick="modPin(${p.id},${!!p.pinned})"title="${p.pinned?'sabiti kaldır':'sabitle'}"style="color:var(--yellow)">${p.pinned?'📌':'📍'}</button><button class="rxn"data-nick="${esc(p.author)}"onclick="modBan(this.dataset.nick)"title="banla"style="color:#c0392b">🚫</button>`:''}
+        <div class="post-actions">
+          <button type="button" class="act" onclick="toggleComments(${p.id})" aria-expanded="false" aria-controls="c-${p.id}">Yanıtla${p.comments.length?`<span class="act-n">${p.comments.length}</span>`:''}</button>
+          <button type="button" class="act${mF?' on':''}" onclick="react(${p.id},'like')" aria-pressed="${!!mF}">Destek${p.fire?`<span class="act-n">${p.fire}</span>`:''}</button>
+          <div class="post-more">
+            <button type="button" class="act act-more" data-more="${p.id}" aria-haspopup="menu" aria-expanded="false" aria-label="Diğer seçenekler">···</button>
+            <div class="pop-menu post-menu" role="menu" hidden>
+              <button type="button" role="menuitem" onclick="toggleBookmark(${p.id})">${isBkm?'Kaydı kaldır':'Kaydet'}</button>
+              <button type="button" role="menuitem" onclick="copyPostLink(${p.id})">Linki kopyala</button>
+              <button type="button" role="menuitem" onclick="dislike(${p.id})">${mD?'Beğenmemeyi geri al':'Beğenmedim'}${p.disfire?` (${p.disfire})`:''}</button>
+              ${!isMine?(isRep?'<button type="button" role="menuitem" disabled>Şikayet edildi</button>':`<button type="button" role="menuitem" onclick="openReport(${p.id})">Şikayet et</button>`):''}
+              ${isMine?`<button type="button" role="menuitem" class="danger" onclick="deleteMyPost(${p.id})">Gönderimi sil</button>`:''}
+              ${isModerator?`<button type="button" role="menuitem" class="danger" onclick="modDeletePost(${p.id})">Mod: sil</button><button type="button" role="menuitem" onclick="modPin(${p.id},${!!p.pinned})">Mod: ${p.pinned?'sabiti kaldır':'sabitle'}</button><button type="button" role="menuitem" class="danger" data-nick="${esc(p.author)}" onclick="modBan(this.dataset.nick)">Mod: banla</button>`:''}
+            </div>
+          </div>
         </div>
       </div>
       <div class="comments-wrap"id="c-${p.id}">
         ${p.comments.map(c=>`<div class="comment">${nickAvatar(c.nick,18)}<button class="post-author-link comment-nick${c.nick===currentUser?' me':''}" onclick="openUserProfile('${esc(c.nick)}')">${esc(c.nick)}</button>${esc(c.text)}</div>`).join('')}
         <div class="comment-row">
-          <input class="comment-input"id="ci-${p.id}"placeholder="${currentUser?(p.type==='soru'?'cevapla...':'destek yaz...'):'yazmak için giriş yap'}"maxlength="200"${!currentUser?' disabled':''}>
-          <button class="comment-send"onclick="sendComment(${p.id})"${!currentUser?' disabled':''}>${p.type==='soru'?'cevapla':'gönder'}</button>
+          <input class="comment-input"id="ci-${p.id}"placeholder="${currentUser?'yanıt yaz…':'yanıtlamak için giriş yap'}"maxlength="200"${!currentUser?' disabled':''}>
+          <button class="comment-send"onclick="sendComment(${p.id})"${!currentUser?' disabled':''}>gönder</button>
         </div>
       </div>
     </div>`;
@@ -1206,6 +1211,7 @@ function render(){
   _openComments.forEach(id=>{
     const wrap=document.getElementById('c-'+id);
     if(wrap)wrap.classList.add('open');
+    document.querySelector(`[aria-controls="c-${id}"]`)?.setAttribute('aria-expanded','true');
     if(_savedInputs[id]){const inp=document.getElementById('ci-'+id);if(inp)inp.value=_savedInputs[id];}
   });
   // "Daha fazla yükle" butonu
@@ -1299,7 +1305,7 @@ async function addPost(){
   await loadPosts();
 }
 async function react(id,type){
-  if(!currentUser)return;
+  if(!currentUser){showAuth();return;}
   if(type==='like'){
     const p=posts.find(x=>x.id===id);
     if(p&&p.fired&&!p.fired.includes(currentUser))addNotif(p.author,currentUser,'❤️ gönderini beğendi');
@@ -1307,7 +1313,7 @@ async function react(id,type){
   }
 }
 async function dislike(id){
-  if(!currentUser){toast('// dislike için giriş yap');return;}
+  if(!currentUser){showAuth();return;}
   await sbDislike(id,currentUser);
 }
 function expandPost(pid){expandedPosts.add(pid);render();}
@@ -1328,7 +1334,15 @@ function renderGununEnIyisi(){
       <span class="gun-meta">❤️ ${p.fire||0} · 💬 ${p.comments.length}</span>
     </div>`).join('');
 }
-function toggleComments(id){document.getElementById('c-'+id).classList.toggle('open');}
+function toggleComments(id){
+  const open=document.getElementById('c-'+id).classList.toggle('open');
+  document.querySelector(`[aria-controls="c-${id}"]`)?.setAttribute('aria-expanded',open);
+  if(open&&currentUser)document.getElementById('ci-'+id)?.focus();
+}
+// Gönderi "···" menüsü
+function closePostMenus(except){
+  document.querySelectorAll('.post-menu').forEach(m=>{if(m!==except){m.hidden=true;m.previousElementSibling?.setAttribute('aria-expanded','false');}});
+}
 async function sendComment(id){
   if(!currentUser)return;
   const {data:banRow}=await sb.from('kullanicilar').select('banli').eq('nick',currentUser).maybeSingle();
@@ -1339,7 +1353,7 @@ async function sendComment(id){
   const p=posts.find(x=>x.id===id);
   if(p)addNotif(p.author,currentUser,p.type==='soru'?'💬 sorunuzu cevapladı':'💬 yorum yaptı');
   const ok=await sbComment(id,currentUser,val);
-  if(ok){document.getElementById('c-'+id)?.classList.add('open');toast('// iletildi');}
+  if(ok){document.getElementById('c-'+id)?.classList.add('open');toast('// yanıtın gönderildi');}
 }
 
 // ── GÖRSEL YÜKLEME ──
@@ -2616,6 +2630,22 @@ document.getElementById('postsGrid').addEventListener('click',e=>{
   if(tl&&tl.dataset.tag)setTagFilter(tl.dataset.tag);
   const db=e.target.closest('.devami-btn');
   if(db&&db.dataset.pid)expandPost(parseInt(db.dataset.pid));
+  const more=e.target.closest('[data-more]');
+  if(more){
+    const menu=more.nextElementSibling;
+    const open=menu.hidden;
+    closePostMenus(menu);
+    menu.hidden=!open;more.setAttribute('aria-expanded',open);
+    if(open)menu.querySelector('button:not([disabled])')?.focus();
+    return;
+  }
+  if(e.target.closest('.post-menu button'))closePostMenus();
+});
+document.addEventListener('click',e=>{if(!e.target.closest('.post-more'))closePostMenus();});
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  const open=document.querySelector('.post-menu:not([hidden])');
+  if(open){closePostMenus();open.previousElementSibling?.focus();}
 });
 
 // Auth sekmeler
