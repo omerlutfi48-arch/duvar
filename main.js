@@ -79,7 +79,7 @@ async function checkPushStatus(){
   // İlk girişten 10 sn sonra sor
   setTimeout(()=>{
     if(!currentUser)return;
-    toast('// 🔔 bildirim almak ister misin? <a href="#" onclick="subscribePush();return false" style="color:var(--yellow)">aç</a>',5000);
+    toast('// 🔔 bildirim almak ister misin? <a href="#" onclick="subscribePush();return false" style="color:var(--yellow)">aç</a>',5000,true);
   },10000);
 }
 
@@ -1129,8 +1129,8 @@ const _AV_PAL=['#c0392b','#e67e22','#d4a017','#27ae60','#16a085','#2980b9','#7d3
 function nickColor(nick){let h=0;for(let i=0;i<nick.length;i++)h=(h*31+nick.charCodeAt(i))>>>0;return _AV_PAL[h%_AV_PAL.length];}
 function nickAvatar(nick,size=22){
   const url=avatarCache[nick];
-  if(url)return`<img class="nick-av nick-av-img" src="${url}" style="width:${size}px;height:${size}px" alt="">`;
-  const bg=nickColor(nick);const letter=(nick||'?').charAt(0).toUpperCase();
+  if(safeUrl(url))return`<img class="nick-av nick-av-img" src="${safeUrl(url)}" style="width:${size}px;height:${size}px" alt="">`;
+  const bg=nickColor(nick||'?');const letter=esc((nick||'?').charAt(0).toUpperCase());
   return`<span class="nick-av" style="background:${bg};width:${size}px;height:${size}px;font-size:${Math.round(size*.52)}px">${letter}</span>`;
 }
 
@@ -1202,15 +1202,15 @@ function render(){
       <div class="post-header">
         <span class="post-number">#${String(filtered.length-i).padStart(3,'0')}</span>
         ${nickAvatar(p.author)}
-        <button class="post-author-link post-author${isMine?' me':''}" onclick="openUserProfile('${esc(p.author)}')">${esc(p.author)}</button>
-        ${DM_ENABLED&&!isMine&&currentUser?`<button class="dm-btn" onclick="openConversation('${esc(p.author)}')" title="mesaj gönder">✉</button>`:''}
+        <button class="post-author-link post-author${isMine?' me':''}" data-nick="${esc(p.author)}" onclick="openUserProfile(this.dataset.nick)">${esc(p.author)}</button>
+        ${DM_ENABLED&&!isMine&&currentUser?`<button class="dm-btn" data-nick="${esc(p.author)}" onclick="openConversation(this.dataset.nick)" title="mesaj gönder">✉</button>`:''}
         ${isMine?'<span class="mini-tag mine-tag">sen</span>':''}
         ${p.pinned?'<span class="mini-tag pin-tag">📌 sabit</span>':''}
       </div>
       ${(mB||tB)?`<div class="post-badges">${tB}${mB}</div>`:''}
       <div class="post-text">${renderText(needsTrunc?p.text.slice(0,TRUNCATE_LEN).trimEnd():p.text)}${needsTrunc?`<button class="devami-btn" data-pid="${p.id}"> devamını oku →</button>`:''}</div>
-      ${p.image_url?`<div class="post-img-wrap"><img src="${esc(p.image_url)}" class="post-img" loading="lazy" onclick="openImageModal('${esc(p.image_url)}')"></div>`:''}
-      ${p.file_url?`<a href="${esc(p.file_url)}" class="post-file-attach" target="_blank" download="${esc(p.file_name||'dosya')}">📎 ${esc(p.file_name||'dosyayı indir')} <span style="color:var(--muted)">↓ indir</span></a>`:''}
+      ${safeUrl(p.image_url)?`<div class="post-img-wrap"><img src="${safeUrl(p.image_url)}" class="post-img" loading="lazy" alt="gönderi görseli" onclick="openImageModal(this.src)"></div>`:''}
+      ${safeUrl(p.file_url)?`<a href="${safeUrl(p.file_url)}" class="post-file-attach" target="_blank" rel="noopener noreferrer" download="${esc(p.file_name||'dosya')}">📎 ${esc(p.file_name||'dosyayı indir')} <span style="color:var(--muted)">↓ indir</span></a>`:''}
       ${anketHtml}
       <div class="post-bottom">
         <span class="post-time">${relTime(p.time)}</span>
@@ -1231,7 +1231,7 @@ function render(){
         </div>
       </div>
       <div class="comments-wrap"id="c-${p.id}">
-        ${p.comments.map(c=>`<div class="comment">${nickAvatar(c.nick,18)}<button class="post-author-link comment-nick${c.nick===currentUser?' me':''}" onclick="openUserProfile('${esc(c.nick)}')">${esc(c.nick)}</button>${esc(c.text)}</div>`).join('')}
+        ${p.comments.map(c=>`<div class="comment">${nickAvatar(c.nick,18)}<button class="post-author-link comment-nick${c.nick===currentUser?' me':''}" data-nick="${esc(c.nick)}" onclick="openUserProfile(this.dataset.nick)">${esc(c.nick)}</button>${esc(c.text)}</div>`).join('')}
         <div class="comment-row">
           <input class="comment-input"id="ci-${p.id}"placeholder="${currentUser?'yanıt yaz…':'yanıtlamak için giriş yap'}"maxlength="200"${!currentUser?' disabled':''}>
           <button class="comment-send"onclick="sendComment(${p.id})"${!currentUser?' disabled':''}>gönder</button>
@@ -1557,7 +1557,7 @@ function openProfile(){
     :'<span style="font-family:Space Mono,monospace;font-size:.62rem;color:var(--muted)">// henüz rozet yok — gönderi at!</span>';
   document.getElementById('myPostsList').innerHTML=myPosts.length
     ?myPosts.map(p=>`<div class="my-post-mini">
-      ${p.type?`<span style="font-family:Space Mono,monospace;font-size:.55rem;color:var(--muted)">${typeL[p.type]||p.type} · </span>`:''}
+      ${p.type?`<span style="font-family:Space Mono,monospace;font-size:.55rem;color:var(--muted)">${typeL[p.type]||''} · </span>`:''}
       <div class="my-post-mini-text">${esc(p.text)}</div>
       <div class="my-post-mini-meta"><span>❤️ ${p.fire||0}</span><span>↳ ${p.comments.length}</span><span>${relTime(p.time)}</span></div>
     </div>`).join('')
@@ -1640,7 +1640,7 @@ async function openDMs(){
       return decryptDM(last.metin,currentUser,other);
     }));
     el.innerHTML='<div class="dm-panel-list">'+convs.map(([nick,{last,unread}],i)=>`
-      <div class="dm-conv${unread?' unread':''}" onclick="openConversation('${esc(nick)}')">
+      <div class="dm-conv${unread?' unread':''}" data-nick="${esc(nick)}" onclick="openConversation(this.dataset.nick)">
         <div class="dm-conv-nick">@${esc(nick)}${unread?`<span class="dm-unread-dot"></span>`:''}</div>
         <div class="dm-conv-preview">${esc(previews[i])}</div>
       </div>`).join('')+'</div>';
@@ -1676,10 +1676,6 @@ async function openConversation(nick){
     threadHTML='<div style="font-family:Space Mono,monospace;font-size:.7rem;color:var(--muted)">// henüz mesaj yok</div>';
   }
   el.innerHTML=`<button class="dm-back" onclick="openDMs()">← tüm mesajlar</button>
-    <div class="dm-e2ee-badge">
-      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      uçtan uca şifreli
-    </div>
     <div class="dm-thread" id="dmThread">${threadHTML}</div>
     <div class="dm-input-row">
       <input class="dm-input" id="dmInput" placeholder="mesajını yaz..." maxlength="300" onkeydown="if(event.key==='Enter')sendDM()">
@@ -2282,7 +2278,7 @@ function renderBasliklar(){
   if(!items.length){list.innerHTML=`<div class="eks-empty">${q?'// sonuç bulunamadı':'// henüz başlık yok — ilk başlığı sen aç'}</div>`;return;}
   list.innerHTML=items.map(b=>`
     <div class="eks-baslik-row">
-      <span class="eks-baslik-name" onclick="openBaslik(${b.id},'${esc(b.baslik)}')">${esc(b.baslik)}</span>
+      <span class="eks-baslik-name" onclick="openBaslik(${Number(b.id)})">${esc(b.baslik)}</span>
       <span class="eks-baslik-meta">
         <span>${b.entryCount} entry</span>
         <span style="color:var(--border2)">@${esc(b.olusturan)}</span>
@@ -2298,7 +2294,7 @@ function renderDuvarSidebar(){
   const items=[...eksBasliklar].sort((a,b)=>b.entryCount-a.entryCount).slice(0,12);
   if(!items.length){el.innerHTML='<div class="duvar-sidebar-empty">// henüz başlık yok</div>';return;}
   el.innerHTML=items.map(b=>`
-    <div class="duvar-sidebar-item" onclick="sidebarOpenBaslik(${b.id},'${esc(b.baslik)}')">
+    <div class="duvar-sidebar-item" onclick="sidebarOpenBaslik(${Number(b.id)})">
       <span class="duvar-sidebar-name">${esc(b.baslik)}</span>
       <span class="duvar-sidebar-cnt">${b.entryCount}</span>
     </div>`).join('');
@@ -2310,6 +2306,8 @@ function sidebarOpenBaslik(id,baslik){
 }
 
 async function openBaslik(id,baslik){
+  // Başlık metni onclick içine konmuyor (XSS); id'den bulunuyor.
+  if(baslik===undefined)baslik=eksBasliklar.find(b=>b.id===id)?.baslik||'';
   currentBaslikId=id;
   document.getElementById('kesit-list-view').style.display='none';
   document.getElementById('kesit-entry-view').style.display='block';

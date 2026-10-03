@@ -70,11 +70,21 @@ Deno.serve(async (req) => {
   const isSelf = user.id === targetAuthId
   if (!isAdmin && !isSelf) return errResp('Forbidden', 403)
 
+  // Admin değilse silinecek nick istemciden alınmaz: yetki auth_id ile kontrol edildi,
+  // silme de aynı auth_id'ye ait satırla sınırlı olmalı. (Aksi halde kendi auth_id'si +
+  // başkasının nick'i gönderilerek başka bir kullanıcının satırı silinebiliyordu.)
+  if (!isAdmin) {
+    const { data: ownRow } = await adminClient.from('kullanicilar').select('nick').eq('auth_id', targetAuthId).maybeSingle()
+    targetNick = ownRow?.nick ?? null
+  }
+
   console.log('Siliniyor:', targetAuthId, 'nick:', targetNick, '| isAdmin:', isAdmin, '| isSelf:', isSelf)
 
   // 1. kullanicilar satırını service role ile sil (RLS'i bypass eder)
   if (targetNick) {
-    const { error: kulErr } = await adminClient.from('kullanicilar').delete().eq('nick', targetNick)
+    let del = adminClient.from('kullanicilar').delete().eq('nick', targetNick)
+    if (!isAdmin) del = del.eq('auth_id', targetAuthId)
+    const { error: kulErr } = await del
     if (kulErr) console.error('kullanicilar silinemedi:', kulErr.message)
     else console.log('kullanicilar silindi:', targetNick)
   }
