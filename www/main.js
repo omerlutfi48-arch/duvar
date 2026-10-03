@@ -296,8 +296,9 @@ let visibleCount=20;
 const PAGE_SIZE=20;
 
 let posts=[];
-let bookmarks=JSON.parse(localStorage.getItem('duvar_bookmarks')||'[]');
-let reportedPosts=new Set(JSON.parse(localStorage.getItem('duvar_reported')||'[]'));
+function lsJSON(key,fallback){try{const v=JSON.parse(localStorage.getItem(key));return Array.isArray(v)?v:fallback;}catch{return fallback;}}
+let bookmarks=lsJSON('duvar_bookmarks',[]);
+let reportedPosts=new Set(lsJSON('duvar_reported',[]));
 let expandedPosts=new Set();
 let seenPostIds=new Set();
 let postsLoaded=false,postsLoadError=false; // ilk yükleme durumu (iskelet / hata ekranı için) // giriş animasyonu sadece ilk kez görünen gönderilerde
@@ -883,16 +884,28 @@ async function handleAuth(){
     // Supabase Auth ile doğrula — sunucu tarafında kontrol
     const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
     if(error){err.textContent='// şifre yanlış veya hesap bulunamadı';return;}
-    // Metadata'daki gerçek nick'i kullan (nick değiştirilmiş olabilir)
-    const realNick=data.user.user_metadata?.nick||nick;
-    // Ban + mod kontrolü (kayıt yoksa auth_id ile dene, ikisi de yoksa hesap silinmiş)
-    let {data:banRow}=await sb.from('kullanicilar').select('nick,banli,mod,auth_id').eq('nick',realNick).maybeSingle();
-    if(!banRow){const {data:r2}=await sb.from('kullanicilar').select('nick,banli,mod,auth_id').eq('auth_id',data.user.id).maybeSingle();if(r2){banRow=r2;}else{await sb.auth.signOut();err.textContent='// hesap bulunamadı veya silindi';return;}}
-    if(banRow?.banli){await sb.auth.signOut();err.textContent='// bu hesap askıya alınmış';return;}
-    // auth_id eksikse güncelle (eski hesaplar için)
-    if(banRow&&!banRow.auth_id){sb.from('kullanicilar').update({auth_id:data.user.id}).eq('nick',banRow.nick).then(()=>{});}
-    loginSuccess(banRow.nick||realNick, banRow?.mod===true);
+    // Ban + mod kontrolü — satır auth_id ile bulunur (bkz. findMyRow)
+    const banRow=await findMyRow(data.user);
+    if(!banRow){await sb.auth.signOut();err.textContent='// hesap bulunamadı veya silindi';return;}
+    if(banRow.banli){await sb.auth.signOut();err.textContent='// bu hesap askıya alınmış';return;}
+    // auth_id eksikse bağla (eski hesaplar için; findMyRow sahipliği doğruladı)
+    if(!banRow.auth_id){sb.from('kullanicilar').update({auth_id:data.user.id}).eq('nick',banRow.nick).then(()=>{});}
+    loginSuccess(banRow.nick, banRow.mod===true);
   }
+}
+// Oturumdaki kullanıcının kullanicilar satırı. Kimlik auth_id'den gelir (kullanıcı değiştiremez).
+// user_metadata.nick kullanıcı tarafından sb.auth.updateUser ile değiştirilebildiği için tek başına
+// kimlik sayılmaz; sadece auth_id'si boş eski bir hesabı bağlarken, giriş e-postası o nick'ten
+// türetilmişse (yani hesabın gerçek sahibiyse) kabul edilir.
+async function findMyRow(user){
+  const cols='nick,banli,mod,auth_id';
+  const {data:byId}=await sb.from('kullanicilar').select(cols).eq('auth_id',user.id).maybeSingle();
+  if(byId)return byId;
+  const metaNick=user.user_metadata?.nick;
+  if(!metaNick)return null;
+  const {data:byNick}=await sb.from('kullanicilar').select(cols).eq('nick',metaNick).maybeSingle();
+  if(byNick&&!byNick.auth_id&&nickToEmail(byNick.nick)===String(user.email||'').toLowerCase())return byNick;
+  return null;
 }
 function loginSuccess(nick,isMod=false){
   currentUser=nick;
@@ -990,7 +1003,8 @@ async function deleteAccount(){
   await Promise.all([
     sb.from('posts').delete().eq('author',nick),
     sb.from('yorumlar').delete().eq('nick',nick),
-    sb.from('mesajlar').delete().or(`gonderen.eq.${nick},alici.eq.${nick}`),
+    sb.from('mesajlar').delete().eq('gonderen',nick),
+    sb.from('mesajlar').delete().eq('alici',nick),
     sb.from('begeni').delete().eq('nick',nick),
     sb.from('anket_oylar').delete().eq('nick',nick),
   ]);
@@ -1133,9 +1147,9 @@ function setView(view){
 
 // ── RELATIVE TIME ──
 function relTime(val){
-  if(typeof val==='string'&&!/^\d/.test(val))return val; // "47 dk önce" gibi static string
+  if(typeof val==='string'&&!/^\d/.test(val))return esc(val); // "47 dk önce" gibi static string
   const d=new Date(val),now=Date.now(),diff=now-d;
-  if(isNaN(diff))return val;
+  if(isNaN(diff))return esc(val);
   const m=Math.floor(diff/60000),h=Math.floor(diff/3600000),day=Math.floor(diff/86400000);
   if(m<1)return 'şimdi';
   if(m<60)return m+' dk önce';
@@ -1149,7 +1163,7 @@ const _AV_PAL=['#c0392b','#e67e22','#d4a017','#27ae60','#16a085','#2980b9','#7d3
 function nickColor(nick){let h=0;for(let i=0;i<nick.length;i++)h=(h*31+nick.charCodeAt(i))>>>0;return _AV_PAL[h%_AV_PAL.length];}
 function nickAvatar(nick,size=22){
   const url=avatarCache[nick];
-  if(safeUrl(url))return`<img class="nick-av nick-av-img" src="${safeUrl(url)}" style="width:${size}px;height:${size}px" alt="">`;
+  if(safeMediaUrl(url))return`<img class="nick-av nick-av-img" src="${safeMediaUrl(url)}" style="width:${size}px;height:${size}px" alt="">`;
   const bg=nickColor(nick||'?');const letter=esc((nick||'?').charAt(0).toUpperCase());
   return`<span class="nick-av" style="background:${bg};width:${size}px;height:${size}px;font-size:${Math.round(size*.52)}px">${letter}</span>`;
 }
@@ -1216,7 +1230,7 @@ function render(){
         const cnt=(p.voteCounts||[])[idx]||0;
         const pct=total?Math.round(cnt/total*100):0;
         const voted=p.myVote===idx;
-        return`<div class="vote-opt${voted?' voted':''}" onclick="voteAnket(${p.id},${idx})">
+        return`<div class="vote-opt${voted?' voted':''}" onclick="voteAnket(${Number(p.id)},${idx})">
           <div class="vote-fill" style="width:${pct}%"></div>
           <span class="vote-label">${esc(opt)}</span>
           <span class="vote-pct">${pct}%</span>
@@ -1235,23 +1249,23 @@ function render(){
       </div>
       ${(mB||tB)?`<div class="post-badges">${tB}${mB}</div>`:''}
       <div class="post-text">${renderText(needsTrunc?p.text.slice(0,TRUNCATE_LEN).trimEnd():p.text)}${needsTrunc?`<button class="devami-btn" data-pid="${p.id}"> devamını oku →</button>`:''}</div>
-      ${safeUrl(p.image_url)?`<div class="post-img-wrap"><img src="${safeUrl(p.image_url)}" class="post-img" loading="lazy" alt="gönderi görseli" onclick="openImageModal(this.src)"></div>`:''}
-      ${safeUrl(p.file_url)?`<a href="${safeUrl(p.file_url)}" class="post-file-attach" target="_blank" rel="noopener noreferrer" download="${esc(p.file_name||'dosya')}">📎 ${esc(p.file_name||'dosyayı indir')} <span style="color:var(--muted)">↓ indir</span></a>`:''}
+      ${safeMediaUrl(p.image_url)?`<div class="post-img-wrap"><img src="${safeMediaUrl(p.image_url)}" class="post-img" loading="lazy" alt="gönderi görseli" onclick="openImageModal(this.src)"></div>`:''}
+      ${safeMediaUrl(p.file_url)?`<a href="${safeMediaUrl(p.file_url)}" class="post-file-attach" target="_blank" rel="noopener noreferrer" download="${esc(p.file_name||'dosya')}">📎 ${esc(p.file_name||'dosyayı indir')} <span style="color:var(--muted)">↓ indir</span></a>`:''}
       ${anketHtml}
       <div class="post-bottom">
         <span class="post-time">${relTime(p.time)}</span>
         <div class="post-actions">
-          <button type="button" class="act" onclick="toggleComments(${p.id})" aria-expanded="false" aria-controls="c-${p.id}">Yanıtla${p.comments.length?`<span class="act-n">${p.comments.length}</span>`:''}</button>
-          <button type="button" class="act${mF?' on':''}" onclick="react(${p.id},'like')" aria-pressed="${!!mF}">Destek${p.fire?`<span class="act-n">${p.fire}</span>`:''}</button>
+          <button type="button" class="act" onclick="toggleComments(${Number(p.id)})" aria-expanded="false" aria-controls="c-${p.id}">Yanıtla${p.comments.length?`<span class="act-n">${p.comments.length}</span>`:''}</button>
+          <button type="button" class="act${mF?' on':''}" onclick="react(${Number(p.id)},'like')" aria-pressed="${!!mF}">Destek${p.fire?`<span class="act-n">${p.fire}</span>`:''}</button>
           <div class="post-more">
             <button type="button" class="act act-more" data-more="${p.id}" aria-haspopup="menu" aria-expanded="false" aria-label="Diğer seçenekler">···</button>
             <div class="pop-menu post-menu" role="menu" hidden>
-              <button type="button" role="menuitem" onclick="toggleBookmark(${p.id})">${isBkm?'Kaydı kaldır':'Kaydet'}</button>
-              <button type="button" role="menuitem" onclick="copyPostLink(${p.id})">Linki kopyala</button>
-              <button type="button" role="menuitem" onclick="dislike(${p.id})">${mD?'Beğenmemeyi geri al':'Beğenmedim'}</button>
-              ${!isMine?(isRep?'<button type="button" role="menuitem" disabled>Şikayet edildi</button>':`<button type="button" role="menuitem" onclick="openReport(${p.id})">Şikayet et</button>`):''}
-              ${isMine?`<button type="button" role="menuitem" class="danger" onclick="deleteMyPost(${p.id})">Gönderimi sil</button>`:''}
-              ${isModerator?`<button type="button" role="menuitem" class="danger" onclick="modDeletePost(${p.id})">Mod: sil</button><button type="button" role="menuitem" onclick="modPin(${p.id},${!!p.pinned})">Mod: ${p.pinned?'sabiti kaldır':'sabitle'}</button><button type="button" role="menuitem" class="danger" data-nick="${esc(p.author)}" onclick="modBan(this.dataset.nick)">Mod: banla</button>`:''}
+              <button type="button" role="menuitem" onclick="toggleBookmark(${Number(p.id)})">${isBkm?'Kaydı kaldır':'Kaydet'}</button>
+              <button type="button" role="menuitem" onclick="copyPostLink(${Number(p.id)})">Linki kopyala</button>
+              <button type="button" role="menuitem" onclick="dislike(${Number(p.id)})">${mD?'Beğenmemeyi geri al':'Beğenmedim'}</button>
+              ${!isMine?(isRep?'<button type="button" role="menuitem" disabled>Şikayet edildi</button>':`<button type="button" role="menuitem" onclick="openReport(${Number(p.id)})">Şikayet et</button>`):''}
+              ${isMine?`<button type="button" role="menuitem" class="danger" onclick="deleteMyPost(${Number(p.id)})">Gönderimi sil</button>`:''}
+              ${isModerator?`<button type="button" role="menuitem" class="danger" onclick="modDeletePost(${Number(p.id)})">Mod: sil</button><button type="button" role="menuitem" onclick="modPin(${Number(p.id)},${!!p.pinned})">Mod: ${p.pinned?'sabiti kaldır':'sabitle'}</button><button type="button" role="menuitem" class="danger" data-nick="${esc(p.author)}" onclick="modBan(this.dataset.nick)">Mod: banla</button>`:''}
             </div>
           </div>
         </div>
@@ -1260,7 +1274,7 @@ function render(){
         ${p.comments.map(c=>`<div class="comment">${nickAvatar(c.nick,18)}<button class="post-author-link comment-nick${c.nick===currentUser?' me':''}" data-nick="${esc(c.nick)}" onclick="openUserProfile(this.dataset.nick)">${esc(c.nick)}</button>${esc(c.text)}</div>`).join('')}
         <div class="comment-row">
           <input class="comment-input"id="ci-${p.id}"placeholder="${currentUser?'yanıt yaz…':'yanıtlamak için giriş yap'}"maxlength="200"${!currentUser?' disabled':''}>
-          <button class="comment-send"onclick="sendComment(${p.id})"${!currentUser?' disabled':''}>gönder</button>
+          <button class="comment-send"onclick="sendComment(${Number(p.id)})"${!currentUser?' disabled':''}>gönder</button>
         </div>
       </div>
     </div>`;
@@ -1326,7 +1340,7 @@ function setUploadBusy(busy){
 function checkRateLimit(){
   const key='duvar_ratelimit_'+currentUser;
   const now=Date.now();const hour=60*60*1000;
-  const times=JSON.parse(localStorage.getItem(key)||'[]').filter(t=>now-t<hour);
+  const times=lsJSON(key,[]).filter(t=>now-t<hour);
   if(times.length>=10){
     const wait=Math.ceil((Math.min(...times)+hour-now)/60000);
     toast(`// saatlik limit doldu — ${wait} dk sonra tekrar yaz`);
@@ -1439,7 +1453,7 @@ async function handleImageSelect(e){
       currentImageUrl=data.secure_url;
       const preview=document.getElementById('imgPreview');
       preview.classList.remove('hidden');
-      preview.innerHTML=`<img src="${safeUrl(currentImageUrl)}" alt="önizleme"><button class="img-remove-btn" onclick="removeImage()">✕ görseli kaldır</button>`;
+      preview.innerHTML=`<img src="${safeMediaUrl(currentImageUrl)}" alt="önizleme"><button class="img-remove-btn" onclick="removeImage()">✕ görseli kaldır</button>`;
       btn.textContent='Görsel ✓';
     }else{
       toast('// yükleme başarısız');
@@ -1611,7 +1625,7 @@ async function decryptDM(b64,nick1,nick2){
 let dmConversation=null;
 async function sbGetDMs(){
   const {data}=await sb.from('mesajlar').select('*')
-    .or(`gonderen.eq.${currentUser},alici.eq.${currentUser}`)
+    .or(`gonderen.eq.${pgVal(currentUser)},alici.eq.${pgVal(currentUser)}`)
     .order('created_at',{ascending:true});
   return data||[];
 }
@@ -1817,7 +1831,7 @@ function renderSayac(){
         <div class="sayac-display" data-id="${s.id}">${f.text}</div>
         <div class="sayac-date">${tarihStr}</div>
       </div>
-      <button class="sayac-del" onclick="sayacSil(${s.id})">✕ sil</button>
+      <button class="sayac-del" onclick="sayacSil(${Number(s.id)})">✕ sil</button>
     </div>`;
   }).join('');
 }
@@ -2302,7 +2316,7 @@ function renderBasliklar(){
       <span class="eks-baslik-meta">
         <span>${b.entryCount} entry</span>
         <span style="color:var(--border2)">@${esc(b.olusturan)}</span>
-        ${isModerator?`<button class="eks-del-btn" onclick="deleteBaslik(${b.id})">sil</button>`:''}
+        ${isModerator?`<button class="eks-del-btn" onclick="deleteBaslik(${Number(b.id)})">sil</button>`:''}
       </span>
     </div>`).join('');
   renderDuvarSidebar();
@@ -2345,7 +2359,7 @@ async function openBaslik(id,baslik){
         <span class="eks-entry-num">${i+1}</span>
         <span>@${esc(e.yazar)}</span>
         <span>${relTime(e.created_at)}</span>
-        ${(isModerator||e.yazar===currentUser)?`<button class="eks-del-btn" onclick="deleteEntry(${e.id})">sil</button>`:''}
+        ${(isModerator||e.yazar===currentUser)?`<button class="eks-del-btn" onclick="deleteEntry(${Number(e.id)})">sil</button>`:''}
       </div>
     </div>`).join('');
 }
@@ -2975,16 +2989,10 @@ if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');l
 (async()=>{
   const {data:{session}}=await sb.auth.getSession();
   if(session){
-    // session.user.user_metadata.nick'ten nick al (kayıt sırasında set edildi)
-    const nick=session.user.user_metadata?.nick;
-    if(nick){
-      // Ban + mod kontrolü (nick bulunamazsa auth_id ile dene, ikisi de yoksa hesap silinmiş demektir)
-      let {data:row}=await sb.from('kullanicilar').select('nick,banli,mod').eq('nick',nick).maybeSingle();
-      if(!row){const {data:r2}=await sb.from('kullanicilar').select('nick,banli,mod').eq('auth_id',session.user.id).maybeSingle();if(r2){row=r2;}}
-      if(!row){await sb.auth.signOut();showGuestState();}
-      if(row&&!row.banli){loginSuccess(row.nick||nick, row.mod===true);}
-      else{await sb.auth.signOut();showGuestState();}
-    }else{await sb.auth.signOut();showGuestState();}
+    // Kimlik + ban + mod kontrolü auth_id ile (user_metadata.nick'e güvenilmez, bkz. findMyRow)
+    const row=await findMyRow(session.user);
+    if(row&&!row.banli){loginSuccess(row.nick, row.mod===true);}
+    else{await sb.auth.signOut();showGuestState();}
   }else{showGuestState();}
   await loadPosts();
   loadBasliklar(); // sidebar için arka planda yükle
