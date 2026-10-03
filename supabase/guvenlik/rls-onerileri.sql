@@ -1,3 +1,6 @@
+-- ⚠ BU DOSYA ESKİ TASLAKTIR. Uygulanan kurallar: supabase/migrations/20261003120000_guvenlik_rls.sql
+-- (2026-10-03'te canlı veritabanına uygulandı ve test edildi.)
+
 -- ════════════════════════════════════════════════════════════════════════════
 -- DUVAR — Supabase güvenlik kuralları (RLS) önerileri
 -- ════════════════════════════════════════════════════════════════════════════
