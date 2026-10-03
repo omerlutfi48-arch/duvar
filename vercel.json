@@ -1,0 +1,10 @@
+{
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "duvar-chi.vercel.app" }],
+      "destination": "https://www.duvar.site/:path*",
+      "permanent": true
+    }
+  ]
+}
