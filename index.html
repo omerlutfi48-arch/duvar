@@ -216,6 +216,10 @@
   <button type="button" role="menuitem" data-go="araclar">Araçlar</button>
   <button type="button" role="menuitem" data-go="mimarlar">Mimarlar</button>
   <button type="button" role="menuitem" data-view-go="saved">Kaydettiklerim</button>
+  <div class="menu-sep" role="separator"></div>
+  <button type="button" role="menuitem" data-action="ai" id="moreAiBtn" hidden>AI asistan</button>
+  <button type="button" role="menuitem" data-action="radio">Teslim gecesi radyosu</button>
+  <button type="button" role="menuitem" data-action="feedback">Öneri / şikayet</button>
 </div>
 
 <main>
@@ -268,7 +272,6 @@
     </div>
     <div class="view-note hidden" id="viewNote"></div>
 
-    <div id="gunEnIyisi" class="gun-en-iyisi" style="display:none"></div>
     <div class="wall-header">
       <div class="wall-label">// DUVAR</div>
       <div class="wall-stats" id="wallStats"></div>
@@ -836,8 +839,6 @@
   </div>
 </div>
 
-<!-- FEEDBACK FLOAT -->
-<button class="feedback-float" id="feedbackFloatBtn" title="öneri & şikayet">💬 öneri / şikayet</button>
 
 <!-- GERİ BİLDİRİM MODAL -->
 <div class="feedback-modal hidden" id="feedbackModal">
@@ -924,8 +925,6 @@
 </div>
 
 <!-- TESLİM GECESİ RADYOSU -->
-<button class="radio-float-btn" id="radioFloatBtn" title="Teslim Gecesi Radyosu">📻</button>
-<button class="ai-float-btn" id="aiFloatBtn" onclick="openAiChat()" title="AI asistan" style="display:none">✦</button>
 
 <div class="radio-player" id="radioPlayer">
   <div class="radio-header">
@@ -939,7 +938,7 @@
   <div class="radio-body">
     <div class="radio-panel active" id="radio-youtube">
       <iframe
-        src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&controls=1&rel=0"
+        data-src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&controls=1&rel=0"
         allow="autoplay; encrypted-media"
         allowfullscreen
         style="width:100%;height:200px;border:none;display:block"
@@ -949,7 +948,7 @@
     </div>
     <div class="radio-panel" id="radio-spotify">
       <iframe
-        src="https://open.spotify.com/embed/playlist/37i9dQZF1DX8Uebhn9wzrS?utm_source=generator&theme=0"
+        data-src="https://open.spotify.com/embed/playlist/37i9dQZF1DX8Uebhn9wzrS?utm_source=generator&theme=0"
         allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
         loading="lazy"
         style="width:100%;height:200px;border:none;border-radius:0;display:block"

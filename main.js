@@ -422,8 +422,18 @@ function toggleMoreMenu(force,trigger){
   }else{menu.style.top='';menu.style.left='';}
   menu.querySelector('button')?.focus();
 }
+// Radyo: YouTube iframe'i sayfa açılışında değil, radyo ilk açıldığında yüklenir
+function openRadio(){
+  const player=document.getElementById('radioPlayer');
+  player.querySelectorAll('iframe[data-src]').forEach(f=>{if(!f.src)f.src=f.dataset.src;});
+  player.classList.add('open');
+}
 function moreGo(btn){
-  if(btn.dataset.go){switchNav(btn.dataset.go);window.scrollTo({top:0});}
+  const act=btn.dataset.action;
+  if(act==='ai')openAiChat();
+  else if(act==='radio')openRadio();
+  else if(act==='feedback')openFeedback();
+  else if(btn.dataset.go){switchNav(btn.dataset.go);window.scrollTo({top:0});}
   else if(btn.dataset.viewGo){switchNav('duvar');setView(btn.dataset.viewGo);}
   toggleMoreMenu(false);
 }
@@ -885,7 +895,7 @@ function loginSuccess(nick,isMod=false){
   document.getElementById('notifBtn').style.display='';
   document.getElementById('dmBtn').style.display=DM_ENABLED?'':'none';
   document.getElementById('loginBtn').style.display='none';
-  document.getElementById('aiFloatBtn').style.display='';
+  document.getElementById('moreAiBtn').hidden=false;
   checkNotifDot();loadDMDot();render();subscribeNotifs();
   checkPushStatus();
   // Kendi avatarını hemen yükle
@@ -899,7 +909,7 @@ function enterAsGuest(){
   document.getElementById('notifBtn').style.display='none';
   document.getElementById('dmBtn').style.display='none';
   document.getElementById('loginBtn').style.display='';
-  document.getElementById('aiFloatBtn').style.display='none';
+  document.getElementById('moreAiBtn').hidden=true;
   render();
 }
 function showAuth(){
@@ -1161,7 +1171,6 @@ function render(){
     return esc(t).replace(/#([\wçğışöüÇĞİŞÖÜ]+)/g,(m,tag)=>`<span class="tag-link" data-tag="${esc(tag)}">${m}</span>`);
   }
 
-  renderGununEnIyisi();
   // ── Re-render öncesi yorum kutusu ve input durumunu kaydet ──
   const _openComments=new Set();
   const _savedInputs={};
@@ -1222,7 +1231,7 @@ function render(){
             <div class="pop-menu post-menu" role="menu" hidden>
               <button type="button" role="menuitem" onclick="toggleBookmark(${p.id})">${isBkm?'Kaydı kaldır':'Kaydet'}</button>
               <button type="button" role="menuitem" onclick="copyPostLink(${p.id})">Linki kopyala</button>
-              <button type="button" role="menuitem" onclick="dislike(${p.id})">${mD?'Beğenmemeyi geri al':'Beğenmedim'}${p.disfire?` (${p.disfire})`:''}</button>
+              <button type="button" role="menuitem" onclick="dislike(${p.id})">${mD?'Beğenmemeyi geri al':'Beğenmedim'}</button>
               ${!isMine?(isRep?'<button type="button" role="menuitem" disabled>Şikayet edildi</button>':`<button type="button" role="menuitem" onclick="openReport(${p.id})">Şikayet et</button>`):''}
               ${isMine?`<button type="button" role="menuitem" class="danger" onclick="deleteMyPost(${p.id})">Gönderimi sil</button>`:''}
               ${isModerator?`<button type="button" role="menuitem" class="danger" onclick="modDeletePost(${p.id})">Mod: sil</button><button type="button" role="menuitem" onclick="modPin(${p.id},${!!p.pinned})">Mod: ${p.pinned?'sabiti kaldır':'sabitle'}</button><button type="button" role="menuitem" class="danger" data-nick="${esc(p.author)}" onclick="modBan(this.dataset.nick)">Mod: banla</button>`:''}
@@ -1349,23 +1358,6 @@ async function dislike(id){
   await sbDislike(id,currentUser);
 }
 function expandPost(pid){expandedPosts.add(pid);render();}
-function renderGununEnIyisi(){
-  const el=document.getElementById('gunEnIyisi');
-  if(!el)return;
-  const bugun=new Date();bugun.setHours(0,0,0,0);
-  const bugunPosts=posts.filter(p=>new Date(p.time)>=bugun&&p.aktif!==false);
-  if(bugunPosts.length<2){el.style.display='none';return;}
-  const enFire=[...bugunPosts].sort((a,b)=>(b.fire||0)-(a.fire||0))[0];
-  const enYorum=[...bugunPosts].sort((a,b)=>b.comments.length-a.comments.length)[0];
-  const top=[...new Map([[enFire.id,enFire],[enYorum.id,enYorum]]).values()];
-  el.style.display='block';
-  el.innerHTML='<div class="gun-baslik">// BUGÜNÜN EN İYİSİ</div>'
-    +top.map((p,i)=>`<div class="gun-kart" onclick="document.querySelector('[data-pid=${p.id}]')?.scrollIntoView({behavior:'smooth',block:'center'})">
-      <span class="gun-etiket">${i===0?'🔥 en çok beğeni':'💬 en çok yorum'}</span>
-      <span class="gun-preview">${esc(p.text.slice(0,80))}${p.text.length>80?'…':''}</span>
-      <span class="gun-meta">❤️ ${p.fire||0} · 💬 ${p.comments.length}</span>
-    </div>`).join('');
-}
 function toggleComments(id){
   const open=document.getElementById('c-'+id).classList.toggle('open');
   document.querySelector(`[aria-controls="c-${id}"]`)?.setAttribute('aria-expanded',open);
@@ -2732,7 +2724,7 @@ document.querySelectorAll('.more-trigger').forEach(t=>t.addEventListener('click'
   toggleMoreMenu(menu.hidden||moreTrigger!==t,t);
 }));
 document.getElementById('moreMenu').addEventListener('click',e=>{
-  const b=e.target.closest('button[data-go],button[data-view-go]');
+  const b=e.target.closest('button[data-go],button[data-view-go],button[data-action]');
   if(b)moreGo(b);
 });
 document.addEventListener('click',e=>{if(!e.target.closest('#moreMenu,.more-trigger'))toggleMoreMenu(false);});
@@ -2797,8 +2789,6 @@ const modBarLogout=document.getElementById('modBarLogoutBtn');
 if(modBarLogout)modBarLogout.addEventListener('click',modLogout);
 
 // Feedback modal
-const feedbackFloatBtn=document.getElementById('feedbackFloatBtn');
-if(feedbackFloatBtn)feedbackFloatBtn.addEventListener('click',openFeedback);
 document.querySelectorAll('.feedback-type[data-feedback-type]').forEach(b=>b.addEventListener('click',()=>selectFeedbackType(b,b.dataset.feedbackType)));
 const feedbackCancelBtn=document.getElementById('feedbackCancelBtn');
 if(feedbackCancelBtn)feedbackCancelBtn.addEventListener('click',closeFeedback);
@@ -2885,11 +2875,9 @@ document.querySelectorAll('.ilan-filter[data-ilan-filter]').forEach(b=>b.addEven
 
 // Radyo
 (function(){
-  const floatBtn=document.getElementById('radioFloatBtn');
   const player=document.getElementById('radioPlayer');
   const closeBtn=document.getElementById('radioCloseBtn');
-  if(!floatBtn||!player)return;
-  floatBtn.addEventListener('click',()=>player.classList.toggle('open'));
+  if(!player)return;
   closeBtn.addEventListener('click',()=>player.classList.remove('open'));
   document.querySelectorAll('.radio-tab[data-radio]').forEach(btn=>{
     btn.addEventListener('click',()=>{
