@@ -20,3 +20,15 @@ function toast(msg, dur = 2400, html = false) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), dur);
 }
+
+// E-posta adresini açık metin olarak JS'te tutmamak için SHA-256 karşılaştırması.
+// Not: bu sadece kişisel adresi gizler; asıl yetki kontrolü sunucuda (RLS / edge function) olmalı.
+const ADMIN_EMAIL_HASHES = ['72cb38c5f992a10da19d9de490b9ccf9d5171a9d28afc0ff2c3ece34e79e0697'];
+async function sha256Hex(text) {
+  if (!globalThis.crypto?.subtle) return ''; // güvenli olmayan (http) ortamda yetki verme
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(text || '').trim().toLowerCase()));
+  return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+async function isAdminEmail(email) {
+  return ADMIN_EMAIL_HASHES.includes(await sha256Hex(email));
+}
