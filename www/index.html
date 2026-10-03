@@ -48,7 +48,7 @@
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap"></noscript>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 
@@ -228,6 +228,11 @@
 <main>
   <!-- DUVAR -->
   <div id="section-duvar">
+    <div class="guide-strip" id="guideStrip">
+      <a href="/rehber/ekran-goruntusunden-render/"><span class="guide-strip-tag">// yeni rehber</span><span class="guide-strip-txt">Ekran görüntüsünden render: adım adım <span class="guide-strip-go" aria-hidden="true">→</span></span></a>
+      <button type="button" id="guideStripClose" aria-label="Şeridi kapat">×</button>
+    </div>
+    <script>(function(){var s=document.getElementById('guideStrip'),K='duvar_strip_render';try{if(localStorage.getItem(K)){s.hidden=true;return;}}catch(e){}document.getElementById('guideStripClose').addEventListener('click',function(){s.hidden=true;try{localStorage.setItem(K,'1');}catch(e){}});})();</script>
     <div class="write-box" id="writeBox">
       <label class="sr-only" for="mainInput">Duvara yaz</label>
       <textarea id="mainInput" placeholder="Bir soru sor ya da bir şey paylaş…" maxlength="500" rows="3"></textarea>

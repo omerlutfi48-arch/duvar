@@ -2,9 +2,19 @@
   "redirects": [
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "duvar-chi.vercel.app" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "duvar-chi.vercel.app"
+        }
+      ],
       "destination": "https://duvar.site/:path*",
       "permanent": true
+    },
+    {
+      "source": "/render",
+      "destination": "/rehber/ekran-goruntusunden-render/",
+      "permanent": false
     }
   ]
 }
