@@ -213,37 +213,17 @@
 <main>
   <!-- DUVAR -->
   <div id="section-duvar">
-    <div class="write-lock-notice" id="lockNotice">// yazmak için <a id="lockNoticeLink" style="cursor:pointer">giriş yap veya kayıt ol</a> — okumak her zaman ücretsiz.</div>
     <div class="write-box" id="writeBox">
-      <div class="write-as">yazan: <strong id="writeAsNick">—</strong></div>
-      <div class="write-selectors">
-        <div class="selector-group">
-          <div class="selector-label">// nasıl hissediyorsun</div>
-          <div class="pill-row">
-            <button class="pill mood-yorgun" data-mood="yorgun">😮‍💨 yorgunum</button>
-            <button class="pill mood-yardim" data-mood="yardim">🆘 yardım lazım</button>
-            <button class="pill mood-iyi" data-mood="iyi">✓ iyiyim</button>
-            <button class="pill mood-tesekkur" data-mood="tesekkur">♡ teşekkür</button>
-          </div>
-        </div>
-        <div class="selector-group">
-          <div class="selector-label">// ne paylaşıyorsun</div>
-          <div class="pill-row">
-            <button class="pill type-dert" data-type="dert">// dert</button>
-            <button class="pill type-soru" data-type="soru">? soru</button>
-            <button class="pill type-kaynak" data-type="kaynak">↗ kaynak</button>
-            <button class="pill type-acil" data-type="acil">! acil</button>
-          </div>
-        </div>
+      <label class="sr-only" for="mainInput">Duvara yaz</label>
+      <textarea id="mainInput" placeholder="Bir soru sor ya da bir şey paylaş…" maxlength="500" rows="3"></textarea>
+      <div class="write-type" id="writeType" role="group" aria-label="Tür (isteğe bağlı)" hidden>
+        <span class="write-type-label">tür <span class="opt">(isteğe bağlı)</span></span>
+        <button type="button" class="pill" data-type="soru" aria-pressed="false">Soru</button>
+        <button type="button" class="pill" data-type="dert" aria-pressed="false">Dert</button>
+        <button type="button" class="pill" data-type="kaynak" aria-pressed="false">Kaynak</button>
       </div>
-      <textarea id="mainInput" placeholder="dert anlat, soru sor, kaynak paylaş — ya da sadece bir şey söyle." maxlength="500" rows="4"></textarea>
       <input type="file" id="imgFileInput" accept="image/*" style="display:none" onchange="handleImageSelect(event)">
       <input type="file" id="fileInput" accept=".dwg,.dxf,.pdf,.zip,.rvt,.skp,.3dm,.ifc,.doc,.docx,.ppt,.pptx,.xlsx" style="display:none" onchange="handleFileSelect(event)">
-      <div class="write-btns-row">
-        <button class="anket-toggle" id="anketToggle">📊 anket ekle</button>
-        <button class="anket-toggle" id="imgUploadBtn" onclick="document.getElementById('imgFileInput').click()">🖼 görsel ekle</button>
-        <button class="anket-toggle" id="fileUploadBtn" onclick="document.getElementById('fileInput').click()">📎 dosya ekle</button>
-      </div>
       <div id="imgPreview" class="img-preview-wrap hidden"></div>
       <div id="filePreview" class="file-preview-wrap hidden"></div>
       <div class="anket-inputs hidden" id="anketInputs">
@@ -253,13 +233,18 @@
         <input class="anket-opt-input" id="anket-opt-3" placeholder="seçenek 4 (isteğe bağlı)" maxlength="80">
       </div>
       <div class="write-footer">
-        <div style="display:flex;align-items:center;gap:.8rem">
-          <span class="char-left" id="charCount">500 karakter kaldı</span>
-          <span class="draft-saved" id="draftSaved">💾 taslak</span>
+        <div class="ekle-wrap">
+          <button type="button" class="ekle-btn" id="ekleBtn" aria-haspopup="menu" aria-expanded="false" aria-controls="ekleMenu">+ Ekle</button>
+          <div class="pop-menu ekle-menu" id="ekleMenu" role="menu" hidden>
+            <button type="button" role="menuitem" id="imgUploadBtn">Görsel</button>
+            <button type="button" role="menuitem" id="fileUploadBtn">Dosya</button>
+            <button type="button" role="menuitem" id="anketToggle">Anket</button>
+          </div>
         </div>
-        <div style="display:flex;align-items:center;gap:.7rem">
-          <span class="ctrl-hint">ctrl+↵</span>
-          <button class="submit-btn" id="addPostBtn">DUVARA YAZ</button>
+        <div class="write-footer-right">
+          <span class="draft-saved" id="draftSaved">taslak kaydedildi</span>
+          <span class="char-left" id="charCount" aria-live="polite"></span>
+          <button type="button" class="submit-btn" id="addPostBtn">Duvara yaz</button>
         </div>
       </div>
     </div>

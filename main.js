@@ -306,39 +306,8 @@ function saveDraft(){
 function restoreDraft(){
   const d=localStorage.getItem('duvar_draft');
   if(d)document.getElementById('mainInput').value=d;
+  updateCharCount();syncWriteType();
 }
-
-// ── DÖNEN PLACEHOLDER ──
-(function initRotatingPlaceholder(){
-  const prompts=[
-    'dert anlat, soru sor, kaynak paylaş — ya da sadece bir şey söyle.',
-    'şu an ne hissediyorsun?',
-    'bugün stüdyoda ne oldu?',
-    'jüri öncesi aklından geçenler?',
-    'paylaşmak istediğin bir kaynak var mı?',
-    'hocanla ilgili bir şey mi yaşandı?',
-    'bir şey öğrendin, paylaşmak ister misin?',
-    'anonim ol, rahat ol — yaz.',
-    'gecenin kaçında çalışıyorsun?',
-    'bunu duymak isteyen biri vardır.',
-  ];
-  let idx=0,timer=null;
-  function start(){
-    const inp=document.getElementById('mainInput');
-    if(!inp)return;
-    inp.addEventListener('focus',()=>clearInterval(timer));
-    inp.addEventListener('blur',()=>{if(!inp.value)timer=setInterval(rotate,3500);});
-    function rotate(){
-      const i=document.getElementById('mainInput');
-      if(!i||document.activeElement===i||i.value)return;
-      idx=(idx+1)%prompts.length;
-      i.placeholder=prompts[idx];
-    }
-    timer=setInterval(rotate,3500);
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);
-  else start();
-})();
 
 // ── PERMALINK ──
 function copyPostLink(id){
@@ -380,7 +349,7 @@ function closeUProfile(){document.getElementById('uprofileOverlay').classList.ad
 function toggleAnket(){
   anketOpen=!anketOpen;
   document.getElementById('anketInputs').classList.toggle('hidden',!anketOpen);
-  document.getElementById('anketToggle').textContent=anketOpen?'✕ anketi kaldır':'📊 anket ekle';
+  document.getElementById('anketToggle').textContent=anketOpen?'Anketi kaldır':'Anket';
   if(!anketOpen)['anket-opt-0','anket-opt-1','anket-opt-2','anket-opt-3'].forEach(id=>{document.getElementById(id).value='';});
 }
 async function voteAnket(postId,optIdx){
@@ -881,9 +850,7 @@ function loginSuccess(nick,isMod=false){
   document.getElementById('authModal').classList.add('hidden');
   const nd=document.getElementById('userNickDisplay');
   nd.textContent=nick;nd.style.display='';
-  document.getElementById('writeAsNick').textContent=nick;
-  document.getElementById('writeBox').classList.remove('locked');
-  document.getElementById('lockNotice').classList.remove('show');
+  setWriteLocked(false);
   document.getElementById('notifBtn').style.display='';
   document.getElementById('dmBtn').style.display='';
   document.getElementById('loginBtn').style.display='none';
@@ -896,8 +863,7 @@ function loginSuccess(nick,isMod=false){
 function enterAsGuest(){
   currentUser=null;
   document.getElementById('authModal').classList.add('hidden');
-  document.getElementById('writeBox').classList.add('locked');
-  document.getElementById('lockNotice').classList.add('show');
+  setWriteLocked(true);
   document.getElementById('userNickDisplay').style.display='none';
   document.getElementById('notifBtn').style.display='none';
   document.getElementById('dmBtn').style.display='none';
@@ -954,7 +920,6 @@ async function changeNick(){
   ]);
   currentUser=newNick;
   document.getElementById('userNickDisplay').textContent=newNick;
-  document.getElementById('writeAsNick').textContent=newNick;
   document.getElementById('nickChangeForm').classList.add('hidden');
   document.getElementById('newNickInput').value='';
   err.textContent='';
@@ -997,8 +962,7 @@ async function deleteAccount(){
   document.getElementById('notifBtn').style.display='none';
   document.getElementById('dmBtn').style.display='none';
   document.getElementById('loginBtn').style.display='';
-  document.getElementById('writeBox').classList.add('locked');
-  document.getElementById('lockNotice').classList.add('show');
+  setWriteLocked(true);
   closePanels();
   toast('// hesabın silindi');
   render();
@@ -1010,8 +974,7 @@ function logout(){
   document.getElementById('notifBtn').style.display='none';
   document.getElementById('dmBtn').style.display='none';
   document.getElementById('loginBtn').style.display='';
-  document.getElementById('writeBox').classList.add('locked');
-  document.getElementById('lockNotice').classList.add('show');
+  setWriteLocked(true);
   closePanels();showAuth();render();
 }
 
@@ -1255,15 +1218,39 @@ function render(){
 }
 
 // ── ACTIONS ──
-function selectMood(el,mood){
-  document.querySelectorAll('.pill[class*="mood-"]').forEach(p=>p.classList.remove('active'));
-  selectedMood=selectedMood===mood?null:mood;
-  if(selectedMood)el.classList.add('active');
-}
+// Duygu (mood) seçimi arayüzden kaldırıldı; yeni gönderiler mood=null ile kaydedilir.
+// Eski gönderilerdeki mood verisine dokunulmaz.
 function selectType(el,type){
-  document.querySelectorAll('.pill[class*="type-"]').forEach(p=>p.classList.remove('active'));
   selectedType=selectedType===type?null:type;
-  if(selectedType)el.classList.add('active');
+  document.querySelectorAll('#writeType .pill[data-type]').forEach(p=>{
+    const on=p.dataset.type===selectedType;
+    p.classList.toggle('active',on);p.setAttribute('aria-pressed',on);
+  });
+}
+// Tür etiketi yazmaya başlayınca görünür (isteğe bağlı)
+function syncWriteType(){
+  const v=document.getElementById('mainInput').value.trim();
+  document.getElementById('writeType').hidden=!(v||selectedType);
+}
+// Misafirde yazma kutusu: salt okunur, tıklayınca giriş açılır
+function setWriteLocked(locked){
+  const box=document.getElementById('writeBox');
+  const inp=document.getElementById('mainInput');
+  box.classList.toggle('locked',locked);
+  inp.readOnly=locked;
+  inp.placeholder=locked?'Yazmak için giriş yap — okumak serbest.':'Bir soru sor ya da bir şey paylaş…';
+}
+// "Ekle" menüsü (görsel / dosya / anket)
+function toggleEkleMenu(force){
+  const menu=document.getElementById('ekleMenu');
+  const btn=document.getElementById('ekleBtn');
+  const open=force===undefined?menu.hidden:force;
+  menu.hidden=!open;btn.setAttribute('aria-expanded',open);
+  if(open)menu.querySelector('button')?.focus();
+}
+function setUploadBusy(busy){
+  const b=document.getElementById('ekleBtn');
+  b.disabled=busy;b.textContent=busy?'yükleniyor…':'+ Ekle';
 }
 function checkRateLimit(){
   const key='duvar_ratelimit_'+currentUser;
@@ -1297,10 +1284,11 @@ async function addPost(){
   const newPost=await sbAddPost(currentUser,val,selectedMood,selectedType,options,currentImageUrl,currentFileUrl,currentFileName);
   if(!newPost)return;
   document.getElementById('mainInput').value='';
-  document.getElementById('charCount').textContent='500 karakter kaldı';
+  updateCharCount();
   localStorage.removeItem('duvar_draft');
   selectedMood=null;selectedType=null;
-  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#writeType .pill').forEach(p=>{p.classList.remove('active');p.setAttribute('aria-pressed','false');});
+  syncWriteType();
   if(anketOpen)toggleAnket();
   removeImage();removeFile();
   toast('// duvara yazıldı');
@@ -1377,35 +1365,35 @@ async function handleImageSelect(e){
   if(!file)return;
   if(file.size>5*1024*1024){toast('// max 5MB yükleyebilirsin');return;}
   const btn=document.getElementById('imgUploadBtn');
-  btn.textContent='// yükleniyor...';btn.disabled=true;
+  btn.textContent='yükleniyor…';btn.disabled=true;setUploadBusy(true);
   try{
     const fd=new FormData();
     fd.append('file',file);
     fd.append('upload_preset',CLOUDINARY_PRESET);
     const res=await fetch(CLOUDINARY_URL,{method:'POST',body:fd});
     const data=await res.json();
-    if(data.error){toast('// cloudinary: '+data.error.message);btn.textContent='🖼 görsel ekle';btn.disabled=false;return;}
+    if(data.error){toast('// cloudinary: '+data.error.message);btn.textContent='Görsel';btn.disabled=false;return;}
     if(data.secure_url){
       currentImageUrl=data.secure_url;
       const preview=document.getElementById('imgPreview');
       preview.classList.remove('hidden');
       preview.innerHTML=`<img src="${currentImageUrl}" alt="önizleme"><button class="img-remove-btn" onclick="removeImage()">✕ görseli kaldır</button>`;
-      btn.textContent='✓ görsel eklendi';
+      btn.textContent='Görsel ✓';
     }else{
       toast('// yükleme başarısız');
-      btn.textContent='🖼 görsel ekle';btn.disabled=false;
+      btn.textContent='Görsel';btn.disabled=false;
     }
   }catch(err){
     toast('// yükleme hatası: '+err.message);
-    btn.textContent='🖼 görsel ekle';btn.disabled=false;
-  }
+    btn.textContent='Görsel';btn.disabled=false;
+  }finally{setUploadBusy(false);}
 }
 function removeImage(){
   currentImageUrl=null;
   const preview=document.getElementById('imgPreview');
   preview.classList.add('hidden');preview.innerHTML='';
   const btn=document.getElementById('imgUploadBtn');
-  btn.textContent='🖼 görsel ekle';btn.disabled=false;
+  btn.textContent='Görsel';btn.disabled=false;
   document.getElementById('imgFileInput').value='';
 }
 async function handleFileSelect(e){
@@ -1413,34 +1401,34 @@ async function handleFileSelect(e){
   if(!file)return;
   if(file.size>50*1024*1024){toast('// max 50MB yükleyebilirsin');return;}
   const btn=document.getElementById('fileUploadBtn');
-  btn.textContent='// yükleniyor...';btn.disabled=true;
+  btn.textContent='yükleniyor…';btn.disabled=true;setUploadBusy(true);
   try{
     const fd=new FormData();
     fd.append('file',file);
     fd.append('upload_preset',CLOUDINARY_PRESET);
     const res=await fetch(CLOUDINARY_RAW_URL,{method:'POST',body:fd});
     const data=await res.json();
-    if(data.error){toast('// cloudinary: '+data.error.message);btn.textContent='📎 dosya ekle';btn.disabled=false;return;}
+    if(data.error){toast('// cloudinary: '+data.error.message);btn.textContent='Dosya';btn.disabled=false;return;}
     if(data.secure_url){
       currentFileUrl=data.secure_url;
       currentFileName=file.name;
       const preview=document.getElementById('filePreview');
       preview.classList.remove('hidden');
       preview.innerHTML=`<span class="file-name">📎 ${esc(file.name)}</span><button class="img-remove-btn" onclick="removeFile()">✕</button>`;
-      btn.textContent='✓ dosya eklendi';
+      btn.textContent='Dosya ✓';
     }else{
-      toast('// yükleme başarısız');btn.textContent='📎 dosya ekle';btn.disabled=false;
+      toast('// yükleme başarısız');btn.textContent='Dosya';btn.disabled=false;
     }
   }catch(err){
-    toast('// yükleme hatası: '+err.message);btn.textContent='📎 dosya ekle';btn.disabled=false;
-  }
+    toast('// yükleme hatası: '+err.message);btn.textContent='Dosya';btn.disabled=false;
+  }finally{setUploadBusy(false);}
 }
 function removeFile(){
   currentFileUrl=null;currentFileName=null;
   const preview=document.getElementById('filePreview');
   preview.classList.add('hidden');preview.innerHTML='';
   const btn=document.getElementById('fileUploadBtn');
-  btn.textContent='📎 dosya ekle';btn.disabled=false;
+  btn.textContent='Dosya';btn.disabled=false;
   document.getElementById('fileInput').value='';
 }
 function openImageModal(url){
@@ -2670,8 +2658,6 @@ document.getElementById('dmBtn').addEventListener('click',openDMs);
 document.getElementById('notifBtn').addEventListener('click',openNotifs);
 document.getElementById('userNickDisplay').addEventListener('click',openProfile);
 document.getElementById('loginBtn').addEventListener('click',showAuth);
-const lockLink=document.getElementById('lockNoticeLink');
-if(lockLink)lockLink.addEventListener('click',showAuth);
 
 // Nav tabları
 document.querySelectorAll('.nav-tab[data-nav]').forEach(b=>b.addEventListener('click',()=>switchNav(b.dataset.nav)));
@@ -2689,8 +2675,13 @@ document.getElementById('searchInput').addEventListener('input',render);
 // Sort butonları
 document.querySelectorAll('.sort-btn[data-sort]').forEach(b=>b.addEventListener('click',()=>setSort(b.dataset.sort,b)));
 
-// Anket toggle
-document.getElementById('anketToggle').addEventListener('click',toggleAnket);
+// Ekle menüsü: görsel / dosya / anket
+document.getElementById('ekleBtn').addEventListener('click',e=>{e.stopPropagation();toggleEkleMenu();});
+document.getElementById('imgUploadBtn').addEventListener('click',()=>{toggleEkleMenu(false);document.getElementById('imgFileInput').click();});
+document.getElementById('fileUploadBtn').addEventListener('click',()=>{toggleEkleMenu(false);document.getElementById('fileInput').click();});
+document.getElementById('anketToggle').addEventListener('click',()=>{toggleEkleMenu(false);toggleAnket();if(anketOpen)document.getElementById('anket-opt-0').focus();});
+document.addEventListener('click',e=>{if(!e.target.closest('.ekle-wrap'))toggleEkleMenu(false);});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.getElementById('ekleMenu').hidden){toggleEkleMenu(false);document.getElementById('ekleBtn').focus();}});
 
 // Draft kaydet
 document.getElementById('mainInput').addEventListener('input',saveDraft);
@@ -2698,10 +2689,9 @@ document.getElementById('mainInput').addEventListener('input',saveDraft);
 // Gönderi gönder
 document.getElementById('addPostBtn').addEventListener('click',addPost);
 
-// Mood ve Type pill'leri (delegation)
+// Tür etiketleri (delegation) + misafir için giriş açma
 document.querySelector('.write-box').addEventListener('click',e=>{
-  const moodBtn=e.target.closest('.pill[data-mood]');
-  if(moodBtn){selectMood(moodBtn,moodBtn.dataset.mood);return;}
+  if(!currentUser){showAuth();return;}
   const typeBtn=e.target.closest('.pill[data-type]');
   if(typeBtn)selectType(typeBtn,typeBtn.dataset.type);
 });
@@ -2836,12 +2826,14 @@ document.querySelectorAll('.ilan-filter[data-ilan-filter]').forEach(b=>b.addEven
 })();
 
 
-document.getElementById('mainInput').addEventListener('input',function(){
-  const l=500-this.value.length;
+// Kalan karakter sadece sınıra yaklaşınca görünür
+function updateCharCount(){
+  const l=500-document.getElementById('mainInput').value.length;
   const el=document.getElementById('charCount');
-  el.textContent=l+' karakter kaldı';
+  el.textContent=l<100?l+' karakter kaldı':'';
   el.classList.toggle('warn',l<50);
-});
+}
+document.getElementById('mainInput').addEventListener('input',()=>{updateCharCount();syncWriteType();});
 document.getElementById('mainInput').addEventListener('keydown',e=>{if(e.ctrlKey&&e.key==='Enter')addPost();});
 document.getElementById('modPass').addEventListener('keydown',e=>{if(e.key==='Enter')modLogin();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModLogin();});
