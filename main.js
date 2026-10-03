@@ -92,6 +92,11 @@ function nickToEmail(nick){
   return s+'.u@duvar.app';
 }
 
+// ── ÖZEL MESAJLAR ──
+// Özel mesajlar arayüzden kapatıldı. Tablo (mesajlar) ve içindeki veriler silinmedi;
+// tekrar açmak için true yapmak yeterli.
+const DM_ENABLED=false;
+
 // ── MOD YETKİLİ E-POSTALAR ──
 const MOD_EMAILS=['omerlutfi48@gmail.com'];
 
@@ -207,6 +212,7 @@ sb.channel('duvar-realtime')
   .on('postgres_changes',{event:'*',schema:'public',table:'posts'},()=>debouncedLoadPosts())
   .on('postgres_changes',{event:'INSERT',schema:'public',table:'yorumlar'},()=>debouncedLoadPosts())
   .on('postgres_changes',{event:'INSERT',schema:'public',table:'mesajlar'},()=>{
+    if(!DM_ENABLED)return;
     loadDMDot();
     if(dmConversation)openConversation(dmConversation);
     else if(document.getElementById('dmPanel').classList.contains('open'))openDMs();
@@ -877,7 +883,7 @@ function loginSuccess(nick,isMod=false){
   nd.textContent=nick;nd.style.display='';
   setWriteLocked(false);
   document.getElementById('notifBtn').style.display='';
-  document.getElementById('dmBtn').style.display='';
+  document.getElementById('dmBtn').style.display=DM_ENABLED?'':'none';
   document.getElementById('loginBtn').style.display='none';
   document.getElementById('aiFloatBtn').style.display='';
   checkNotifDot();loadDMDot();render();subscribeNotifs();
@@ -1197,7 +1203,7 @@ function render(){
         <span class="post-number">#${String(filtered.length-i).padStart(3,'0')}</span>
         ${nickAvatar(p.author)}
         <button class="post-author-link post-author${isMine?' me':''}" onclick="openUserProfile('${esc(p.author)}')">${esc(p.author)}</button>
-        ${!isMine&&currentUser?`<button class="dm-btn" onclick="openConversation('${esc(p.author)}')" title="mesaj gönder">✉</button>`:''}
+        ${DM_ENABLED&&!isMine&&currentUser?`<button class="dm-btn" onclick="openConversation('${esc(p.author)}')" title="mesaj gönder">✉</button>`:''}
         ${isMine?'<span class="mini-tag mine-tag">sen</span>':''}
         ${p.pinned?'<span class="mini-tag pin-tag">📌 sabit</span>':''}
       </div>
@@ -1606,12 +1612,12 @@ async function sbMarkRead(gonderen){
   await sb.from('mesajlar').update({okundu:true}).eq('gonderen',gonderen).eq('alici',currentUser).eq('okundu',false);
 }
 async function loadDMDot(){
-  if(!currentUser)return;
+  if(!DM_ENABLED||!currentUser)return;
   const {data}=await sb.from('mesajlar').select('id').eq('alici',currentUser).eq('okundu',false);
   document.getElementById('dmDot').classList.toggle('show',(data||[]).length>0);
 }
 async function openDMs(){
-  if(!currentUser)return;
+  if(!DM_ENABLED||!currentUser)return;
   dmConversation=null;
   closePanels();
   document.getElementById('dmPanelTitle').textContent='// MESAJLAR';
@@ -1644,7 +1650,7 @@ async function openDMs(){
   loadDMDot();
 }
 async function openConversation(nick){
-  if(!currentUser)return;
+  if(!DM_ENABLED||!currentUser)return;
   dmConversation=nick;
   if(!document.getElementById('dmPanel').classList.contains('open')){
     closePanels();
