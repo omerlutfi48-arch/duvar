@@ -15,6 +15,31 @@
       "source": "/render",
       "destination": "/rehber/ekran-goruntusunden-render/",
       "permanent": false
+    },
+    {
+      "source": "/juri",
+      "destination": "/#araclar/juri",
+      "permanent": false
+    },
+    {
+      "source": "/palet",
+      "destination": "/#araclar/palet",
+      "permanent": false
+    },
+    {
+      "source": "/olcek",
+      "destination": "/#araclar/olcek",
+      "permanent": false
+    },
+    {
+      "source": "/sayac",
+      "destination": "/#araclar/sayac",
+      "permanent": false
+    },
+    {
+      "source": "/araclar",
+      "destination": "/#araclar",
+      "permanent": false
     }
   ]
 }

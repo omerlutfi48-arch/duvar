@@ -48,7 +48,7 @@
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap"></noscript>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -432,18 +432,18 @@
 
   <!-- ARAÇLAR -->
   <div class="guide-section" id="section-araclar">
-    <div class="araclar-tabs">
-      <button class="arac-tab active" id="arac-tab-sayac" data-arac="sayac">⏳ teslim sayacı</button>
-      <button class="arac-tab" id="arac-tab-juri" data-arac="juri">🎭 jüri simülatörü</button>
-      <button class="arac-tab" id="arac-tab-olcek" data-arac="olcek">📐 ölçek hesap</button>
-      <button class="arac-tab" id="arac-tab-alan" data-arac="alan">📋 alan programı</button>
-      <button class="arac-tab" id="arac-tab-bingo" data-arac="bingo">🎯 bingo</button>
-      <button class="arac-tab" id="arac-tab-fikir" data-arac="fikir">🎲 proje fikir</button>
-      <button class="arac-tab" id="arac-tab-yazilim" data-arac="yazilim">⌨ yazılım rehberi</button>
-      <button class="arac-tab" id="arac-tab-program2" data-arac="program2">🏛 program hesap</button>
-      <button class="arac-tab" id="arac-tab-palet" data-arac="palet">🎨 renk paleti</button>
-      <button class="arac-tab" id="arac-tab-cv" data-arac="cv">📄 cv şablonu</button>
-      <button class="arac-tab" id="arac-tab-ai" data-arac="ai">🤖 yapay zeka</button>
+    <div class="araclar-tabs" role="tablist" aria-label="Araçlar">
+      <button class="arac-tab active" id="arac-tab-sayac" data-arac="sayac">teslim sayacı</button>
+      <button class="arac-tab" id="arac-tab-juri" data-arac="juri">jüri simülatörü</button>
+      <button class="arac-tab" id="arac-tab-olcek" data-arac="olcek">ölçek hesap</button>
+      <button class="arac-tab" id="arac-tab-alan" data-arac="alan">alan programı</button>
+      <button class="arac-tab" id="arac-tab-bingo" data-arac="bingo">bingo</button>
+      <button class="arac-tab" id="arac-tab-fikir" data-arac="fikir">proje fikir</button>
+      <button class="arac-tab" id="arac-tab-yazilim" data-arac="yazilim">yazılım rehberi</button>
+      <button class="arac-tab" id="arac-tab-program2" data-arac="program2">program hesap</button>
+      <button class="arac-tab" id="arac-tab-palet" data-arac="palet">renk paleti</button>
+      <button class="arac-tab" id="arac-tab-cv" data-arac="cv">cv şablonu</button>
+      <button class="arac-tab" id="arac-tab-ai" data-arac="ai">yapay zeka</button>
     </div>
 
     <!-- TESLİM SAYACI -->
@@ -614,11 +614,11 @@
       <div id="programSonuc"></div>
     </div>
 
-    <!-- RENK PALETİ ÜRETİCİ -->
+    <!-- RENK PALETLERİ -->
     <div class="arac-section" id="arac-palet">
       <div class="sayac-header">
-        <div class="sayac-title">RENK PALETİ ÜRETİCİ</div>
-        <div class="sayac-sub">// sunum ve maket için malzeme/stil bazlı renk kombinasyonları. rengi tıkla → hex kopyala.</div>
+        <div class="sayac-title">RENK PALETLERİ</div>
+        <div class="sayac-sub">// sunum ve maket için on hazır palet. birini seç ya da rastgele getir; renge dokun → kodu kopyalanır.</div>
       </div>
       <div class="palet-controls">
         <div class="palet-kat-label">// malzeme · stil · atmosfer</div>
@@ -634,7 +634,7 @@
           <button class="palet-kat" data-palet="pastel">pastel + yumuşak</button>
           <button class="palet-kat" data-palet="retro">retro + toprak</button>
         </div>
-        <button class="juri-btn" id="paletUretBtn" style="margin-top:1rem">PALET ÜRET</button>
+        <button class="juri-btn" id="paletUretBtn" style="margin-top:1rem">RASTGELE PALET</button>
       </div>
       <div id="paletSonuc"></div>
     </div>
@@ -974,6 +974,6 @@
 </div>
 
 <script src="utils.js?v=4"></script>
-<script src="main.js?v=6"></script>
+<script src="main.js?v=7"></script>
 </body>
 </html>
