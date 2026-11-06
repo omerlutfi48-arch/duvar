@@ -892,3 +892,41 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
 .identity-modal .guest-btn { min-height: 44px; }
 
 #identitySettingsBtn[hidden], #showNickChangeBtn[hidden], #identityNickField[hidden] { display: none; }
+
+/* Duvar akışının üst bölümü ve gönderi kartları */
+.header-top { align-items: center; gap: .6rem; }
+.site-title { letter-spacing: .025em; }
+.header-controls { margin-top: 0; }
+.top-nav .nav-tab { font-family: var(--ff-body); font-weight: 600; }
+.header-controls .icon-btn, #section-duvar .act { border-radius: 8px; }
+.user-nick { max-width: min(14rem, 44vw); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-radius: 8px; }
+#section-duvar .write-box, #section-duvar .guide-strip, #section-duvar .post { border-radius: 12px; }
+#section-duvar .post-author { font-family: var(--ff-body); font-weight: 650; letter-spacing: 0; overflow-wrap: anywhere; }
+#section-duvar .post-author::before { content: none; }
+#section-duvar .post-text { text-wrap: pretty; }
+#section-duvar .search-input { border-radius: 8px; }
+#section-duvar .wall-tab { font-family: var(--ff-body); font-weight: 600; }
+#section-duvar .post-actions { flex-wrap: wrap; }
+#section-duvar :is(button, a, input, textarea):focus-visible, .identity-modal :is(input, button):focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
+}
+@media (max-width: 600px) {
+  header { padding: .85rem 1rem .75rem; }
+  main { padding-top: .7rem; }
+  .site-title { font-size: clamp(2.4rem, 9vw, 3.4rem); }
+  .beta-badge { margin-bottom: .3rem; letter-spacing: .06em; }
+  .site-subtitle { margin-top: .4rem; font-size: .9rem; }
+  .header-controls .icon-btn { min-height: 44px; }
+  #section-duvar .guide-strip { margin-bottom: .65rem; }
+  #section-duvar .guide-strip a { padding: .55rem .7rem; gap: .1rem .5rem; }
+  #section-duvar .guide-strip-tag { letter-spacing: .06em; font-size: .65rem; }
+  #section-duvar .guide-strip-txt { font-size: .85rem; }
+  #section-duvar .write-box { margin-bottom: .7rem; }
+  #section-duvar .write-box.locked { padding: .6rem .8rem; }
+  #section-duvar .write-box.locked textarea { height: 2.5rem; }
+  #section-duvar .wall-tabs-row { margin-bottom: .8rem; }
+  #section-duvar .wall-tab { min-height: 44px; }
+  #section-duvar .post { padding: 1rem; }
+  .bottom-nav .bnav-btn { font-family: var(--ff-body); font-weight: 600; }
+}

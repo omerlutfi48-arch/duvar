@@ -3175,7 +3175,7 @@ if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');l
   try{
     if(session){
       googleLinked=hasGoogleIdentity(session.user);
-      const row=await findMyRow(session.user,googleLinked);
+      const row=await findMyRow(session.user,true);
       if(row&&!row.banli){
         applyIdentityProfile(row);
         loginSuccess(row.nick,row.mod===true);
