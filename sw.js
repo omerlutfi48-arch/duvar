@@ -1,4 +1,4 @@
-const CACHE = 'duvar-v7';
+const CACHE = 'duvar-v8';
 const ASSETS = [
   '/',
   '/index.html',
@@ -16,7 +16,7 @@ self.addEventListener('install', e => {
 
 self.addEventListener('activate', e => {
   e.waitUntil(caches.keys().then(keys =>
-    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+    Promise.all(keys.filter(k => k.startsWith('duvar-') && k !== CACHE).map(k => caches.delete(k)))
   ));
   self.clients.claim();
 });
@@ -55,7 +55,8 @@ self.addEventListener('notificationclick', e => {
 
 self.addEventListener('fetch', e => {
   // Supabase ve Google Fonts isteklerini cache'leme
-  if (e.request.url.includes('supabase.co') || e.request.url.includes('googleapis.com')) return;
+  const url = new URL(e.request.url);
+  if (e.request.method !== 'GET' || url.origin !== self.location.origin) return;
   e.respondWith(
     fetch(e.request).catch(() => caches.match(e.request))
   );
