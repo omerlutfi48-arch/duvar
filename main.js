@@ -8,7 +8,9 @@ const CLOUDINARY_RAW_URL='https://api.cloudinary.com/v1_1/dxsvzlv1m/raw/upload';
 const CLOUDINARY_PRESET='duvar.site';
 let currentImageUrl=null;
 let currentFileUrl=null;
-const avatarCache={}; // nick -> url | null
+const avatarCache=Object.create(null); // nick -> url | null
+const displayNames=Object.create(null);
+const visibleName=nick=>displayNames[nick]||nick;
 let currentFileName=null;
 
 // ── WEB PUSH ──
@@ -101,12 +103,12 @@ const DM_ENABLED=false;
 // Mod e-postaları artık açık metin değil: utils.js → isAdminEmail() (SHA-256 karşılaştırması)
 
 // ── SUPABASE VERİ FONKSİYONLARI ──
-async function loadAvatarUrls(nicks){
-  const toLoad=nicks.filter(n=>n&&!(n in avatarCache));
+async function loadAvatarUrls(nicks,refresh=false){
+  const toLoad=nicks.filter(n=>n&&(refresh||!(n in avatarCache)));
   if(!toLoad.length)return;
   try{
-    const{data}=await sb.from('kullanicilar').select('nick,avatar_url').in('nick',toLoad);
-    (data||[]).forEach(r=>{avatarCache[r.nick]=r.avatar_url||null;});
+    const{data}=await sb.from('kullanicilar').select('nick,avatar_url,display_name').in('nick',toLoad);
+    (data||[]).forEach(r=>{avatarCache[r.nick]=r.avatar_url||null;displayNames[r.nick]=r.display_name;});
     toLoad.forEach(n=>{if(!(n in avatarCache))avatarCache[n]=null;});
   }catch(e){toLoad.forEach(n=>{avatarCache[n]=null;});}
 }
@@ -145,7 +147,7 @@ async function loadPosts(){
   }
   // Avatar URL'leri yükle
   const allNicks=[...new Set([...posts.map(p=>p.author),...posts.flatMap(p=>p.comments.map(c=>c.nick))].filter(Boolean))];
-  await loadAvatarUrls(allNicks);
+  await loadAvatarUrls(allNicks,true);
   // Anket oyları
   const pollPosts=posts.filter(p=>p.options?.length>=2);
   if(pollPosts.length){
@@ -347,7 +349,7 @@ function openUserProfile(nick){
   if(nick===currentUser){openProfile();return;}
   const userPosts=posts.filter(p=>p.author===nick);
   const tF=userPosts.reduce((s,p)=>s+(p.fire||0),0);
-  document.getElementById('uprofileNick').innerHTML=`${nickAvatar(nick,38)}<span>@${esc(nick)}</span>`;
+  document.getElementById('uprofileNick').innerHTML=`${nickAvatar(nick,38)}<span>${esc(visibleName(nick))}</span>`;
   document.getElementById('uprofileStats').innerHTML=`
     <div class="panel-stat"><div class="panel-stat-num">${userPosts.length}</div><div class="panel-stat-label">gönderi</div></div>
     <div class="panel-stat"><div class="panel-stat-num">${tF}</div><div class="panel-stat-label">❤️ toplam</div></div>
@@ -852,6 +854,7 @@ function switchAuthTab(tab){
   checkPassStrength(document.getElementById('authPass').value);
 }
 let googleLinked=false;
+let editingIdentity=false;
 
 function hasGoogleIdentity(user){
   return user.identities?.some(identity=>identity.provider==='google')===true;
@@ -875,39 +878,104 @@ async function startGoogleAuth(link=false){
   }
 }
 
+function googleName(user){
+  const info=user.identities?.find(identity=>identity.provider==='google')?.identity_data;
+  const name=info?.full_name||info?.name;
+  return typeof name==='string'?name.replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,100):'';
+}
+
+function syncIdentityForm(){
+  const form=document.getElementById('googleProfileForm');
+  const anonymous=form.elements.identityMode.value==='anonymous';
+  document.getElementById('identityNickField').hidden=!anonymous;
+  document.getElementById('googleProfileNick').required=anonymous;
+}
+
+function showIdentityForm(user,profile=null){
+  const form=document.getElementById('googleProfileForm');
+  const nickInput=document.getElementById('googleProfileNick');
+  const namedOption=form.querySelector('[value="named"]');
+  const googleDisplayName=googleName(user);
+  editingIdentity=Boolean(profile);
+  namedOption.disabled=!googleDisplayName;
+  form.elements.identityMode.value=!googleDisplayName||profile?.is_anonymous?'anonymous':'named';
+  nickInput.value=profile?.is_anonymous?(profile.display_name||profile.nick):'';
+  document.getElementById('identityGoogleName').textContent=googleDisplayName||'Google hesabında kullanılabilir bir ad bulunamadı.';
+  document.getElementById('googleProfileError').textContent='';
+  document.getElementById('googleProfileCancel').textContent=editingIdentity?'Vazgeç':'Çıkış yap ve okumaya devam et';
+  syncIdentityForm();
+  document.getElementById('googleProfileModal').classList.remove('hidden');
+  form.querySelector('input:checked').focus();
+}
+
+function applyIdentityProfile(row){
+  displayNames[row.nick]=row.display_name;
+}
+
+async function openIdentitySettings(){
+  if(!currentUser||!googleLinked)return;
+  try{
+    const {data:{user},error}=await sb.auth.getUser();
+    if(error||!user||!hasGoogleIdentity(user))throw new Error('Google kimliği doğrulanamadı.');
+    const row=await findMyRow(user,true);
+    if(!row||row.banli)throw new Error('Profil bulunamadı.');
+    closePanels();
+    showIdentityForm(user,row);
+  }catch{
+    toast('Profil ayarları yüklenemedi. Tekrar dene.');
+  }
+}
+
 async function saveGoogleProfile(event){
   event.preventDefault();
-  const button=event.currentTarget.querySelector('button[type="submit"]');
+  const form=event.currentTarget;
+  const button=form.querySelector('button[type="submit"]');
   const status=document.getElementById('googleProfileError');
-  const nick=document.getElementById('googleProfileNick').value.trim().toLowerCase().replace(/\s+/g,'_');
-  if(!/^[a-z0-9_çğıöşü]{2,20}$/.test(nick)){
-    status.textContent='2–20 karakter kullan. Harf, rakam ve alt çizgi ekleyebilirsin.';
+  const anonymous=form.elements.identityMode.value==='anonymous';
+  const alias=document.getElementById('googleProfileNick').value.trim().toLowerCase().replace(/\s+/g,'_');
+  if(anonymous&&!/^[a-z0-9_çğıöşü]{2,20}$/.test(alias)){
+    status.textContent='Takma ad 2–20 karakter olmalı. Harf, rakam ve alt çizgi kullanabilirsin.';
     return;
   }
   button.disabled=true;
   status.textContent='';
   try{
     const {data:{user},error:authError}=await sb.auth.getUser();
-    if(authError||!user||!hasGoogleIdentity(user))throw authError||new Error('Google oturumu yok');
+    if(authError||!user||!hasGoogleIdentity(user))throw new Error('Google oturumu doğrulanamadı.');
+    const name=anonymous?alias:googleName(user);
+    if(!name)throw new Error('Google adı bulunamadı.');
     let row=await findMyRow(user,true);
-    if(!row){
-      const {error}=await sb.from('kullanicilar').insert({nick,auth_id:user.id,banli:false});
-      if(error&&error.code!=='23505')throw error;
-      row=await findMyRow(user,true);
-      if(error&&!row){
-        status.textContent='Bu kullanıcı adı alınmış. Başka bir ad dene.';
-        return;
-      }
-    }
-    if(!row)throw new Error('Profil bulunamadı');
-    if(row.banli){
+    if(row?.banli){
       status.textContent='Bu hesap askıya alınmış.';
       return;
     }
+    const identity={display_name:name,is_anonymous:anonymous};
+    if(row&&editingIdentity){
+      const {error}=await sb.from('kullanicilar').update(identity).eq('auth_id',user.id);
+      if(error)throw error;
+      row=await findMyRow(user,true);
+    }else if(!row){
+      const nick='uye_'+crypto.randomUUID().replace(/-/g,'').slice(0,16);
+      const {error}=await sb.from('kullanicilar').insert({nick,auth_id:user.id,...identity});
+      if(error&&error.code!=='23505')throw error;
+      row=await findMyRow(user,true);
+      if(error&&!row)throw error;
+    }
+    if(!row||row.banli)throw new Error('Profil kaydedilemedi.');
+    applyIdentityProfile(row);
     googleLinked=true;
-    loginSuccess(row.nick,row.mod===true);
-  }catch{
-    status.textContent='Kullanıcı adı kaydedilemedi. Tekrar dene.';
+    if(editingIdentity){
+      document.getElementById('googleProfileModal').classList.add('hidden');
+      document.getElementById('userNickDisplay').textContent=visibleName(row.nick);
+      render();
+      renderBasliklar();
+      openProfile();
+      toast('Görünen adın güncellendi.');
+    }else{
+      loginSuccess(row.nick,row.mod===true);
+    }
+  }catch(error){
+    status.textContent=error?.code==='23505'?'Bu takma ad alınmış. Başka bir ad seç.':'Seçim kaydedilemedi. Tekrar dene.';
   }finally{
     button.disabled=false;
   }
@@ -954,6 +1022,7 @@ async function handleAuth(){
     // auth_id eksikse bağla (eski hesaplar için; findMyRow sahipliği doğruladı)
     if(!banRow.auth_id){sb.from('kullanicilar').update({auth_id:data.user.id}).eq('nick',banRow.nick).then(()=>{});}
     googleLinked=hasGoogleIdentity(data.user);
+    applyIdentityProfile(banRow);
     loginSuccess(banRow.nick, banRow.mod===true);
   }
 }
@@ -962,7 +1031,7 @@ async function handleAuth(){
 // kimlik sayılmaz; sadece auth_id'si boş eski bir hesabı bağlarken, giriş e-postası o nick'ten
 // türetilmişse (yani hesabın gerçek sahibiyse) kabul edilir.
 async function findMyRow(user,strict=false){
-  const cols='nick,banli,mod,auth_id';
+  const cols='nick,banli,mod,auth_id,display_name,is_anonymous';
   const {data:byId,error}=await sb.from('kullanicilar').select(cols).eq('auth_id',user.id).maybeSingle();
   if(error&&strict)throw error;
   if(byId)return byId;
@@ -978,7 +1047,7 @@ function loginSuccess(nick,isMod=false){
   setModeratorMode(isMod);
   document.getElementById('authModal').classList.add('hidden');
   const nd=document.getElementById('userNickDisplay');
-  nd.textContent=nick;nd.style.display='';
+  nd.textContent=visibleName(nick);nd.style.display='';
   setWriteLocked(false);
   document.getElementById('notifBtn').style.display='';
   document.getElementById('dmBtn').style.display=DM_ENABLED?'':'none';
@@ -1240,7 +1309,7 @@ function nickColor(nick){let h=0;for(let i=0;i<nick.length;i++)h=(h*31+nick.char
 function nickAvatar(nick,size=22){
   const url=avatarCache[nick];
   if(safeMediaUrl(url))return`<img class="nick-av nick-av-img" src="${safeMediaUrl(url)}" style="width:${size}px;height:${size}px" alt="">`;
-  const bg=nickColor(nick||'?');const letter=esc((nick||'?').charAt(0).toUpperCase());
+  const bg=nickColor(nick||'?');const letter=esc((visibleName(nick)||'?').charAt(0).toUpperCase());
   return`<span class="nick-av" style="background:${bg};width:${size}px;height:${size}px;font-size:${Math.round(size*.52)}px">${letter}</span>`;
 }
 
@@ -1262,7 +1331,7 @@ function render(){
   if(activeView==='soru'||activeView==='kaynak'){filtered=filtered.filter(p=>p.type===activeView);}
   else if(activeView==='saved'){filtered=filtered.filter(p=>bookmarks.includes(p.id));}
   else if(activeView==='anket'){filtered=filtered.filter(p=>p.options?.length>=2);}
-  if(q){filtered=filtered.filter(p=>p.text.toLowerCase().includes(q)||p.author.toLowerCase().includes(q));}
+  if(q){filtered=filtered.filter(p=>p.text.toLowerCase().includes(q)||visibleName(p.author).toLowerCase().includes(q));}
   if(activeTag){filtered=filtered.filter(p=>p.text.toLowerCase().includes('#'+activeTag.toLowerCase()));}
   // sıralama: en yeni üstte, sabitlenenler en başta
   filtered.sort((a,b)=>(b.pinned?1:0)-(a.pinned?1:0)||new Date(b.time)-new Date(a.time));
@@ -1318,7 +1387,7 @@ function render(){
       <div class="post-header">
         <span class="post-number">#${String(filtered.length-i).padStart(3,'0')}</span>
         ${nickAvatar(p.author)}
-        <button class="post-author-link post-author${isMine?' me':''}" data-nick="${esc(p.author)}" onclick="openUserProfile(this.dataset.nick)">${esc(p.author)}</button>
+        <button class="post-author-link post-author${isMine?' me':''}" data-nick="${esc(p.author)}" onclick="openUserProfile(this.dataset.nick)">${esc(visibleName(p.author))}</button>
         ${DM_ENABLED&&!isMine&&currentUser?`<button class="dm-btn" data-nick="${esc(p.author)}" onclick="openConversation(this.dataset.nick)" title="mesaj gönder">✉</button>`:''}
         ${isMine?'<span class="mini-tag mine-tag">sen</span>':''}
         ${p.pinned?'<span class="mini-tag pin-tag">📌 sabit</span>':''}
@@ -1347,7 +1416,7 @@ function render(){
         </div>
       </div>
       <div class="comments-wrap"id="c-${p.id}">
-        ${p.comments.map(c=>`<div class="comment">${nickAvatar(c.nick,18)}<button class="post-author-link comment-nick${c.nick===currentUser?' me':''}" data-nick="${esc(c.nick)}" onclick="openUserProfile(this.dataset.nick)">${esc(c.nick)}</button>${esc(c.text)}</div>`).join('')}
+        ${p.comments.map(c=>`<div class="comment">${nickAvatar(c.nick,18)}<button class="post-author-link comment-nick${c.nick===currentUser?' me':''}" data-nick="${esc(c.nick)}" onclick="openUserProfile(this.dataset.nick)">${esc(visibleName(c.nick))}</button>${esc(c.text)}</div>`).join('')}
         <div class="comment-row">
           <input class="comment-input"id="ci-${p.id}"placeholder="${currentUser?'yanıt yaz…':'yanıtlamak için giriş yap'}"maxlength="200"${!currentUser?' disabled':''}>
           <button class="comment-send"onclick="sendComment(${Number(p.id)})"${!currentUser?' disabled':''}>gönder</button>
@@ -1616,7 +1685,7 @@ async function openNotifs(){
   const{data:notifs}=await sb.from('notifications').select('*').eq('to_user',currentUser).order('created_at',{ascending:false}).limit(50);
   if(!notifs?.length){list.innerHTML='<div class="notif-empty">// henüz bildirim yok</div>';}
   else{
-    list.innerHTML=notifs.map(n=>`<div class="notif-item${n.read?'':' unread'}"><div class="notif-text"><strong>@${esc(n.from_user)}</strong> ${esc(n.action)}</div><div class="notif-time">${relTime(n.created_at)}</div></div>`).join('');
+    list.innerHTML=notifs.map(n=>`<div class="notif-item${n.read?'':' unread'}"><div class="notif-text"><strong>${esc(visibleName(n.from_user))}</strong> ${esc(n.action)}</div><div class="notif-time">${relTime(n.created_at)}</div></div>`).join('');
     await sb.from('notifications').update({read:true}).eq('to_user',currentUser).eq('read',false);
     document.getElementById('notifDot').classList.remove('show');
   }
@@ -1643,7 +1712,9 @@ function getRozetler(myPosts,totalLikes){
 function openProfile(){
   if(!currentUser)return;
   closePanels();
-  document.getElementById('profileNick').textContent=currentUser;
+  document.getElementById('profileNick').textContent=visibleName(currentUser);
+  document.getElementById('identitySettingsBtn').hidden=!googleLinked;
+  document.getElementById('showNickChangeBtn').hidden=googleLinked;
   document.getElementById('googleLinkBtn').hidden=googleLinked||isModerator;
   document.getElementById('profileAvatarImg').innerHTML=nickAvatar(currentUser,64);
   const avBtn=document.getElementById('avatarUploadBtn');
@@ -2389,6 +2460,7 @@ async function loadBasliklar(){
   const countMap={};
   (counts||[]).forEach(r=>{countMap[r.baslik_id]=(countMap[r.baslik_id]||0)+1;});
   eksBasliklar=eksBasliklar.map(b=>({...b,entryCount:countMap[b.id]||0}));
+  await loadAvatarUrls([...new Set(eksBasliklar.map(b=>b.olusturan))]);
   renderBasliklar();
 }
 
@@ -2405,7 +2477,7 @@ function renderBasliklar(){
       <span class="eks-baslik-name" onclick="openBaslik(${Number(b.id)})">${esc(b.baslik)}</span>
       <span class="eks-baslik-meta">
         <span>${b.entryCount} entry</span>
-        <span style="color:var(--border2)">@${esc(b.olusturan)}</span>
+        <span style="color:var(--border2)">${esc(visibleName(b.olusturan))}</span>
         ${isModerator?`<button class="eks-del-btn" onclick="deleteBaslik(${Number(b.id)})">sil</button>`:''}
       </span>
     </div>`).join('');
@@ -2442,12 +2514,13 @@ async function openBaslik(id,baslik){
   const{data:entries}=await sb.from('sozluk_entriler').select('*').eq('baslik_id',id).order('created_at',{ascending:true});
   const el=document.getElementById('eksEntriesList');
   if(!entries?.length){el.innerHTML='<div class="eks-empty">// henüz entry yok — ilk yazan sen ol</div>';return;}
+  await loadAvatarUrls([...new Set(entries.map(e=>e.yazar))]);
   el.innerHTML=entries.map((e,i)=>`
     <div class="eks-entry">
       <div class="eks-entry-text">${esc(e.icerik)}</div>
       <div class="eks-entry-meta">
         <span class="eks-entry-num">${i+1}</span>
-        <span>@${esc(e.yazar)}</span>
+        <span>${esc(visibleName(e.yazar))}</span>
         <span>${relTime(e.created_at)}</span>
         ${(isModerator||e.yazar===currentUser)?`<button class="eks-del-btn" onclick="deleteEntry(${Number(e.id)})">sil</button>`:''}
       </div>
@@ -2815,7 +2888,14 @@ document.getElementById('authBtn').addEventListener('click',handleAuth);
 document.getElementById('googleLoginBtn').addEventListener('click',()=>startGoogleAuth());
 document.getElementById('googleLinkBtn').addEventListener('click',()=>startGoogleAuth(true));
 document.getElementById('googleProfileForm').addEventListener('submit',saveGoogleProfile);
+document.getElementById('googleProfileForm').addEventListener('change',syncIdentityForm);
+document.getElementById('identitySettingsBtn').addEventListener('click',openIdentitySettings);
 document.getElementById('googleProfileCancel').addEventListener('click',async()=>{
+  if(editingIdentity){
+    document.getElementById('googleProfileModal').classList.add('hidden');
+    openProfile();
+    return;
+  }
   const {error}=await sb.auth.signOut();
   if(error){
     document.getElementById('googleProfileError').textContent='Çıkış yapılamadı. Tekrar dene.';
@@ -3097,12 +3177,12 @@ if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');l
       googleLinked=hasGoogleIdentity(session.user);
       const row=await findMyRow(session.user,googleLinked);
       if(row&&!row.banli){
+        applyIdentityProfile(row);
         loginSuccess(row.nick,row.mod===true);
         if(googleAction==='link')toast(googleLinked?'Google hesabı bağlandı.':'Google hesabı bağlanamadı.');
       }else if(!row&&googleLinked){
         showGuestState();
-        document.getElementById('googleProfileModal').classList.remove('hidden');
-        document.getElementById('googleProfileNick').focus();
+        showIdentityForm(session.user);
       }else{
         await sb.auth.signOut();
         showGuestState();

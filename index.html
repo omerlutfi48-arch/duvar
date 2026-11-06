@@ -48,7 +48,7 @@
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap"></noscript>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 
@@ -77,7 +77,7 @@
 <div class="modal-overlay hidden" id="authModal">
   <div class="modal">
     <div class="modal-title">DUVAR</div>
-    <div class="modal-sub">DUVAR’da görünen adını sen seçersin.</div>
+    <div class="modal-sub">Google ile giriş yap. DUVAR’da kendi adınla veya takma adla görünmeyi seçebilirsin.</div>
     <button type="button" class="modal-btn" id="googleLoginBtn">Google ile devam et</button>
     <p class="modal-note" id="googleAuthError" role="status"></p>
     <details><summary class="modal-note">Eski hesabımla giriş yap</summary>
@@ -102,15 +102,22 @@
 </div>
 
 <div class="modal-overlay hidden" id="googleProfileModal">
-  <form class="modal" id="googleProfileForm" aria-labelledby="googleProfileTitle" role="dialog" aria-modal="true">
-    <div class="modal-title" id="googleProfileTitle">Kullanıcı adını seç</div>
-    <p class="modal-sub">Takma ad kullanabilirsin. Google e-postan ve profil fotoğrafın diğer üyelere gösterilmez.</p>
-    <div class="field">
-      <label for="googleProfileNick">DUVAR’da görünen ad</label>
-      <input id="googleProfileNick" required minlength="2" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ör. gece_studiocu">
+  <form class="modal identity-modal" id="googleProfileForm" aria-labelledby="googleProfileTitle" role="dialog" aria-modal="true">
+    <p class="identity-eyebrow">DUVAR · Profil</p>
+    <h2 class="modal-title" id="googleProfileTitle">DUVAR’da nasıl görünmek istersin?</h2>
+    <p class="modal-sub">Seçimin hesabına kaydedilir. Daha sonra profil ayarlarından değiştirebilirsin.</p>
+    <fieldset class="identity-options">
+      <legend class="sr-only">Görünen kimlik</legend>
+      <label class="identity-option"><input type="radio" name="identityMode" value="named" checked><span><strong>Google adımla görün</strong><small id="identityGoogleName"></small></span></label>
+      <label class="identity-option"><input type="radio" name="identityMode" value="anonymous"><span><strong>Anonim ol</strong><small>Gönderilerinde seçtiğin takma ad görünür.</small></span></label>
+    </fieldset>
+    <div class="field" id="identityNickField" hidden>
+      <label for="googleProfileNick">Takma ad</label>
+      <input id="googleProfileNick" minlength="2" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ör. gece_studiocu">
     </div>
+    <p class="identity-note">E-posta adresin ve Google profil fotoğrafın gösterilmez. Seçtiğin ad DUVAR’daki eski ve yeni içeriklerinde görünür.</p>
     <p class="modal-err" id="googleProfileError" role="status"></p>
-    <button class="modal-btn" type="submit">Kaydet ve devam et</button>
+    <button class="modal-btn" type="submit">Seçimimi kaydet</button>
     <button class="guest-btn" id="googleProfileCancel" type="button">Çıkış yap ve okumaya devam et</button>
   </form>
 </div>
@@ -135,6 +142,7 @@
     <div class="rozet-wrap" id="profileRozetler"></div>
     <div class="panel-section-title">// gönderilerim</div>
     <div id="myPostsList"></div>
+    <button class="panel-btn" id="identitySettingsBtn" type="button" hidden>Görünen ad ve anonimlik</button>
     <button class="panel-btn" id="showNickChangeBtn">✎ nickname değiştir</button>
     <div class="hidden" id="nickChangeForm" style="margin-top:.8rem;display:flex;gap:.4rem">
       <input id="newNickInput" type="text" placeholder="yeni nickname" maxlength="20" autocomplete="off"
@@ -993,6 +1001,6 @@
 </div>
 
 <script src="utils.js?v=4"></script>
-<script src="main.js?v=8"></script>
+<script src="main.js?v=9"></script>
 </body>
 </html>
