@@ -955,7 +955,7 @@ async function saveGoogleProfile(event){
     }
     const identity={display_name:name,is_anonymous:anonymous};
     if(row&&editingIdentity){
-      const {error}=await sb.from('kullanicilar').update(identity).eq('auth_id',user.id);
+      const {error}=await sb.from('kullanicilar').update(identity).eq('nick',row.nick);
       if(error)throw error;
       row=await findMyRow(user,true);
     }else if(!row){
@@ -999,8 +999,8 @@ async function handleAuth(){
     const confirm=document.getElementById('authPassConfirm').value;
     if(pass!==confirm){err.textContent='// şifreler eşleşmiyor';return;}
     // Nick benzersizlik kontrolü (auth_id'si olan gerçek hesap)
-    const {data:existing}=await sb.from('kullanicilar').select('nick,auth_id').eq('nick',nick).maybeSingle();
-    if(existing?.auth_id){err.textContent='// bu nickname alınmış';return;}
+    const {data:existing}=await sb.from('kullanicilar').select('nick').eq('nick',nick).maybeSingle();
+    if(existing){err.textContent='// bu nickname alınmış';return;}
     err.textContent='// kayıt yapılıyor...';
     // Supabase Auth'a kaydet — şifre sunucuda bcrypt ile saklanır
     const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{nick}}});
@@ -1023,27 +1023,16 @@ async function handleAuth(){
     const banRow=await findMyRow(data.user);
     if(!banRow){await sb.auth.signOut();err.textContent='// hesap bulunamadı veya silindi';return;}
     if(banRow.banli){await sb.auth.signOut();err.textContent='// bu hesap askıya alınmış';return;}
-    // auth_id eksikse bağla (eski hesaplar için; findMyRow sahipliği doğruladı)
-    if(!banRow.auth_id){sb.from('kullanicilar').update({auth_id:data.user.id}).eq('nick',banRow.nick).then(()=>{});}
     googleLinked=hasGoogleIdentity(data.user);
     applyIdentityProfile(banRow);
     loginSuccess(banRow.nick, banRow.mod===true);
   }
 }
-// Oturumdaki kullanıcının kullanicilar satırı. Kimlik auth_id'den gelir (kullanıcı değiştiremez).
-// user_metadata.nick kullanıcı tarafından sb.auth.updateUser ile değiştirilebildiği için tek başına
-// kimlik sayılmaz; sadece auth_id'si boş eski bir hesabı bağlarken, giriş e-postası o nick'ten
-// türetilmişse (yani hesabın gerçek sahibiyse) kabul edilir.
 async function findMyRow(user,strict=false){
-  const cols='nick,banli,mod,auth_id,display_name,is_anonymous';
-  const {data:byId,error}=await sb.from('kullanicilar').select(cols).eq('auth_id',user.id).maybeSingle();
+  if(!user?.id)return null;
+  const {data,error}=await sb.rpc('duvar_my_profile').maybeSingle();
   if(error&&strict)throw error;
-  if(byId)return byId;
-  const metaNick=user.user_metadata?.nick;
-  if(!metaNick)return null;
-  const {data:byNick}=await sb.from('kullanicilar').select(cols).eq('nick',metaNick).maybeSingle();
-  if(byNick&&!byNick.auth_id&&nickToEmail(byNick.nick)===String(user.email||'').toLowerCase())return byNick;
-  return null;
+  return data||null;
 }
 function loginSuccess(nick,isMod=false){
   currentUser=nick;
@@ -1106,8 +1095,8 @@ async function changeNick(){
   if(!/^[a-zA-Z0-9_çğıöşüÇĞİÖŞÜ]+$/.test(newNick)){err.textContent='// sadece harf, rakam ve _';return;}
   if(newNick===currentUser){err.textContent='// aynı nickname';return;}
   err.textContent='// kontrol ediliyor...';
-  const {data:existing}=await sb.from('kullanicilar').select('nick,auth_id').eq('nick',newNick).maybeSingle();
-  if(existing?.auth_id){err.textContent='// bu nickname alınmış';return;}
+  const {data:existing}=await sb.from('kullanicilar').select('nick').eq('nick',newNick).maybeSingle();
+  if(existing){err.textContent='// bu nickname alınmış';return;}
   err.textContent='// güncelleniyor...';
   const oldNick=currentUser;
   // Tüm tablolardaki nick'i veritabanında tek işlemde değiştir (nick_degistir RPC; sadece kendi nick'i)
@@ -1132,49 +1121,29 @@ async function changeNick(){
   await loadPosts();
   openProfile();
 }
+let deletingAccount=false;
 async function deleteAccount(){
-  if(!currentUser)return;
-  if(!confirm(`@${currentUser} hesabını kalıcı olarak silmek istediğine emin misin?\n\nTüm gönderilerin de silinecek.`))return;
-  const nick=currentUser;
-  const {data:{session}}=await sb.auth.getSession();
-  const authId=session?.user?.id;
-  // Önce bağlı verileri sil (güvenlik kuralları "kendi nick'in" kontrolünü kullanicilar
-  // satırı üzerinden yapıyor; satır önce silinirse bu silmeler reddedilir)
-  await Promise.all([
-    sb.from('posts').delete().eq('author',nick),
-    sb.from('yorumlar').delete().eq('nick',nick),
-    sb.from('mesajlar').delete().eq('gonderen',nick),
-    sb.from('mesajlar').delete().eq('alici',nick),
-    sb.from('begeni').delete().eq('nick',nick),
-    sb.from('begenmeme').delete().eq('nick',nick),
-    sb.from('anket_oylar').delete().eq('nick',nick),
-    sb.from('push_subscriptions').delete().eq('nick',nick),
-  ]);
-  // En son kullanicilar satırı — başarısız olursa dur
-  const {error:kulErr}=await sb.from('kullanicilar').delete().eq('nick',nick);
-  if(kulErr){toast('// hesap silinemedi: '+kulErr.message);return;}
-  // Supabase Auth kaydını da sil (nick tekrar alınabilsin)
-  if(authId){
-    const res=await fetch('https://tnxflwddhucvlejmoihj.supabase.co/functions/v1/delete-user',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
-      body:JSON.stringify({auth_id:authId})
-    }).catch(()=>null);
-    if(!res?.ok){
-      toast('// hesap verileri silindi ama auth kaydı silinemedi — lütfen adminle iletişime geç');
-      console.error('Auth kaydı silinemedi:',authId,res?.status);
+  if(!currentUser||deletingAccount)return;
+  if(!confirm('Hesabın, gönderilerin ve yorumların kalıcı olarak silinecek. Devam etmek istiyor musun?'))return;
+  deletingAccount=true;
+  try{
+    const {data,error}=await sb.functions.invoke('delete-account',{body:{scope:'self'}});
+    if(error||!data?.success){
+      toast('Hesap silme tamamlanamadı. Tekrar dene.');
+      return;
     }
+    await sb.auth.signOut({scope:'local'});
+    if(notifChannel){sb.removeChannel(notifChannel);notifChannel=null;}
+    setModeratorMode(false);
+    enterAsGuest();
+    closePanels();
+    await loadPosts();
+    toast('Hesabın silindi.');
+  }catch{
+    toast('Hesap silme sonucu doğrulanamadı. Tekrar dene.');
+  }finally{
+    deletingAccount=false;
   }
-  await sb.auth.signOut();
-  currentUser=null;
-  document.getElementById('userNickDisplay').style.display='none';
-  document.getElementById('notifBtn').style.display='none';
-  document.getElementById('dmBtn').style.display='none';
-  document.getElementById('loginBtn').style.display='';
-  setWriteLocked(true);
-  closePanels();
-  toast('// hesabın silindi');
-  render();
 }
 function logout(){
   if(notifChannel){sb.removeChannel(notifChannel);notifChannel=null;}

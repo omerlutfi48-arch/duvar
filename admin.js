@@ -9,7 +9,7 @@ async function getFeedback() { const {data} = await sb.from('feedback').select('
 async function getIlanlar() { const {data} = await sb.from('ilanlar').select('*').order('created_at',{ascending:false}); return data||[]; }
 async function getEtkinlikler() { const {data} = await sb.from('etkinlikler').select('*').order('created_at',{ascending:false}); return data||[]; }
 async function getBanned() { const {data} = await sb.from('kullanicilar').select('nick').eq('banli',true); return (data||[]).map(u=>u.nick); }
-async function getUsers() { const {data}=await sb.from('kullanicilar').select('*').order('created_at',{ascending:false}); return data||[]; }
+async function getUsers() { const {data}=await sb.from('kullanicilar').select('nick,banli,mod,created_at').order('created_at',{ascending:false}); return data||[]; }
 
 // ── AUTH (Supabase Email) ──
 let isAdmin = false;
@@ -405,41 +405,24 @@ function confirmDeleteUser(nick) {
   );
 }
 
+const deletingUsers=new Set();
 async function deleteUser(nick) {
-  // Auth id'yi önceden al
-  const {data:userRow}=await sb.from('kullanicilar').select('auth_id').eq('nick',nick).maybeSingle();
-  // Tüm gönderilerini, yorumlarını, mesajlarını, beğenilerini ve hesabı sil
-  await Promise.all([
-    sb.from('posts').delete().eq('author', nick),
-    sb.from('yorumlar').delete().eq('nick', nick),
-    sb.from('mesajlar').delete().eq('gonderen', nick),
-    sb.from('mesajlar').delete().eq('alici', nick),
-    sb.from('begeni').delete().eq('nick', nick),
-    sb.from('anket_oylar').delete().eq('nick', nick),
-  ]);
-  const {error} = await sb.from('kullanicilar').delete().eq('nick', nick);
-  if(error){
-    console.error('deleteUser hatası:', error);
-    toast(`// HATA: ${error.message}`);
-    return;
-  }
-  // Supabase Auth kaydını da sil (nick tekrar alınabilsin)
-  const {data:{session}}=await sb.auth.getSession();
-  if(session){
-    const res=await fetch('https://tnxflwddhucvlejmoihj.supabase.co/functions/v1/delete-user',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
-      body:JSON.stringify({auth_id:userRow?.auth_id||null, nick})
-    }).catch(()=>null);
-    if(!res?.ok){
-      console.error('Auth kaydı silinemedi:', nick, res?.status);
-      toast(`// UYARI: @${nick} verileri silindi ama auth kaydı silinemedi`);
+  if(deletingUsers.has(nick))return;
+  deletingUsers.add(nick);
+  try {
+    const {data,error}=await sb.functions.invoke('delete-account',{body:{scope:'admin',nick}});
+    if(error||!data?.success){
+      const body=await error?.context?.json?.().catch(()=>null);
+      toast(body?.error||'Hesap silinemedi. Tekrar dene.');
+      return;
     }
+    await Promise.all([updateStats(),renderUsers(),renderPosts()]);
+    toast('Hesap silindi.');
+  } catch {
+    toast('Hesap silme sonucu doğrulanamadı. Listeyi yenile.');
+  } finally {
+    deletingUsers.delete(nick);
   }
-  await updateStats();
-  await renderUsers();
-  await renderPosts();
-  toast(`// @${nick} hesabı ve tüm verileri silindi`);
 }
 
 // ── CONFIRM MODAL ──
