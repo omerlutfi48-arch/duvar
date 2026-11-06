@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
   if (!ANTHROPIC_API_KEY) return errResp('AI yapılandırılmamış', 500)
 
   // Banlı kullanıcı AI kullanamasın
-  const { data: kul } = await userClient.from('kullanicilar').select('banli').eq('auth_id', user.id).maybeSingle()
+  const { data: kul } = await userClient.rpc('duvar_my_profile').maybeSingle()
   // Profil satırı olmayan (sadece auth kaydı açılmış) hesaplar ve banlılar kullanamaz
   if (!kul || kul.banli) return errResp('Bu hesap AI kullanamaz', 403)
 

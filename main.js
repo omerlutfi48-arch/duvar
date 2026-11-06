@@ -1121,49 +1121,29 @@ async function changeNick(){
   await loadPosts();
   openProfile();
 }
+let deletingAccount=false;
 async function deleteAccount(){
-  if(!currentUser)return;
-  if(!confirm(`@${currentUser} hesabını kalıcı olarak silmek istediğine emin misin?\n\nTüm gönderilerin de silinecek.`))return;
-  const nick=currentUser;
-  const {data:{session}}=await sb.auth.getSession();
-  const authId=session?.user?.id;
-  // Önce bağlı verileri sil (güvenlik kuralları "kendi nick'in" kontrolünü kullanicilar
-  // satırı üzerinden yapıyor; satır önce silinirse bu silmeler reddedilir)
-  await Promise.all([
-    sb.from('posts').delete().eq('author',nick),
-    sb.from('yorumlar').delete().eq('nick',nick),
-    sb.from('mesajlar').delete().eq('gonderen',nick),
-    sb.from('mesajlar').delete().eq('alici',nick),
-    sb.from('begeni').delete().eq('nick',nick),
-    sb.from('begenmeme').delete().eq('nick',nick),
-    sb.from('anket_oylar').delete().eq('nick',nick),
-    sb.from('push_subscriptions').delete().eq('nick',nick),
-  ]);
-  // En son kullanicilar satırı — başarısız olursa dur
-  const {error:kulErr}=await sb.from('kullanicilar').delete().eq('nick',nick);
-  if(kulErr){toast('// hesap silinemedi: '+kulErr.message);return;}
-  // Supabase Auth kaydını da sil (nick tekrar alınabilsin)
-  if(authId){
-    const res=await fetch('https://tnxflwddhucvlejmoihj.supabase.co/functions/v1/delete-user',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
-      body:JSON.stringify({auth_id:authId})
-    }).catch(()=>null);
-    if(!res?.ok){
-      toast('// hesap verileri silindi ama auth kaydı silinemedi — lütfen adminle iletişime geç');
-      console.error('Auth kaydı silinemedi:',authId,res?.status);
+  if(!currentUser||deletingAccount)return;
+  if(!confirm('Hesabın, gönderilerin ve yorumların kalıcı olarak silinecek. Devam etmek istiyor musun?'))return;
+  deletingAccount=true;
+  try{
+    const {data,error}=await sb.functions.invoke('delete-account',{body:{scope:'self'}});
+    if(error||!data?.success){
+      toast('Hesap silme tamamlanamadı. Tekrar dene.');
+      return;
     }
+    await sb.auth.signOut({scope:'local'});
+    if(notifChannel){sb.removeChannel(notifChannel);notifChannel=null;}
+    setModeratorMode(false);
+    enterAsGuest();
+    closePanels();
+    await loadPosts();
+    toast('Hesabın silindi.');
+  }catch{
+    toast('Hesap silme sonucu doğrulanamadı. Tekrar dene.');
+  }finally{
+    deletingAccount=false;
   }
-  await sb.auth.signOut();
-  currentUser=null;
-  document.getElementById('userNickDisplay').style.display='none';
-  document.getElementById('notifBtn').style.display='none';
-  document.getElementById('dmBtn').style.display='none';
-  document.getElementById('loginBtn').style.display='';
-  setWriteLocked(true);
-  closePanels();
-  toast('// hesabın silindi');
-  render();
 }
 function logout(){
   if(notifChannel){sb.removeChannel(notifChannel);notifChannel=null;}
