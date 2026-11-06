@@ -4,7 +4,7 @@ const sb = createClient('https://tnxflwddhucvlejmoihj.supabase.co','eyJhbGciOiJI
 
 // ── VERİ FONKSİYONLARI ──
 async function getPosts() { const {data} = await sb.from('posts').select('*, yorumlar(*)').eq('aktif',true).order('created_at',{ascending:false}); return data||[]; }
-async function getReports() { const {data} = await sb.from('raporlar').select('*').order('created_at',{ascending:false}); return data||[]; }
+async function getReports() { const {data} = await sb.from('raporlar').select('id,created_at,post_id,sebep,bildiren,reviewed_at,review_note').order('reviewed_at',{ascending:true,nullsFirst:true}).order('created_at',{ascending:false}); return data||[]; }
 async function getFeedback() { const {data} = await sb.from('feedback').select('*').order('created_at',{ascending:false}); return data||[]; }
 async function getIlanlar() { const {data} = await sb.from('ilanlar').select('*').order('created_at',{ascending:false}); return data||[]; }
 async function getEtkinlikler() { const {data} = await sb.from('etkinlikler').select('*').order('created_at',{ascending:false}); return data||[]; }
@@ -158,7 +158,7 @@ async function updateStats() {
     sb.from('begeni').select('id',{count:'exact',head:true}),
     getActiveUsers()
   ]);
-  const pending = reports.length;
+  const pending = reports.filter(report => !report.reviewed_at).length;
   const acil = posts.filter(p => p.type === 'acil').length;
   const feedbackPending = feedback.filter(f => !f.okundu).length;
 
@@ -241,8 +241,9 @@ async function renderReports() {
       <div class="report-reason">⚑ ${esc(reasonLabels[r.sebep] || r.sebep || '?')}</div>
       <div class="report-meta">bildiren: @${esc(r.bildiren || '?')} · ${new Date(r.created_at).toLocaleString('tr-TR')}</div>
       <div class="report-post-preview">"${esc(preview)}"</div>
+      ${r.reviewed_at ? `<p class="report-meta">İncelendi · ${esc(new Date(r.reviewed_at).toLocaleString('tr-TR'))} · ${esc(r.review_note || '')}</p>` : ''}
       <div class="item-actions">
-        <button class="action-btn warn" data-action="resolveReport" data-args="${esc(JSON.stringify([Number(r.id)]))}">✓ çözüldü / sil</button>
+        ${!r.reviewed_at ? `<button class="action-btn warn" data-action="resolveReport" data-args="${esc(JSON.stringify([Number(r.id)]))}">İncelemeyi kapat</button>` : ''}
         ${post ? `<button class="action-btn danger" data-action="confirmDeletePost" data-args="${esc(JSON.stringify([Number(r.post_id)]))}">gönderiyi sil</button>` : ''}
         ${post ? `<button class="action-btn danger" data-action="confirmBan" data-args="${esc(JSON.stringify([String(post.author)]))}">@${esc(post?.author||'?')} banla</button>` : ''}
       </div>
@@ -251,10 +252,19 @@ async function renderReports() {
 }
 
 async function resolveReport(id) {
-  await sb.from('raporlar').delete().eq('id', id);
-  await updateStats();
-  renderReports();
-  toast('// şikayet silindi');
+  const reason = prompt('İncelemeyi neden kapattığını yaz (5–240 karakter).')?.trim();
+  if (reason === undefined) return;
+  if (reason.length < 5 || reason.length > 240) {
+    toast('Gerekçe 5–240 karakter olmalı.');
+    return;
+  }
+  const {data,error} = await sb.rpc('duvar_resolve_report',{p_id:id,p_reason:reason});
+  if (error) {
+    toast('İnceleme kaydedilemedi. Tekrar dene.');
+    return;
+  }
+  await Promise.all([updateStats(),renderReports()]);
+  toast(data ? 'İnceleme kaydedildi.' : 'Bu şikayet zaten kapatılmış.');
 }
 
 // ── POSTS ──
