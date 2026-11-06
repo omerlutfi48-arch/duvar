@@ -1322,6 +1322,11 @@ const moodL={yorgun:'😮‍💨 yorgunum',yardim:'🆘 yardım lazım',iyi:'✓
 const typeL={dert:'Dert',soru:'Soru',kaynak:'Kaynak',acil:'Acil'};
 
 function render(){
+  const identity=document.getElementById('composerIdentity');
+  if(identity){
+    identity.hidden=!currentUser;
+    identity.textContent=currentUser?'Paylaşımda görünen adın: '+visibleName(currentUser):'';
+  }
   const grid=document.getElementById('postsGrid');
   // İlk yükleme başarısızsa iskelet sonsuza kadar kalmasın; sonraki render'lar bu mesajı ezmesin
   if(postsLoadError&&!posts.length){
@@ -1333,6 +1338,7 @@ function render(){
   const q=(document.getElementById('searchInput')?.value||'').toLowerCase().trim();
   let filtered=[...posts];
   if(activeView==='soru'||activeView==='kaynak'){filtered=filtered.filter(p=>p.type===activeView);}
+  else if(activeView==='cevapsiz'){filtered=filtered.filter(p=>p.type==='soru'&&!p.comments.length);}
   else if(activeView==='saved'){filtered=filtered.filter(p=>bookmarks.includes(p.id));}
   else if(activeView==='anket'){filtered=filtered.filter(p=>p.options?.length>=2);}
   if(q){filtered=filtered.filter(p=>p.text.toLowerCase().includes(q)||visibleName(p.author).toLowerCase().includes(q));}
@@ -1342,7 +1348,7 @@ function render(){
   const isFiltered=activeView!=='all'||q||activeTag;
   document.getElementById('wallStats').textContent=filtered.length+' gönderi'+(isFiltered?' · filtrelendi':'')+(activeTag?` #${activeTag}`:'');
   if(!filtered.length){
-    const msg=activeView==='saved'?'Henüz kaydettiğin gönderi yok.':q?'Aramana uyan gönderi yok.':'Burada henüz gönderi yok.';
+    const msg=activeView==='saved'?'Henüz kaydettiğin gönderi yok.':q?'Aramana uyan gönderi yok.':activeView==='cevapsiz'?'Şu an cevapsız soru görünmüyor.':'Burada henüz gönderi yok.';
     grid.innerHTML=`<div class="empty-state"><div class="big">${msg}</div></div>`;return;
   }
 
