@@ -113,58 +113,62 @@ async function loadAvatarUrls(nicks,refresh=false){
   }catch(e){toLoad.forEach(n=>{avatarCache[n]=null;});}
 }
 
+let wallLoadVersion=0;
+
 async function loadPosts(){
-  const {data,error}=await sb.from('posts').select('*, yorumlar(*)').eq('aktif',true).order('created_at',{ascending:false}).limit(200);
+  const version=++wallLoadVersion;
+  const viewer=currentUser;
+  const stale=()=>version!==wallLoadVersion||viewer!==currentUser;
+  const {data,error}=await sb.from('posts')
+    .select('id,created_at,author,text,mood,type,fire,pinned,options,disfire,image_url,file_url,file_name,yorumlar(id,nick,text)')
+    .eq('aktif',true).order('created_at',{ascending:false}).order('id',{ascending:false}).limit(200);
+  if(stale())return;
   if(error){
     console.error('posts yüklenemedi:',error);
     postsLoadError=true;
     render();
     return;
   }
-  postsLoaded=true;postsLoadError=false;
-  posts=(data||[]).map(p=>({
+
+  const nextPosts=(data||[]).map(p=>({
     ...p,time:p.created_at,fired:[],disfire:p.disfire||0,
-    comments:(p.yorumlar||[]).map(c=>({nick:c.nick,text:c.text,id:c.id}))
+    comments:p.yorumlar||[]
   }));
-  const postIds=posts.map(p=>p.id);
-  if(currentUser){
-    const [{data:likes},{data:dislikes},{data:allDislikes}]=await Promise.all([
-      sb.from('begeni').select('post_id').eq('nick',currentUser),
-      sb.from('begenmeme').select('post_id').eq('nick',currentUser),
-      sb.from('begenmeme').select('post_id').in('post_id',postIds)
-    ]);
-    const likedSet=new Set((likes||[]).map(l=>l.post_id));
-    dislikedPosts=new Set((dislikes||[]).map(l=>l.post_id));
-    posts.forEach(p=>{if(likedSet.has(p.id))p.fired=[currentUser];});
-    const dislikeCounts={};
-    (allDislikes||[]).forEach(r=>{dislikeCounts[r.post_id]=(dislikeCounts[r.post_id]||0)+1;});
-    posts.forEach(p=>{if(dislikeCounts[p.id])p.disfire=dislikeCounts[p.id];});
-  } else {
-    const {data:allDislikes}=await sb.from('begenmeme').select('post_id').in('post_id',postIds);
-    const dislikeCounts={};
-    (allDislikes||[]).forEach(r=>{dislikeCounts[r.post_id]=(dislikeCounts[r.post_id]||0)+1;});
-    posts.forEach(p=>{if(dislikeCounts[p.id])p.disfire=dislikeCounts[p.id];});
+  const postIds=nextPosts.map(p=>p.id);
+  const pollPosts=nextPosts.filter(p=>p.options?.length>=2);
+  const pollIds=pollPosts.map(p=>p.id);
+  const nicks=[...new Set(nextPosts.flatMap(p=>[p.author,...p.comments.map(c=>c.nick)]).filter(Boolean))];
+  const ownRows=(table,fields,ids)=>viewer&&ids.length
+    ?sb.from(table).select(fields).eq('nick',viewer).in('post_id',ids)
+    :{data:[]};
+  const [likes,dislikes,votes,myVotes]=await Promise.all([
+    ownRows('begeni','post_id',postIds),
+    ownRows('begenmeme','post_id',postIds),
+    pollIds.length?sb.from('anket_oylar').select('post_id,option_idx').in('post_id',pollIds):{data:[]},
+    ownRows('anket_oylar','post_id,option_idx',pollIds),
+    loadAvatarUrls(nicks,true)
+  ]);
+  if(stale())return;
+
+  const likedIds=new Set((likes.data||[]).map(row=>row.post_id));
+  const nextDisliked=new Set((dislikes.data||[]).map(row=>row.post_id));
+  const ownVotes=new Map((myVotes.data||[]).map(row=>[row.post_id,row.option_idx]));
+  const pollCounts=new Map(pollPosts.map(p=>[p.id,new Array(p.options.length).fill(0)]));
+  for(const {post_id,option_idx} of votes.data||[]){
+    const counts=pollCounts.get(post_id);
+    if(counts&&Number.isInteger(option_idx)&&option_idx>=0&&option_idx<counts.length)counts[option_idx]++;
   }
-  // Avatar URL'leri yükle
-  const allNicks=[...new Set([...posts.map(p=>p.author),...posts.flatMap(p=>p.comments.map(c=>c.nick))].filter(Boolean))];
-  await loadAvatarUrls(allNicks,true);
-  // Anket oyları
-  const pollPosts=posts.filter(p=>p.options?.length>=2);
-  if(pollPosts.length){
-    const ids=pollPosts.map(p=>p.id);
-    const [{data:allVotes},{data:myVotes}]=await Promise.all([
-      sb.from('anket_oylar').select('post_id,option_idx').in('post_id',ids),
-      currentUser?sb.from('anket_oylar').select('post_id,option_idx').eq('nick',currentUser).in('post_id',ids):{data:[]}
-    ]);
-    const myVoteMap={};(myVotes||[]).forEach(v=>myVoteMap[v.post_id]=v.option_idx);
-    posts.forEach(p=>{
-      if(!p.options?.length)return;
-      const cnts=new Array(p.options.length).fill(0);
-      (allVotes||[]).filter(v=>v.post_id===p.id).forEach(v=>{if(v.option_idx<cnts.length)cnts[v.option_idx]++;});
-      p.voteCounts=cnts;
-      p.myVote=myVoteMap[p.id]??null;
-    });
+  for(const p of nextPosts){
+    if(likedIds.has(p.id))p.fired=[viewer];
+    if(pollCounts.has(p.id)){
+      p.voteCounts=pollCounts.get(p.id);
+      p.myVote=ownVotes.get(p.id)??null;
+    }
   }
+  posts=nextPosts;
+  dislikedPosts=nextDisliked;
+  postsLoaded=true;
+  postsLoadError=false;
   render();
 }
 
