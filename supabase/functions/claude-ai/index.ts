@@ -9,28 +9,6 @@ const corsHeaders = {
 const MAX_MESSAGES = 20          // istemci son 20 mesajı gönderir
 const MAX_CHARS_PER_MESSAGE = 2000
 const MAX_TOTAL_CHARS = 12000
-const RATE_WINDOW_MS = 10 * 60 * 1000
-const RATE_MAX = 20              // kullanıcı başına 10 dakikada 20 istek
-// Not: bu sayaç fonksiyon örneği (instance) başınadır; kalıcı ve kesin limit için
-// bir tablo gerekir. Yine de tek kullanıcının sınırsız istek atmasını büyük ölçüde keser.
-const GLOBAL_WINDOW_MS = 60 * 60 * 1000
-const GLOBAL_MAX = 400           // tüm kullanıcılar toplamı, saatte (örnek başına) — maliyet tavanı
-const rateMap = new Map<string, number[]>()
-let globalTimes: number[] = []
-function rateLimited(userId: string): boolean {
-  const now = Date.now()
-  globalTimes = globalTimes.filter(t => now - t < GLOBAL_WINDOW_MS)
-  if (globalTimes.length >= GLOBAL_MAX) return true
-  const times = (rateMap.get(userId) || []).filter(t => now - t < RATE_WINDOW_MS)
-  if (times.length >= RATE_MAX) { rateMap.set(userId, times); return true }
-  times.push(now); rateMap.set(userId, times); globalTimes.push(now)
-  // Eski kayıtları buda (herkesin sayacını sıfırlayan toplu temizlik yok)
-  if (rateMap.size > 5000) {
-    for (const [k, v] of rateMap) if (!v.length || now - v[v.length - 1] >= RATE_WINDOW_MS) rateMap.delete(k)
-  }
-  return false
-}
-
 type Msg = { role: 'user' | 'assistant'; content: string }
 function sanitizeMessages(raw: unknown): Msg[] | null {
   if (!Array.isArray(raw) || raw.length === 0 || raw.length > MAX_MESSAGES) return null
@@ -75,17 +53,23 @@ Deno.serve(async (req) => {
   if (!ANTHROPIC_API_KEY) return errResp('AI yapılandırılmamış', 500)
 
   // Banlı kullanıcı AI kullanamasın
-  const { data: kul } = await userClient.from('kullanicilar').select('banli').eq('auth_id', user.id).maybeSingle()
+  const { data: kul } = await userClient.rpc('duvar_my_profile').maybeSingle()
   // Profil satırı olmayan (sadece auth kaydı açılmış) hesaplar ve banlılar kullanamaz
   if (!kul || kul.banli) return errResp('Bu hesap AI kullanamaz', 403)
-
-  if (rateLimited(user.id)) return errResp('Çok fazla istek — birkaç dakika sonra tekrar dene', 429)
 
   let body: Record<string, unknown>
   try { body = await req.json() } catch { return errResp('Geçersiz istek', 400) }
   const mode = body.mode === 'content' ? 'content' : 'chat'
   const messages = sanitizeMessages(body.messages)
   if (!messages) return errResp('Geçersiz veya çok uzun mesaj', 400)
+
+  const serverClient = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
+  const { data: allowed, error: quotaError } = await serverClient.rpc('duvar_take_ai_quota', { p_user_id: user.id })
+  if (quotaError) {
+    console.error('AI quota check failed', quotaError.code)
+    return errResp('AI şu anda kullanılamıyor. Tekrar dene.', 503)
+  }
+  if (!allowed) return errResp('Kullanım sınırına ulaştın. Biraz sonra tekrar dene.', 429)
 
   const systemPrompts: Record<string, string> = {
     content: `Sen DUVAR platformu için içerik üretme asistanısın. DUVAR, mimarlık öğrencileri için anonim bir yardımlaşma platformudur.
