@@ -903,7 +903,7 @@ function showIdentityForm(user,profile=null){
   editingIdentity=Boolean(profile);
   namedOption.disabled=!googleDisplayName;
   form.elements.identityMode.value=!googleDisplayName||profile?.is_anonymous?'anonymous':'named';
-  nickInput.value=profile?.is_anonymous?(profile.display_name||profile.nick):'';
+  nickInput.value=profile?.anonymous_alias||(profile?.is_anonymous?(profile.display_name||profile.nick):'');
   document.getElementById('identityGoogleName').textContent=googleDisplayName||'Google hesabında kullanılabilir bir ad bulunamadı.';
   document.getElementById('googleProfileError').textContent='';
   document.getElementById('googleProfileCancel').textContent=editingIdentity?'Vazgeç':'Çıkış yap ve okumaya devam et';
@@ -923,8 +923,10 @@ async function openIdentitySettings(){
     if(error||!user||!hasGoogleIdentity(user))throw new Error('Google kimliği doğrulanamadı.');
     const row=await findMyRow(user,true);
     if(!row||row.banli)throw new Error('Profil bulunamadı.');
+    const {data:alias,error:aliasError}=await sb.rpc('duvar_my_alias');
+    if(aliasError)throw aliasError;
     closePanels();
-    showIdentityForm(user,row);
+    showIdentityForm(user,{...row,anonymous_alias:alias});
   }catch{
     toast('Profil ayarları yüklenemedi. Tekrar dene.');
   }
@@ -954,6 +956,7 @@ async function saveGoogleProfile(event){
       return;
     }
     const identity={display_name:name,is_anonymous:anonymous};
+    if(anonymous)identity.anonymous_alias=alias;
     if(row&&editingIdentity){
       const {error}=await sb.from('kullanicilar').update(identity).eq('nick',row.nick);
       if(error)throw error;
