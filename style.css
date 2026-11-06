@@ -930,3 +930,31 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
   #section-duvar .post { padding: 1rem; }
   .bottom-nav .bnav-btn { font-family: var(--ff-body); font-weight: 600; }
 }
+
+
+/* Beta v1.1 duvar görünümü */
+body { cursor: auto; }
+body::before { opacity: .28; }
+#section-duvar .composer-identity {
+  margin: 0 0 .75rem;
+  color: var(--text2);
+  font-size: .82rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+#section-duvar .composer-identity[hidden] { display: none; }
+#section-duvar .submit-btn {
+  min-height: 44px;
+  border-radius: 8px;
+  clip-path: none;
+  font: 650 .9rem var(--ff-body);
+  letter-spacing: 0;
+  text-transform: none;
+}
+#section-duvar .wall-tabs { flex-wrap: wrap; }
+#section-duvar .post + .post { margin-top: .65rem; }
+#section-duvar .post-text { line-height: 1.65; }
+#section-duvar .post-actions .act { font-family: var(--ff-body); }
+@media (prefers-reduced-motion: reduce) {
+  #section-duvar .post { animation: none; transition: none; }
+}

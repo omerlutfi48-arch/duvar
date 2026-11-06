@@ -16,12 +16,12 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://duvar.site">
 <meta property="og:title" content="DUVAR — Mimarlık Öğrencileri Burada">
-<meta property="og:description" content="Dert anlat. Soru sor. Kaynak paylaş. Tamamen anonim.">
+<meta property="og:description" content="Dert anlat. Soru sor. Kaynak paylaş. Takma adla katılabilirsin.">
 <meta property="og:image" content="https://duvar.site/og-image.png">
 <meta property="og:locale" content="tr_TR">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="DUVAR — Mimarlık Öğrencileri Burada">
-<meta name="twitter:description" content="Dert anlat. Soru sor. Kaynak paylaş. Tamamen anonim.">
+<meta name="twitter:description" content="Dert anlat. Soru sor. Kaynak paylaş. Takma adla katılabilirsin.">
 <meta name="twitter:image" content="https://duvar.site/og-image.png">
 <meta name="theme-color" content="#0e0e0e">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -48,22 +48,20 @@
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap"></noscript>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
-<link rel="stylesheet" href="style.css?v=10">
+<link rel="stylesheet" href="style.css?v=11">
 </head>
 <body>
 
-<!-- KARŞILAMA — DEVRE DIŞI. Artık hiçbir yerden açılmıyor.
-     Blok silinmedi: içindeki "182 ALO Psikiyatri Hattı" satırı doğrulanana kadar
-     metne dokunulmayacak. Doğrulandıktan sonra bu blok tamamen kaldırılabilir. -->
+<!-- KARŞILAMA — DEVRE DIŞI -->
 <div class="welcome-overlay hidden" id="welcomeScreen" hidden aria-hidden="true">
   <div class="welcome-inner">
     <div class="welcome-eyebrow">// ilk kez hoş geldin</div>
     <div class="welcome-title">DU<span>VAR</span></div>
     <div class="welcome-body">
       <div class="welcome-line"><span class="num">01 —</span><p>Mimarlık öğrencileri için <strong>anonim yardımlaşma ve dayanışma platformu.</strong> Dert anlat, soru sor, kaynak paylaş.</p></div>
-      <div class="welcome-line"><span class="num">02 —</span><p><strong>Kimse gerçek kimliğini bilmez.</strong> Hoca yok, not yok, yargı yok.</p></div>
-      <div class="welcome-line"><span class="num">03 —</span><p>Her yazıya <strong>mood ve tür</strong> seçebilirsin. Okumak ücretsiz, yazmak için nickname yeterli.</p></div>
-      <div class="welcome-line"><span class="num">04 —</span><p>Acil durumlarda <strong>182 ALO Psikiyatri Hattı'nı</strong> ara.</p></div>
+      <div class="welcome-line"><span class="num">02 —</span><p><strong>Takma adla katılabilirsin.</strong> Google ile girişte hangi adla görüneceğini sen seçersin.</p></div>
+      <div class="welcome-line"><span class="num">03 —</span><p>Her yazıya <strong>mood ve tür</strong> seçebilirsin. Okumak için giriş gerekmez. Paylaşmak için hesabınla giriş yap.</p></div>
+      <div class="welcome-line"><span class="num">04 —</span><p>Acil durumlarda <strong>112 Acil Çağrı Merkezi</strong>ni ara.</p></div>
     </div>
     <hr class="welcome-divider">
     <div style="margin-top:1.5rem">
@@ -204,7 +202,7 @@
       <div class="welcome-line"><span class="num">01 —</span><p><strong>Görünen adını sen seçersin.</strong> Google ile giriş yaparsan Google e-postan ve profil fotoğrafın DUVAR’da diğer üyelere gösterilmez.</p></div>
       <div class="welcome-line"><span class="num">02 —</span><p><strong>Saygı zorunlu.</strong> Hakaret, tehdit, taciz yasak. İçeriklerinden sen sorumlusun.</p></div>
       <div class="welcome-line"><span class="num">03 —</span><p><strong>Giriş bilgileri.</strong> Google hesabın giriş için kullanılır. Hesabını profil ayarlarından silebilirsin. <em>© 2026 DUVAR · tüm hakları saklıdır.</em></p></div>
-      <div class="welcome-line"><span class="num">04 —</span><p><strong>Yalnız değilsin.</strong> Zor bir gün geçiriyorsan buradayız. Acil durumlarda <strong>182 ALO Psikiyatri Hattı</strong>'nı ara.</p></div>
+      <div class="welcome-line"><span class="num">04 —</span><p><strong>Yalnız değilsin.</strong> Zor bir gün geçiriyorsan buradayız. Acil durumlarda <strong>112 Acil Çağrı Merkezi</strong>ni ara.</p></div>
     </div>
     <div style="padding:.8rem 1rem;border-left:3px solid var(--red);background:var(--surface2);margin-bottom:1.5rem">
       <span style="font-family:'Bebas Neue',sans-serif;font-size:2rem;letter-spacing:.08em;color:var(--text)">YALNIZ DEĞİLSİN.</span>
@@ -260,6 +258,7 @@
     </div>
     <script>(function(){var s=document.getElementById('guideStrip'),K='duvar_strip_render';try{if(localStorage.getItem(K)){s.hidden=true;return;}}catch(e){}document.getElementById('guideStripClose').addEventListener('click',function(){s.hidden=true;try{localStorage.setItem(K,'1');}catch(e){}});})();</script>
     <div class="write-box" id="writeBox">
+      <p class="composer-identity" id="composerIdentity" hidden></p>
       <label class="sr-only" for="mainInput">Duvara yaz</label>
       <textarea id="mainInput" placeholder="Bir soru sor ya da bir şey paylaş…" maxlength="500" rows="3"></textarea>
       <div class="write-type" id="writeType" role="group" aria-label="Tür (isteğe bağlı)" hidden>
@@ -299,6 +298,7 @@
       <div class="wall-tabs" role="tablist" aria-label="Duvar görünümü">
         <button class="wall-tab active" role="tab" aria-selected="true" data-view="all">Hepsi</button>
         <button class="wall-tab" role="tab" aria-selected="false" data-view="soru">Sorular</button>
+        <button type="button" class="wall-tab" role="tab" aria-selected="false" data-view="cevapsiz">Cevapsız</button>
         <button class="wall-tab" role="tab" aria-selected="false" data-view="kaynak">Kaynaklar</button>
       </div>
       <label class="sr-only" for="searchInput">Gönderilerde ara</label>
@@ -402,7 +402,7 @@
           <li><strong>Karşılaştırma tuzağına</strong> düşme. Hepiniz aynı yerdedir.</li>
           <li>Bir proje seni tanımlamaz.</li>
           <li>Uyku, yemek, hareket — bunlar lüks değil, <strong>üretkenliğin temeli.</strong></li>
-          <li>Acil durumlarda <strong>182 ALO Psikiyatri Hattı.</strong></li>
+          <li>Acil durumlarda <strong>112 Acil Çağrı Merkezi</strong>ni ara.</li>
         </ul></div>
       </div>
       <div class="guide-card">
@@ -1001,6 +1001,6 @@
 </div>
 
 <script src="utils.js?v=4"></script>
-<script src="main.js?v=14"></script>
+<script src="main.js?v=16"></script>
 </body>
 </html>
