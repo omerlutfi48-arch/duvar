@@ -6,20 +6,6 @@ const VAPID_PRIVATE = Deno.env.get("VAPID_PRIVATE_KEY")!;
 const SB_URL        = Deno.env.get("SUPABASE_URL")!;
 const SB_SERVICE    = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
-// Kimlik doğrulama: veritabanı tetikleyicisi (push_yorumlar / push_mesajlar) isteği service_role
-// JWT'si ile gönderiyor. verify_jwt açık olduğu için imzayı Supabase zaten doğruluyor; burada
-// rolün service_role olduğunu kontrol ediyoruz → herkesin bildiği anon anahtarla çağrılamaz.
-// İsteğe bağlı ek: WEBHOOK_SECRET ayarlanırsa x-webhook-secret başlığı da kabul edilir.
-const WEBHOOK_SECRET = Deno.env.get("WEBHOOK_SECRET") || "";
-function jwtRole(req: Request): string {
-  const tok = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
-  const part = tok.split(".")[1];
-  if (!part) return "";
-  try {
-    const json = atob(part.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(part.length / 4) * 4, "="));
-    return JSON.parse(json).role || "";
-  } catch { return ""; }
-}
 // Webhook'tan gelen kayıt bu süreden eskiyse bildirim gönderilmez (eski kayıtlarla tekrar tetikleme / spam).
 const MAX_AGE_MS = 5 * 60 * 1000;
 
@@ -28,19 +14,23 @@ webpush.setVapidDetails("mailto:admin@duvar.site", VAPID_PUBLIC, VAPID_PRIVATE);
 Deno.serve(async (req) => {
   try {
     if (req.method !== "POST") return new Response("method not allowed", { status: 405 });
-    const secretOk = !!WEBHOOK_SECRET && req.headers.get("x-webhook-secret") === WEBHOOK_SECRET;
-    if (!secretOk && jwtRole(req) !== "service_role") {
-      return new Response("forbidden", { status: 403 });
-    }
     const body = await req.json();
     const table  = body?.table;
     const recId  = body?.record?.id;
     if ((table !== "mesajlar" && table !== "yorumlar") || recId == null) return new Response("ok");
 
     const sb = createClient(SB_URL, SB_SERVICE);
+    const signature = body?.signature;
+    const epoch = body?.epoch;
+    if (!Number.isSafeInteger(recId) || !Number.isSafeInteger(epoch) || typeof signature !== "string" || !/^[0-9a-f]{64}$/.test(signature)) {
+      return new Response("forbidden", { status: 403 });
+    }
+    const { data: valid, error } = await sb.rpc("duvar_verify_push_signature", {
+      p_table: table, p_id: recId, p_epoch: epoch, p_signature: signature
+    });
+    if (error || !valid) return new Response("forbidden", { status: 403 });
 
-    // Gövdedeki kayda güvenme: bu fonksiyon herkesin bildiği anon anahtarla da çağrılabiliyor.
-    // Kaydı id ile veritabanından yeniden oku; nick'ler ve post_id sadece oradan gelsin.
+    // Olayın alanlarını veritabanından yeniden oku.
     const { data: record } = await sb.from(table).select("*").eq("id", recId).maybeSingle();
     if (!record) return new Response("ok");
     // created_at kolonu yoksa yaş kontrolü atlanır (bildirimler bozulmasın)
@@ -83,7 +73,10 @@ Deno.serve(async (req) => {
 
     if (!subs?.length) return new Response("ok");
 
-    const payload = JSON.stringify({ title, body: message, url, tag: table });
+    const { data: profile } = await sb.from("kullanicilar").select("display_name").eq("nick", sender).maybeSingle();
+    const senderName = profile?.display_name || sender;
+    const bodyText = message.replace(`@${sender}`, () => senderName);
+    const payload = JSON.stringify({ title, body: bodyText, url, tag: table });
 
     await Promise.allSettled(
       subs.map(sub =>
