@@ -77,10 +77,12 @@
 <div class="modal-overlay hidden" id="authModal">
   <div class="modal">
     <div class="modal-title">DUVAR</div>
-    <div class="modal-sub">giriş yap veya kayıt ol · tamamen anonim</div>
+    <div class="modal-sub">DUVAR’da görünen adını sen seçersin.</div>
+    <button type="button" class="modal-btn" id="googleLoginBtn">Google ile devam et</button>
+    <p class="modal-note" id="googleAuthError" role="status"></p>
+    <details><summary class="modal-note">Eski hesabımla giriş yap</summary>
     <div class="modal-tabs">
       <button class="modal-tab active" data-tab="login">giriş yap</button>
-      <button class="modal-tab" data-tab="register">kayıt ol</button>
     </div>
     <div class="modal-err" id="authErr"></div>
     <div class="field"><label for="authNick">nickname</label><input type="text" id="authNick" placeholder="ör: gece_studiocu" maxlength="20" autocomplete="username" autocapitalize="off" spellcheck="false"></div>
@@ -94,8 +96,23 @@
     <button class="modal-btn" id="authBtn">GİRİŞ YAP</button>
     <div class="modal-note" id="authForgotNote">// şifreni unuttuysan yeni hesap açman gerekiyor — anonim platform, kurtarma yok.</div>
     <div class="modal-note hidden" id="authRegisterNote">// gerçek isim girme. nickname bir kez alınır, başkası alamaz.<br><span class="sifre-uyari">⚠ ŞİFRENİ UNUTMA — kurtarma yok, sıfırlama yok.</span></div>
+    </details>
     <button class="guest-btn">sadece okumak istiyorum →</button>
   </div>
+</div>
+
+<div class="modal-overlay hidden" id="googleProfileModal">
+  <form class="modal" id="googleProfileForm" aria-labelledby="googleProfileTitle" role="dialog" aria-modal="true">
+    <div class="modal-title" id="googleProfileTitle">Kullanıcı adını seç</div>
+    <p class="modal-sub">Takma ad kullanabilirsin. Google e-postan ve profil fotoğrafın diğer üyelere gösterilmez.</p>
+    <div class="field">
+      <label for="googleProfileNick">DUVAR’da görünen ad</label>
+      <input id="googleProfileNick" required minlength="2" maxlength="20" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="ör. gece_studiocu">
+    </div>
+    <p class="modal-err" id="googleProfileError" role="status"></p>
+    <button class="modal-btn" type="submit">Kaydet ve devam et</button>
+    <button class="guest-btn" id="googleProfileCancel" type="button">Çıkış yap ve okumaya devam et</button>
+  </form>
 </div>
 
 <!-- PANEL OVERLAY -->
@@ -127,6 +144,7 @@
     </div>
     <div class="modal-err" id="nickChangeErr" style="font-size:.62rem;min-height:.8rem"></div>
     <button class="panel-btn" id="pushToggleBtn" style="margin-top:.5rem">🔔 bildirimleri aç</button>
+    <button class="panel-btn" id="googleLinkBtn" type="button" hidden>Google hesabımı bağla</button>
     <button class="panel-btn" id="logoutBtn">çıkış yap</button>
     <button class="panel-btn" id="deleteAccountBtn" style="border-color:var(--red);color:var(--text);margin-top:2rem">⚠ hesabı sil</button>
   </div>
@@ -175,9 +193,9 @@
     <div class="terms-header">DUVAR</div>
     <div class="terms-date">// kullanmadan önce 4 şeyi bil</div>
     <div class="welcome-body" style="margin-bottom:1.5rem">
-      <div class="welcome-line"><span class="num">01 —</span><p><strong>Tamamen anonimsin.</strong> Gerçek isim, e-posta yok. Sadece takma ad. Kimse kimliğini bilmez.</p></div>
+      <div class="welcome-line"><span class="num">01 —</span><p><strong>Görünen adını sen seçersin.</strong> Google ile giriş yaparsan Google e-postan ve profil fotoğrafın DUVAR’da diğer üyelere gösterilmez.</p></div>
       <div class="welcome-line"><span class="num">02 —</span><p><strong>Saygı zorunlu.</strong> Hakaret, tehdit, taciz yasak. İçeriklerinden sen sorumlusun.</p></div>
-      <div class="welcome-line"><span class="num">03 —</span><p><strong>Verilerin güvende.</strong> Sadece takma adın saklanır. Üçüncü taraflarla paylaşılmaz. İstediğinde hesabını sil, her şey gider. <em>© 2026 DUVAR · tüm hakları saklıdır.</em></p></div>
+      <div class="welcome-line"><span class="num">03 —</span><p><strong>Giriş bilgileri.</strong> Google hesabın giriş için kullanılır. Hesabını profil ayarlarından silebilirsin. <em>© 2026 DUVAR · tüm hakları saklıdır.</em></p></div>
       <div class="welcome-line"><span class="num">04 —</span><p><strong>Yalnız değilsin.</strong> Zor bir gün geçiriyorsan buradayız. Acil durumlarda <strong>182 ALO Psikiyatri Hattı</strong>'nı ara.</p></div>
     </div>
     <div style="padding:.8rem 1rem;border-left:3px solid var(--red);background:var(--surface2);margin-bottom:1.5rem">
@@ -974,6 +992,6 @@
 </div>
 
 <script src="utils.js?v=4"></script>
-<script src="main.js?v=7"></script>
+<script src="main.js?v=8"></script>
 </body>
 </html>

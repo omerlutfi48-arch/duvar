@@ -1,6 +1,6 @@
 // ── SUPABASE ──
 const {createClient}=supabase;
-const sb=createClient('https://tnxflwddhucvlejmoihj.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRueGZsd2RkaHVjdmxlam1vaWhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjU5OTcsImV4cCI6MjA5MDA0MTk5N30.XFwCgn8lseNGsYDzigmHKDIBBRqByJ9gOpaPRmkT4Vs');
+const sb=createClient('https://tnxflwddhucvlejmoihj.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRueGZsd2RkaHVjdmxlam1vaWhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjU5OTcsImV4cCI6MjA5MDA0MTk5N30.XFwCgn8lseNGsYDzigmHKDIBBRqByJ9gOpaPRmkT4Vs', {auth:{flowType:'pkce'}});
 
 // ── CLOUDINARY ──
 const CLOUDINARY_URL='https://api.cloudinary.com/v1_1/dxsvzlv1m/image/upload';
@@ -851,6 +851,68 @@ function switchAuthTab(tab){
   if(tab==='register')document.getElementById('authPassConfirm').value='';
   checkPassStrength(document.getElementById('authPass').value);
 }
+let googleLinked=false;
+
+function hasGoogleIdentity(user){
+  return user.identities?.some(identity=>identity.provider==='google')===true;
+}
+
+async function startGoogleAuth(link=false){
+  const button=document.getElementById(link?'googleLinkBtn':'googleLoginBtn');
+  const status=document.getElementById('googleAuthError');
+  const redirectTo=new URL(link?'/?google=link':'/?google=login',location.origin).href;
+  button.disabled=true;
+  status.textContent='';
+  try{
+    const request={provider:'google',options:{redirectTo}};
+    const {error}=link?await sb.auth.linkIdentity(request):await sb.auth.signInWithOAuth(request);
+    if(error)throw error;
+  }catch{
+    const message=link?'Google hesabı bağlanamadı. Hesap başka bir DUVAR hesabına bağlı olabilir.':'Google ile giriş başlatılamadı. Tekrar dene.';
+    if(link)toast(message);
+    else status.textContent=message;
+    button.disabled=false;
+  }
+}
+
+async function saveGoogleProfile(event){
+  event.preventDefault();
+  const button=event.currentTarget.querySelector('button[type="submit"]');
+  const status=document.getElementById('googleProfileError');
+  const nick=document.getElementById('googleProfileNick').value.trim().toLowerCase().replace(/\s+/g,'_');
+  if(!/^[a-z0-9_çğıöşü]{2,20}$/.test(nick)){
+    status.textContent='2–20 karakter kullan. Harf, rakam ve alt çizgi ekleyebilirsin.';
+    return;
+  }
+  button.disabled=true;
+  status.textContent='';
+  try{
+    const {data:{user},error:authError}=await sb.auth.getUser();
+    if(authError||!user||!hasGoogleIdentity(user))throw authError||new Error('Google oturumu yok');
+    let row=await findMyRow(user,true);
+    if(!row){
+      const {error}=await sb.from('kullanicilar').insert({nick,auth_id:user.id,banli:false});
+      if(error&&error.code!=='23505')throw error;
+      row=await findMyRow(user,true);
+      if(error&&!row){
+        status.textContent='Bu kullanıcı adı alınmış. Başka bir ad dene.';
+        return;
+      }
+    }
+    if(!row)throw new Error('Profil bulunamadı');
+    if(row.banli){
+      status.textContent='Bu hesap askıya alınmış.';
+      return;
+    }
+    googleLinked=true;
+    loginSuccess(row.nick,row.mod===true);
+  }catch{
+    status.textContent='Kullanıcı adı kaydedilemedi. Tekrar dene.';
+  }finally{
+    button.disabled=false;
+  }
+}
+
 async function handleAuth(){
   const nick=document.getElementById('authNick').value.trim().toLowerCase().replace(/\s+/g,'_');
   const pass=document.getElementById('authPass').value;
@@ -891,6 +953,7 @@ async function handleAuth(){
     if(banRow.banli){await sb.auth.signOut();err.textContent='// bu hesap askıya alınmış';return;}
     // auth_id eksikse bağla (eski hesaplar için; findMyRow sahipliği doğruladı)
     if(!banRow.auth_id){sb.from('kullanicilar').update({auth_id:data.user.id}).eq('nick',banRow.nick).then(()=>{});}
+    googleLinked=hasGoogleIdentity(data.user);
     loginSuccess(banRow.nick, banRow.mod===true);
   }
 }
@@ -898,9 +961,10 @@ async function handleAuth(){
 // user_metadata.nick kullanıcı tarafından sb.auth.updateUser ile değiştirilebildiği için tek başına
 // kimlik sayılmaz; sadece auth_id'si boş eski bir hesabı bağlarken, giriş e-postası o nick'ten
 // türetilmişse (yani hesabın gerçek sahibiyse) kabul edilir.
-async function findMyRow(user){
+async function findMyRow(user,strict=false){
   const cols='nick,banli,mod,auth_id';
-  const {data:byId}=await sb.from('kullanicilar').select(cols).eq('auth_id',user.id).maybeSingle();
+  const {data:byId,error}=await sb.from('kullanicilar').select(cols).eq('auth_id',user.id).maybeSingle();
+  if(error&&strict)throw error;
   if(byId)return byId;
   const metaNick=user.user_metadata?.nick;
   if(!metaNick)return null;
@@ -910,6 +974,7 @@ async function findMyRow(user){
 }
 function loginSuccess(nick,isMod=false){
   currentUser=nick;
+  document.getElementById('googleProfileModal').classList.add('hidden');
   setModeratorMode(isMod);
   document.getElementById('authModal').classList.add('hidden');
   const nd=document.getElementById('userNickDisplay');
@@ -1579,6 +1644,7 @@ function openProfile(){
   if(!currentUser)return;
   closePanels();
   document.getElementById('profileNick').textContent=currentUser;
+  document.getElementById('googleLinkBtn').hidden=googleLinked||isModerator;
   document.getElementById('profileAvatarImg').innerHTML=nickAvatar(currentUser,64);
   const avBtn=document.getElementById('avatarUploadBtn');
   avBtn.textContent='📷 fotoğraf değiştir';avBtn.disabled=false;
@@ -2746,6 +2812,18 @@ document.getElementById('authPass').addEventListener('input',function(){checkPas
 
 // Auth button, misafir
 document.getElementById('authBtn').addEventListener('click',handleAuth);
+document.getElementById('googleLoginBtn').addEventListener('click',()=>startGoogleAuth());
+document.getElementById('googleLinkBtn').addEventListener('click',()=>startGoogleAuth(true));
+document.getElementById('googleProfileForm').addEventListener('submit',saveGoogleProfile);
+document.getElementById('googleProfileCancel').addEventListener('click',async()=>{
+  const {error}=await sb.auth.signOut();
+  if(error){
+    document.getElementById('googleProfileError').textContent='Çıkış yapılamadı. Tekrar dene.';
+    return;
+  }
+  document.getElementById('googleProfileModal').classList.add('hidden');
+  showGuestState();
+});
 document.querySelector('.guest-btn').addEventListener('click',enterAsGuest);
 
 // Panel overlay + tüm panel-close butonları
@@ -3011,13 +3089,36 @@ if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');l
 })();
 // Supabase Auth session kontrol (sunucu doğrulamalı)
 (async()=>{
+  const url=new URL(location.href);
+  const googleAction=url.searchParams.get('google');
   const {data:{session}}=await sb.auth.getSession();
-  if(session){
-    // Kimlik + ban + mod kontrolü auth_id ile (user_metadata.nick'e güvenilmez, bkz. findMyRow)
-    const row=await findMyRow(session.user);
-    if(row&&!row.banli){loginSuccess(row.nick, row.mod===true);}
-    else{await sb.auth.signOut();showGuestState();}
-  }else{showGuestState();}
+  try{
+    if(session){
+      googleLinked=hasGoogleIdentity(session.user);
+      const row=await findMyRow(session.user,googleLinked);
+      if(row&&!row.banli){
+        loginSuccess(row.nick,row.mod===true);
+        if(googleAction==='link')toast(googleLinked?'Google hesabı bağlandı.':'Google hesabı bağlanamadı.');
+      }else if(!row&&googleLinked){
+        showGuestState();
+        document.getElementById('googleProfileModal').classList.remove('hidden');
+        document.getElementById('googleProfileNick').focus();
+      }else{
+        await sb.auth.signOut();
+        showGuestState();
+      }
+    }else{
+      showGuestState();
+      if(googleAction==='login')toast('Google ile giriş tamamlanamadı. Tekrar dene.');
+    }
+  }catch{
+    showGuestState();
+    toast('Hesap yüklenemedi. Sayfayı yenileyip tekrar dene.');
+  }
+  if(googleAction){
+    for(const key of ['google','code','error','error_code','error_description'])url.searchParams.delete(key);
+    history.replaceState(history.state,'',url);
+  }
   await loadPosts();
   loadBasliklar(); // sidebar için arka planda yükle
   handlePermalink();
