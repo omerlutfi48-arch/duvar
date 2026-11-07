@@ -1488,6 +1488,7 @@ function setWriteLocked(locked){
   inp.placeholder=locked?'Yazmak için giriş yap — okumak serbest.':'Bir soru sor ya da bir şey paylaş…';
   // Girişe bağlı menü öğeleri (çıkış / hesap silme yollarında da gizlensin)
   document.getElementById('moreAiBtn').hidden=locked;
+  syncWriteType();
 }
 // "Ekle" menüsü (görsel / dosya / anket)
 function toggleEkleMenu(force){

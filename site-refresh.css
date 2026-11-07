@@ -38,6 +38,8 @@ header{padding:1.4rem 2rem 1rem}
 .wall-tab{font:500 14px/1.4 var(--ff-body);min-height:40px;padding:.5rem .65rem;letter-spacing:0}
 #searchInput{font:400 15px/1.5 var(--ff-body);min-height:44px;border-radius:8px}
 .archive-link,.wall-stats,.post-time{font:400 14px/1.5 var(--ff-body)}
+.wall-tabs-row>.archive-link{display:none}
+.resource-title{display:block;font:600 18px/1.45 var(--ff-body);margin-bottom:.5rem;letter-spacing:-.025em}
 .post{padding:1.5rem;border-radius:12px;display:flex;flex-direction:column;gap:0}
 .post-header{gap:.5rem;flex-wrap:wrap;margin-bottom:.8rem}
 .post-author-link{font:600 15px/1.5 var(--ff-body);letter-spacing:0}
@@ -69,7 +71,8 @@ button:focus-visible,a:focus-visible,textarea:focus-visible,input:focus-visible,
 [data-theme="warm"]{--muted:#b89b68;--text2:#d1bb91}
 @media(max-width:600px){
  header{padding:1rem 1rem .75rem}.site-title{font-size:2.8rem}.header-top{gap:.5rem}.header-controls{gap:.3rem}.header-search{gap:.5rem;padding:.4rem .6rem}.site-subtitle{font-size:13px;margin-top:.6rem}.beta-badge{font-size:9px;margin-left:.4rem}
- .top-nav{display:flex;padding:.25rem 1rem .75rem;overflow-x:auto}.nav-tab{font-size:14px;padding:.6rem .7rem;white-space:nowrap}
+ .top-nav{display:none}.nav-tab{font-size:14px;padding:.6rem .7rem;white-space:nowrap}
+ .wall-tabs{flex-wrap:nowrap;overflow-x:auto;width:100%;scrollbar-width:thin}.wall-tab{flex:0 0 auto;white-space:nowrap}
  .write-box{padding:1rem}.composer-title{font-size:17px}.compose-choices{gap:.35rem}.compose-choices button{font-size:13px;padding:.6rem;min-height:58px}.compose-choices button span{display:none}
  .composer-hint{font-size:13px}.guide-strip img{width:80px;height:80px}.guide-strip>a{gap:.75rem;padding:.75rem 2.5rem .75rem .75rem}.guide-copy strong{font-size:16px}.guide-strip-tag{font-size:10px}.guide-summary{font-size:12px}
  .post{padding:1.1rem}.post-text{font-size:16px}.post-kind-proje .post-img-wrap{margin:-1.1rem -1.1rem 1rem}.post-header{gap:.4rem}.post-actions{gap:.2rem}.question-status{font-size:11px}.project-heading{align-items:flex-start;flex-direction:column}
