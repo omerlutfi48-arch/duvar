@@ -1,4 +1,8 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+.maintenance-panel { max-width: 70rem; margin: 2rem auto; padding: 1.2rem; border: 1px solid var(--border); line-height: 1.6; }
+.maintenance-panel[hidden] { display: none; }
+.maintenance-panel p { margin: .65rem 0; overflow-wrap: anywhere; }
+@media(max-width:600px) { .maintenance-panel { margin: 1rem; } }
 
 :root {
   --bg: #0a0a0a;

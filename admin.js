@@ -3,7 +3,7 @@ const {createClient} = supabase;
 const sb = createClient('https://tnxflwddhucvlejmoihj.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRueGZsd2RkaHVjdmxlam1vaWhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjU5OTcsImV4cCI6MjA5MDA0MTk5N30.XFwCgn8lseNGsYDzigmHKDIBBRqByJ9gOpaPRmkT4Vs');
 
 // ── VERİ FONKSİYONLARI ──
-async function getPosts() { const {data} = await sb.from('posts').select('*, yorumlar(*)').eq('aktif',true).order('created_at',{ascending:false}); return data||[]; }
+async function getPosts() { const {data} = await sb.from('posts').select('*, yorumlar!yorumlar_post_id_fkey(*)').eq('aktif',true).order('created_at',{ascending:false}); return data||[]; }
 async function getReports() { const {data} = await sb.from('raporlar').select('id,created_at,post_id,sebep,bildiren,reviewed_at,review_note').order('reviewed_at',{ascending:true,nullsFirst:true}).order('created_at',{ascending:false}); return data||[]; }
 async function getFeedback() { const {data} = await sb.from('feedback').select('*').order('created_at',{ascending:false}); return data||[]; }
 async function getIlanlar() { const {data} = await sb.from('ilanlar').select('*').order('created_at',{ascending:false}); return data||[]; }
@@ -90,6 +90,7 @@ async function renderActivityChart(){
 
 // ── INIT ──
 async function initPanel() {
+  refreshMaintenance();
   autoCleanIfNeeded(); // 7 günde bir page_views temizle (arka planda)
   await updateStats();
   renderActivityChart();
@@ -582,6 +583,7 @@ async function deleteFeedback(id) {
 // JS bağlamına hiç girmesin). Sadece bu listedeki fonksiyonlar çağrılabilir; argümanlar
 // data-args içinde JSON olarak taşınır.
 const ADMIN_ACTIONS = {
+  refreshMaintenance, cleanMediaQueue,
   adminLogin, adminLogout, closeConfirm, cleanOldDMs, cleanOldFeedback, cleanPageViews,
   switchTab, etkinlikEkle, ilanEkle, resolveReport, confirmDeletePost, confirmBan,
   togglePin, toggleMod, toggleBan, confirmDeleteUser, markFeedbackRead, deleteFeedback,
@@ -603,3 +605,30 @@ document.addEventListener('input', e => {
   const el = e.target.closest('[data-input]');
   if (el) runAdminAction(el, el.dataset.input);
 });
+
+async function refreshMaintenance(){
+  if(!isAdmin)return;
+  document.getElementById('maintenancePanel').hidden=false;
+  const [queue,errors,media]=await Promise.all([sb.rpc('duvar_media_queue_stats'),sb.rpc('duvar_client_error_summary'),sb.functions.invoke('cleanup-media',{body:{dry_run:true}})]);
+  const status=document.getElementById('maintenanceStatus');
+  if(queue.error||errors.error){status.textContent='Bakım bilgileri alınamadı.';return;}
+  const counts=queue.data||{};
+  status.textContent=`Bekleyen ${counts.pending||0} · Temizlenen ${counts.done||0} · Kullanıldığı için korunan ${counts.retained||0} · İnceleme gereken ${(counts.invalid||0)+(counts.failed||0)}`;
+  const cleanupButton=document.querySelector('[data-action="cleanMediaQueue"]');
+  cleanupButton.disabled=media.error||!media.data?.configured;
+  if(media.error)status.textContent+=' · Dosya temizliği bağlantısı doğrulanamadı.';
+  else if(!media.data?.configured)status.textContent+=' · Cloudinary erişim bilgileri tanımlanmalı.';
+  document.getElementById('clientErrorSummary').innerHTML='<h3>Son 7 gündeki uygulama hataları</h3>'+(errors.data?.length?errors.data.map(item=>`<p>${esc(item.source)} · satır ${Number(item.line)} · ${Number(item.total)} kayıt</p>`).join(''):'<p>Henüz hata kaydı yok.</p>');
+}
+async function cleanMediaQueue(){
+  if(!isAdmin)return;
+  const status=document.getElementById('maintenanceStatus');
+  status.textContent='Temizlik kuyruğu işleniyor…';
+  const {data,error}=await sb.functions.invoke('cleanup-media',{body:{}});
+  if(error){
+    const details=await error.context?.json?.().catch(()=>null);
+    status.textContent=details?.error||'Temizlik çalıştırılamadı. Yeniden deneyebilirsin.';return;
+  }
+  await refreshMaintenance();
+  status.textContent+=` · Bu çalıştırmada ${Number(data.completed||0)} dosya temizlendi.`;
+}
