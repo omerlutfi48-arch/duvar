@@ -9,7 +9,7 @@ async function getFeedback() { const {data} = await sb.from('feedback').select('
 async function getIlanlar() { const {data} = await sb.from('ilanlar').select('*').order('created_at',{ascending:false}); return data||[]; }
 async function getEtkinlikler() { const {data} = await sb.from('etkinlikler').select('*').order('created_at',{ascending:false}); return data||[]; }
 async function getBanned() { const {data} = await sb.from('kullanicilar').select('nick').eq('banli',true); return (data||[]).map(u=>u.nick); }
-async function getUsers() { const {data}=await sb.from('kullanicilar').select('nick,banli,mod,created_at').order('created_at',{ascending:false}); return data||[]; }
+async function getUsers() { const {data}=await sb.from('kullanicilar').select('nick,display_name,banli,mod,created_at').order('created_at',{ascending:false}); return data||[]; }
 
 // ── AUTH (Supabase Email) ──
 let isAdmin = false;
@@ -101,7 +101,7 @@ async function initPanel() {
   renderFeedback();
   renderIlanlarAdmin();
   renderEtkinlikAdmin();
-  document.getElementById('adminMeta').textContent = `// giriş yapıldı · ${new Date().toLocaleString('tr-TR')}`;
+  document.getElementById('adminMeta').textContent = `Son giriş · ${new Date().toLocaleString('tr-TR')}`;
   // Her 60 sn aktif kullanıcı güncelle
   setInterval(async()=>{
     const n = await getActiveUsers();
@@ -138,15 +138,15 @@ async function renderTagAnalytics() {
   });
   const sorted = Object.entries(tagCounts).sort((a,b) => b[1]-a[1]).slice(0,15);
   const el = document.getElementById('tagAnalytics');
-  if (!sorted.length) { el.innerHTML = '<div class="empty-msg">// henüz tag kullanılmamış</div>'; return; }
+  if (!sorted.length) { el.innerHTML = '<div class="empty-msg">Henüz etiket kullanılmamış.</div>'; return; }
   const max = sorted[0][1];
   el.innerHTML = sorted.map(([tag, count]) => `
-    <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.55rem">
-      <span style="font-family:'Space Mono',monospace;font-size:.7rem;color:#f5c400;width:130px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis">${esc(tag)}</span>
-      <div style="flex:1;height:6px;background:#1a1a1a;border-radius:2px">
-        <div style="height:100%;width:${Math.round(count/max*100)}%;background:#8b1a1a;border-radius:2px;transition:width .4s"></div>
+    <div class="tag-row">
+      <span class="tag-name">${esc(tag)}</span>
+      <div class="tag-track">
+        <div class="tag-fill" style="width:${Math.round(count/max*100)}%"></div>
       </div>
-      <span style="font-family:'Space Mono',monospace;font-size:.65rem;color:#555;width:28px;text-align:right">${count}</span>
+      <span class="tag-count">${count}</span>
     </div>`).join('');
 }
 
@@ -163,6 +163,8 @@ async function updateStats() {
   const acil = posts.filter(p => p.type === 'acil').length;
   const feedbackPending = feedback.filter(f => !f.okundu).length;
 
+  document.getElementById('pendingReportsSummary').textContent = pending;
+  document.getElementById('pendingFeedbackSummary').textContent = feedbackPending;
   document.getElementById('statPosts').textContent = posts.length;
   document.getElementById('statUsers').textContent = users.length;
   document.getElementById('statReports').textContent = pending;
@@ -219,6 +221,7 @@ function switchTab(tab) {
   ['reports','posts','users','feedback','ilanlar','etkinlik'].forEach(t => {
     document.getElementById('section-' + t).classList.toggle('active', t === tab);
     document.getElementById('tab-' + t).classList.toggle('active', t === tab);
+    document.getElementById('tab-' + t).setAttribute('aria-pressed',String(t === tab));
   });
 }
 
@@ -228,7 +231,7 @@ async function renderReports() {
   const el = document.getElementById('reportsList');
 
   if (!reports.length) {
-    el.innerHTML = '<div class="empty-msg">// şikayet yok</div>';
+    el.innerHTML = '<div class="empty-msg">İncelenecek şikayet yok. Yeni bildirimler burada görünür.</div>';
     return;
   }
 
@@ -245,8 +248,8 @@ async function renderReports() {
       ${r.reviewed_at ? `<p class="report-meta">İncelendi · ${esc(new Date(r.reviewed_at).toLocaleString('tr-TR'))} · ${esc(r.review_note || '')}</p>` : ''}
       <div class="item-actions">
         ${!r.reviewed_at ? `<button class="action-btn warn" data-action="resolveReport" data-args="${esc(JSON.stringify([Number(r.id)]))}">İncelemeyi kapat</button>` : ''}
-        ${post ? `<button class="action-btn danger" data-action="confirmDeletePost" data-args="${esc(JSON.stringify([Number(r.post_id)]))}">gönderiyi sil</button>` : ''}
-        ${post ? `<button class="action-btn danger" data-action="confirmBan" data-args="${esc(JSON.stringify([String(post.author)]))}">@${esc(post?.author||'?')} banla</button>` : ''}
+        ${post ? `<button class="action-btn danger" data-action="confirmDeletePost" data-args="${esc(JSON.stringify([Number(r.post_id)]))}">Gönderiyi sil</button>` : ''}
+        ${post ? `<button class="action-btn danger" data-action="confirmBan" data-args="${esc(JSON.stringify([String(post.author)]))}">Hesabı askıya al</button>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -301,13 +304,13 @@ async function renderPosts() {
         <div class="item-text">${esc(p.text)}</div>
         <div class="item-actions">
           <button class="action-btn success" data-action="togglePin" data-args="${esc(JSON.stringify([Number(p.id),!!p.pinned]))}">${p.pinned ? '📌 sabiti kaldır' : '📌 sabitle'}</button>
-          <button class="action-btn danger" data-action="confirmDeletePost" data-args="${esc(JSON.stringify([Number(p.id)]))}">🗑 sil</button>
-          <button class="action-btn danger" data-action="confirmBan" data-args="${esc(JSON.stringify([String(p.author)]))}">🚫 @${esc(p.author)} banla</button>
+          <button class="action-btn danger" data-action="confirmDeletePost" data-args="${esc(JSON.stringify([Number(p.id)]))}">Kalıcı olarak sil</button>
+          <button class="action-btn danger" data-action="confirmBan" data-args="${esc(JSON.stringify([String(p.author)]))}">Hesabı askıya al</button>
         </div>
       </div>
       <div class="item-right">
-        <div style="font-family:Space Mono,monospace;font-size:0.58rem;color:#333">↳ ${p.yorumlar?.length||0} yorum</div>
-        <div style="font-family:Space Mono,monospace;font-size:0.58rem;color:#333">⚡ ${p.fire||0}</div>
+        <div class="item-count">↳ ${p.yorumlar?.length||0} yorum</div>
+        <div class="item-count">⚡ ${p.fire||0}</div>
       </div>
     </div>`;
   }).join('');
@@ -325,7 +328,7 @@ async function renderUsers() {
   const q = (document.getElementById('userSearch')?.value || '').toLowerCase();
   const el = document.getElementById('usersList');
 
-  const filtered = users.filter(u => !q || u.nick.toLowerCase().includes(q));
+  const filtered = users.filter(u => !q || u.nick.toLowerCase().includes(q) || (u.display_name||'').toLowerCase().includes(q));
 
   if (!filtered.length) {
     el.innerHTML = '<div class="empty-msg">// kullanıcı yok</div>';
@@ -340,21 +343,21 @@ async function renderUsers() {
     return `
     <div class="user-card ${isBanned ? 'banned-user' : ''}">
       <div>
-        <div class="user-nick-display">${esc(nick)}</div>
+        <div class="user-nick-display">${esc(u.display_name||nick)}</div>
         <div class="user-stats-row">
           <span>${postCount} gönderi</span>
-          ${isBanned ? '<span style="color:var(--red)">🚫 banlı</span>' : ''}
-          ${isMod ? '<span style="color:var(--yellow)">⚡ mod</span>' : ''}
+          ${isBanned ? '<span class="status-suspended">Hesap askıda</span>' : '<span class="status-active">Hesap aktif</span>'}
+          ${isMod ? '<span class="status-moderator">Moderatör</span>' : '<span>Üye</span>'}
         </div>
       </div>
       <div class="item-actions">
         <button class="action-btn ${isMod ? 'warning' : 'secondary'}" data-action="toggleMod" data-args="${esc(JSON.stringify([String(nick),!!isMod]))}">
-          ${isMod ? '⚡ mod al' : '⚡ mod ver'}
+          ${isMod ? 'Moderatörlüğü kaldır' : 'Moderatör yap'}
         </button>
-        <button class="action-btn ${isBanned ? 'success' : 'danger'}" data-action="toggleBan" data-args="${esc(JSON.stringify([String(nick),!!isBanned]))}">
-          ${isBanned ? '✓ banı kaldır' : '🚫 banla'}
+        <button class="action-btn ${isBanned ? 'success' : 'warn'}" data-action="toggleBan" data-args="${esc(JSON.stringify([String(nick),!!isBanned]))}">
+          ${isBanned ? 'Hesabı yeniden aç' : 'Hesabı askıya al'}
         </button>
-        <button class="action-btn danger" data-action="confirmDeleteUser" data-args="${esc(JSON.stringify([String(nick)]))}">🗑 hesabı sil</button>
+        <details class="danger-options"><summary>Diğer işlemler</summary><button class="action-btn danger" data-action="confirmDeleteUser" data-args="${esc(JSON.stringify([String(nick)]))}">Hesabı kalıcı olarak sil</button></details>
       </div>
     </div>`;
   }).join('');
@@ -458,8 +461,8 @@ async function renderFeedback() {
       <div class="report-meta">${new Date(f.created_at).toLocaleString('tr-TR')}</div>
       <div class="item-text" style="margin:0.5rem 0">${esc(f.mesaj)}</div>
       <div class="item-actions">
-        ${!f.okundu ? `<button class="action-btn warn" data-action="markFeedbackRead" data-args="${esc(JSON.stringify([Number(f.id)]))}">✓ okundu</button>` : '<span style="font-family:Space Mono,monospace;font-size:0.6rem;color:#333;letter-spacing:0.08em">// okundu</span>'}
-        <button class="action-btn danger" data-action="deleteFeedback" data-args="${esc(JSON.stringify([Number(f.id)]))}">🗑 sil</button>
+        ${!f.okundu ? `<button class="action-btn warn" data-action="markFeedbackRead" data-args="${esc(JSON.stringify([Number(f.id)]))}">Okundu olarak işaretle</button>` : '<span class="status-active">Okundu</span>'}
+        <button class="action-btn danger" data-action="deleteFeedback" data-args="${esc(JSON.stringify([Number(f.id)]))}">Kalıcı olarak sil</button>
       </div>
     </div>`;
   }).join('');
@@ -511,10 +514,10 @@ async function renderEtkinlikAdmin() {
           ${!e.aktif ? '<span style="color:#555">arşiv</span>' : ''}
         </div>
         <div class="item-text">${esc((e.aciklama||'').slice(0,120))}${(e.aciklama||'').length>120?'...':''}</div>
-        ${e.link ? `<div style="font-family:Space Mono,monospace;font-size:0.62rem;color:#c084fc;margin-bottom:0.5rem">${esc(e.link)}</div>` : ''}
+        ${e.link ? `<div class="item-meta">${esc(e.link)}</div>` : ''}
         <div class="item-actions">
           <button class="action-btn warn" data-action="etkinlikArsiv" data-args="${esc(JSON.stringify([Number(e.id),!!e.aktif]))}">${!e.aktif ? '↺ yeniden yayınla' : '📦 arşivle'}</button>
-          <button class="action-btn danger" data-action="etkinlikSil" data-args="${esc(JSON.stringify([Number(e.id)]))}">🗑 sil</button>
+          <button class="action-btn danger" data-action="etkinlikSil" data-args="${esc(JSON.stringify([Number(e.id)]))}">Kalıcı olarak sil</button>
         </div>
       </div>
     </div>`).join('');
@@ -560,10 +563,10 @@ async function renderIlanlarAdmin() {
           ${!il.aktif ? '<span style="color:#555">arşiv</span>' : ''}
         </div>
         <div class="item-text">${esc(il.baslik)} — ${esc((il.aciklama||'').slice(0,100))}${(il.aciklama||'').length>100?'...':''}</div>
-        ${il.link ? `<div style="font-family:Space Mono,monospace;font-size:0.62rem;color:var(--yellow);margin-bottom:0.5rem">${esc(il.link)}</div>` : ''}
+        ${il.link ? `<div class="item-meta">${esc(il.link)}</div>` : ''}
         <div class="item-actions">
           <button class="action-btn warn" data-action="ilanArsiv" data-args="${esc(JSON.stringify([Number(il.id),!!il.aktif]))}">${!il.aktif ? '↺ yeniden yayınla' : '📦 arşivle'}</button>
-          <button class="action-btn danger" data-action="ilanSil" data-args="${esc(JSON.stringify([Number(il.id)]))}">🗑 sil</button>
+          <button class="action-btn danger" data-action="ilanSil" data-args="${esc(JSON.stringify([Number(il.id)]))}">Kalıcı olarak sil</button>
         </div>
       </div>
     </div>`).join('');
@@ -584,7 +587,7 @@ async function deleteFeedback(id) {
 // data-args içinde JSON olarak taşınır.
 const ADMIN_ACTIONS = {
   refreshMaintenance, cleanMediaQueue,
-  adminLogin, adminLogout, closeConfirm, cleanOldDMs, cleanOldFeedback, cleanPageViews,
+  adminLogin, adminLogout, closeConfirm, cleanOldDMs, cleanOldFeedback, cleanPageViews, openAdminSection,
   switchTab, etkinlikEkle, ilanEkle, resolveReport, confirmDeletePost, confirmBan,
   togglePin, toggleMod, toggleBan, confirmDeleteUser, markFeedbackRead, deleteFeedback,
   etkinlikArsiv, etkinlikSil, ilanArsiv, ilanSil, renderPosts, renderUsers,
@@ -633,4 +636,9 @@ async function cleanMediaQueue(){
   }
   await refreshMaintenance();
   status.textContent+=` · Bu çalıştırmada ${Number(data.completed||0)} dosya temizlendi.`;
+}
+
+function openAdminSection(tab){
+  switchTab(tab);
+  document.getElementById('section-'+tab)?.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'});
 }
