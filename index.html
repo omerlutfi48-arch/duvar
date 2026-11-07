@@ -267,14 +267,14 @@
       <button type="button" id="guideStripClose" aria-label="Şeridi kapat">×</button>
     </div>
     <script>(function(){var s=document.getElementById('guideStrip'),K='duvar_strip_render';try{if(localStorage.getItem(K)){s.hidden=true;return;}}catch(e){}document.getElementById('guideStripClose').addEventListener('click',function(){s.hidden=true;try{localStorage.setItem(K,'1');}catch(e){}});})();</script>
-    <div class="write-box" id="writeBox">
+    <div class="write-box locked" id="writeBox">
       <h2 class="composer-title">Bugün ne paylaşmak istersin?</h2>
       <div class="compose-choices" role="group" aria-label="Paylaşımını başlat"><button type="button" data-compose="soru" aria-pressed="false">Soru sor <span aria-hidden="true">↗</span></button><button type="button" data-compose="proje" aria-pressed="false">Projene görüş al <span aria-hidden="true">↗</span></button><button type="button" data-compose="kaynak" aria-pressed="false">Kaynak paylaş <span aria-hidden="true">↗</span></button></div>
       <p class="composer-hint" id="composerHint">Bir soruyla başla, bildiklerini paylaş ya da projeni birlikte geliştirelim.</p>
       <p class="composer-identity" id="composerIdentity" hidden></p>
       <button type="button" id="cloudDraftNotice" data-workspace="draft" hidden>Hesap taslağını kontrol et</button>
       <label class="sr-only" for="mainInput">Duvara yaz</label>
-      <textarea id="mainInput" placeholder="Bir soru sor ya da bir şey paylaş…" maxlength="500" rows="3"></textarea>
+      <textarea id="mainInput" placeholder="Yazmak için giriş yap — okumak serbest." maxlength="500" rows="3" readonly></textarea>
       <div class="write-type" id="writeType" role="group" aria-label="Tür (isteğe bağlı)" hidden>
         <span class="write-type-label">tür <span class="opt">(isteğe bağlı)</span></span>
         <button type="button" class="pill" data-type="soru" aria-pressed="false">Soru</button>
