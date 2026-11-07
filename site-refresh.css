@@ -25,7 +25,13 @@ header{padding:1.4rem 2rem 1rem}
 .pill,.ekle-btn,.char-count,.draft-saved{font:400 14px/1.4 var(--ff-body)}
 #addPostBtn{font:600 15px/1.4 var(--ff-body);letter-spacing:0;border-radius:8px;min-height:44px;background:var(--red);color:#fff}
 .guide-strip{border:1px solid var(--border);border-radius:12px;background:var(--surface);padding:0;position:relative;margin-bottom:1.25rem}
-.guide-strip[hidden]{display:none}
+.guide-strip[hidden],.guide-strip>a[hidden]{display:none}
+.guide-strip>a{animation:gsIn .45s ease}
+@keyframes gsIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.guide-strip>a{animation:none}}
+.gs-dots{position:absolute;right:1.05rem;bottom:.7rem;display:flex;gap:5px}
+.gs-dots i{width:6px;height:6px;border-radius:50%;background:var(--border2)}
+.gs-dots i.on{background:var(--yellow)}
 .guide-strip>a{display:flex;align-items:center;gap:1rem;padding:.85rem 3rem .85rem .85rem;color:var(--text);text-decoration:none}
 .guide-strip img{width:120px;height:84px;object-fit:cover;border-radius:6px;flex-shrink:0}
 .guide-copy{display:grid;gap:.25rem}
