@@ -49,6 +49,7 @@
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap"></noscript>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="style.css?v=12">
+<link rel="stylesheet" href="site-refresh.css?v=1">
 </head>
 <body>
 
@@ -137,6 +138,7 @@
     <input type="file" id="avatarFileInput" accept="image/*" style="display:none" onchange="uploadAvatar(this.files[0])">
     <button class="panel-btn" id="avatarUploadBtn" onclick="document.getElementById('avatarFileInput').click()" style="margin-bottom:.8rem">📷 fotoğraf değiştir</button>
     <div class="panel-stats" id="profileStats"></div>
+    <nav class="profile-tools" aria-label="Kişisel araçlar"><h3>Sana ait alan</h3><button type="button" data-profile-saved>Kaydettiklerim</button><button type="button" data-workspace="collections">Koleksiyonlarım</button><button type="button" data-workspace="draft">Hesaptaki taslağım</button><button type="button" data-workspace="planner">Teslim planlayıcısı</button><button type="button" data-workspace="controls">Gizlediğim kişiler</button></nav>
     <div class="rozet-wrap" id="profileRozetler"></div>
     <div class="panel-section-title">// gönderilerim</div>
     <div id="myPostsList"></div>
@@ -216,6 +218,7 @@
   <div class="header-top">
     <h1 class="site-title"><a href="./" id="homeLink" class="site-title-link">DUVAR</a><span class="beta-badge">BETA v1.1</span></h1>
     <div class="header-controls">
+      <button class="header-search" type="button" data-workspace="archive" aria-label="Tüm arşivde ara">Ara <span aria-hidden="true">↗</span></button>
       <button class="icon-btn" id="themeBtn" title="tema">◑</button>
       <button class="icon-btn" id="dmBtn" title="mesajlar" style="display:none">✉<span class="notif-dot" id="dmDot"></span></button>
       <button class="icon-btn" id="notifBtn" title="bildirimler" style="display:none">◉<span class="notif-dot" id="notifDot"></span></button>
@@ -228,6 +231,7 @@
 
 <nav class="top-nav" aria-label="Ana gezinme">
   <button class="nav-tab active" id="tab-duvar" data-nav="duvar">Duvar</button>
+  <button class="nav-tab" id="tab-projeler" data-nav="projeler">Projeler</button>
   <button class="nav-tab" id="tab-rehber" data-nav="rehber">Rehberler</button>
   <button class="nav-tab more-trigger" id="tab-more" aria-haspopup="menu" aria-expanded="false" aria-controls="moreMenu">Daha fazla ▾</button>
 </nav>
@@ -242,12 +246,12 @@
   <div class="menu-sep" role="separator"></div>
   <button type="button" role="menuitem" data-go="araclar">Araçlar</button>
   <button type="button" role="menuitem" data-go="mimarlar">Mimarlar</button>
-  <button type="button" role="menuitem" data-view-go="saved">Kaydettiklerim</button>
+  
   <button type="button" role="menuitem" data-workspace="archive">Tüm arşivde ara</button>
-  <button type="button" role="menuitem" data-workspace="collections">Koleksiyonlarım</button>
-  <button type="button" role="menuitem" data-workspace="draft">Hesaptaki taslağım</button>
-  <button type="button" role="menuitem" data-workspace="planner">Teslim planlayıcısı</button>
-  <button type="button" role="menuitem" data-workspace="controls">Gizlediğim kişiler</button>
+  
+  
+  
+  
   <div class="menu-sep" role="separator"></div>
   <button type="button" role="menuitem" data-action="ai" id="moreAiBtn" hidden>AI asistan</button>
   <button type="button" role="menuitem" data-action="radio">Teslim gecesi radyosu</button>
@@ -257,12 +261,16 @@
 <main>
   <!-- DUVAR -->
   <div id="section-duvar">
+    <div class="project-heading"><div><p>STÜDYODAN DUVARA</p><h2>Birlikte geliştirelim.</h2><span>Projeni paylaş, farklı gözlerden görüş al.</span></div><button type="button" onclick="beginPost('proje')">Projeni paylaş ↗</button></div>
     <div class="guide-strip" id="guideStrip">
-      <a href="/rehber/ekran-goruntusunden-render/"><span class="guide-strip-tag">// yeni rehber</span><span class="guide-strip-txt">Ekran görüntüsünden render: adım adım <span class="guide-strip-go" aria-hidden="true">→</span></span></a>
+      <a href="/rehber/ekran-goruntusunden-render/"><img src="guide-cover.jpg" alt="" width="144" height="96" loading="lazy"><span class="guide-copy"><span class="guide-strip-tag">İŞİN MUTFAĞI · REHBER</span><strong>Ekran görüntüsünden render’a</strong><span class="guide-summary">Süreci adım adım keşfet <span aria-hidden="true">↗</span></span></span></a>
       <button type="button" id="guideStripClose" aria-label="Şeridi kapat">×</button>
     </div>
     <script>(function(){var s=document.getElementById('guideStrip'),K='duvar_strip_render';try{if(localStorage.getItem(K)){s.hidden=true;return;}}catch(e){}document.getElementById('guideStripClose').addEventListener('click',function(){s.hidden=true;try{localStorage.setItem(K,'1');}catch(e){}});})();</script>
     <div class="write-box" id="writeBox">
+      <h2 class="composer-title">Bugün ne paylaşmak istersin?</h2>
+      <div class="compose-choices" role="group" aria-label="Paylaşımını başlat"><button type="button" data-compose="soru" aria-pressed="false">Soru sor <span aria-hidden="true">↗</span></button><button type="button" data-compose="proje" aria-pressed="false">Projene görüş al <span aria-hidden="true">↗</span></button><button type="button" data-compose="kaynak" aria-pressed="false">Kaynak paylaş <span aria-hidden="true">↗</span></button></div>
+      <p class="composer-hint" id="composerHint">Bir soruyla başla, bildiklerini paylaş ya da projeni birlikte geliştirelim.</p>
       <p class="composer-identity" id="composerIdentity" hidden></p>
       <button type="button" id="cloudDraftNotice" data-workspace="draft" hidden>Hesap taslağını kontrol et</button>
       <label class="sr-only" for="mainInput">Duvara yaz</label>
@@ -959,6 +967,7 @@
   <button class="bnav-btn active" id="bnav-duvar" onclick="switchNav('duvar');window.scrollTo({top:0})">
     <span class="bnav-icon" aria-hidden="true">⬚</span>Duvar
   </button>
+  <button class="bnav-btn" id="bnav-projeler" onclick="switchNav('projeler');window.scrollTo({top:0})"><span class="bnav-icon" aria-hidden="true">▧</span>Projeler</button>
   <button class="bnav-btn" id="bnav-rehber" onclick="switchNav('rehber');window.scrollTo({top:0})">
     <span class="bnav-icon" aria-hidden="true">▤</span>Rehberler
   </button>
@@ -1016,7 +1025,7 @@
 </div>
 
 <script src="utils.js?v=4"></script>
-<script src="main.js?v=17"></script>
+<script src="main.js?v=18"></script>
 <script src="features.js?v=1"></script>
 </body>
 </html>

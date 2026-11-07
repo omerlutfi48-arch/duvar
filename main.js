@@ -472,6 +472,7 @@ function moreGo(btn){
 const MORE_TABS=['sozluk','araclar','kesit','mimarlar','ilanlar','etkinlik'];
 function updateBottomNav(active){
   document.getElementById('bnav-duvar')?.classList.toggle('active',active==='duvar');
+  document.getElementById('bnav-projeler')?.classList.toggle('active',active==='projeler');
   document.getElementById('bnav-rehber')?.classList.toggle('active',active==='rehber');
   document.getElementById('bnav-more')?.classList.toggle('active',MORE_TABS.includes(active));
 }
@@ -1179,6 +1180,7 @@ function logout(){
 
 // ── NAV ──
 const NAV_META={
+  projeler:{title:'Projeler — DUVAR',desc:'Projeni paylaş, mimarlık öğrencilerinden görüş al.',url:'https://duvar.site/#projeler'},
   duvar:{
     title:'DUVAR — Mimarlık Öğrencileri için Anonim Yardımlaşma',
     desc:'Mimarlık öğrencileri için anonim yardımlaşma platformu. Dert anlat, soru sor, kaynak paylaş. Hoca yok, yargı yok.',
@@ -1223,10 +1225,13 @@ const NAV_META={
 
 function switchNav(tab,pushState=true){
   if(typeof closeWorkspace==='function')closeWorkspace();
-  document.getElementById('section-duvar').style.display=tab==='duvar'?'block':'none';
+  document.getElementById('section-duvar').style.display=['duvar','projeler'].includes(tab)?'block':'none';
+  document.getElementById('section-duvar').classList.toggle('projects-view',tab==='projeler');
+  if(tab==='projeler')setView('proje');
+  else if(tab==='duvar'&&activeView==='proje')setView('all');
   ['rehber','sozluk','araclar','kesit','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('section-'+t).classList.toggle('active',t===tab));
   document.querySelectorAll('.nav-tab[data-nav]').forEach(b=>b.classList.toggle('active',b.dataset.nav===tab));
-  document.getElementById('tab-more').classList.toggle('active',tab!=='duvar'&&tab!=='rehber');
+  document.getElementById('tab-more').classList.toggle('active',!['duvar','projeler','rehber'].includes(tab));
   toggleMoreMenu(false);
   updateBottomNav(tab);
   if(tab==='sozluk'){renderSozluk();}
@@ -1254,7 +1259,7 @@ function switchNav(tab,pushState=true){
 window.addEventListener('popstate',e=>{
   const [hNav,hArac]=location.hash.replace('#','').split('/');
   const tab=(e.state?.tab)||hNav||'duvar';
-  const valid=['duvar','rehber','sozluk','araclar','kesit','mimarlar','ilanlar','etkinlik'];
+  const valid=['duvar','projeler','rehber','sozluk','araclar','kesit','mimarlar','ilanlar','etkinlik'];
   switchNav(valid.includes(tab)?tab:'duvar',false);
   if(tab==='araclar'){const a=e.state?.arac||hArac;if(a)switchArac(a,false);}
 });
@@ -1263,7 +1268,7 @@ window.addEventListener('popstate',e=>{
 setTimeout(()=>{
   // "#araclar/juri" gibi adresler doğrudan o aracı açar
   const [hash,arac]=location.hash.replace('#','').split('/');
-  const valid=['rehber','sozluk','araclar','kesit','mimarlar','ilanlar','etkinlik'];
+  const valid=['projeler','rehber','sozluk','araclar','kesit','mimarlar','ilanlar','etkinlik'];
   if(valid.includes(hash))switchNav(hash,false);
   if(hash==='araclar'&&arac)switchArac(arac);
 },0);
@@ -1387,7 +1392,7 @@ function render(){
       }).join('')}<div class="vote-count">// ${total} oy</div></div>`;
     }
     const isNew=!seenPostIds.has(p.id);
-    return`<div class="post${isMine?' mine':''}${p.pinned?' pinned-post':''}${isNew?' post-new':''}" data-pid="${p.id}"${isNew?` style="animation-delay:${Math.min(i,6)*.05}s"`:''}>
+    return`<div class="post post-kind-${['soru','proje','kaynak'].includes(p.type)?p.type:'general'}${isMine?' mine':''}${p.pinned?' pinned-post':''}${isNew?' post-new':''}" data-pid="${p.id}"${isNew?` style="animation-delay:${Math.min(i,6)*.05}s"`:''}>
       <div class="post-header">
         <span class="post-number">#${String(filtered.length-i).padStart(3,'0')}</span>
         ${nickAvatar(p.author)}
@@ -1395,10 +1400,10 @@ function render(){
         ${DM_ENABLED&&!isMine&&currentUser?`<button class="dm-btn" data-nick="${esc(p.author)}" onclick="openConversation(this.dataset.nick)" title="mesaj gönder">✉</button>`:''}
         ${isMine?'<span class="mini-tag mine-tag">sen</span>':''}
         ${p.pinned?'<span class="mini-tag pin-tag">📌 sabit</span>':''}
-        ${p.resolved?'<span class="solution-badge">Çözüldü</span>':''}
+        ${p.resolved?'<span class="solution-badge">Çözüldü</span>':p.type==='soru'?`<span class="question-status">${p.comments.length?`${p.comments.length} yanıt`:'Cevap bekliyor'}</span>`:''}
       </div>
       ${(mB||tB)?`<div class="post-badges">${tB}${mB}</div>`:''}
-      <div class="post-text">${renderText(needsTrunc?p.text.slice(0,TRUNCATE_LEN).trimEnd():p.text)}${needsTrunc?`<button class="devami-btn" data-pid="${p.id}"> devamını oku →</button>`:''}</div>
+      <div class="post-text">${p.type==='kaynak'?'<span class="resource-label">PAYLAŞILAN KAYNAK</span>':''}${renderText(needsTrunc?p.text.slice(0,TRUNCATE_LEN).trimEnd():p.text)}${needsTrunc?`<button class="devami-btn" data-pid="${p.id}"> devamını oku →</button>`:''}</div>
       ${typeof renderProjectDetails==='function'?renderProjectDetails(p):''}
       ${safeMediaUrl(p.image_url)?`<div class="post-img-wrap"><img src="${safeMediaUrl(p.image_url)}" class="post-img" loading="lazy" alt="gönderi görseli" onclick="openImageModal(this.src)"></div>`:''}
       ${safeMediaUrl(p.file_url)?`<a href="${safeMediaUrl(p.file_url)}" class="post-file-attach" target="_blank" rel="noopener noreferrer" download="${esc(p.file_name||'dosya')}">📎 ${esc(p.file_name||'dosyayı indir')} <span style="color:var(--muted)">↓ indir</span></a>`:''}
@@ -1463,12 +1468,16 @@ function selectType(el,type){
     const on=p.dataset.type===selectedType;
     p.classList.toggle('active',on);p.setAttribute('aria-pressed',on);
   });
-  syncProjectForm();scheduleCloudDraft();
+  syncProjectForm();syncWriteType();scheduleCloudDraft();
 }
 // Tür etiketi yazmaya başlayınca görünür (isteğe bağlı)
 function syncWriteType(){
   const v=document.getElementById('mainInput').value.trim();
   document.getElementById('writeType').hidden=!(v||selectedType);
+  const prompts={soru:'Nerede takıldın? Denediklerini de yaz; birlikte çözelim.',proje:'Projenin fikrini anlat. Hangi konuda görüş istiyorsun?',kaynak:'Kaynağın adını, bağlantısını ve neden faydalı olduğunu paylaş.'};
+  document.querySelectorAll('[data-compose]').forEach(b=>{const on=b.dataset.compose===selectedType;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
+  document.getElementById('composerHint').textContent=prompts[selectedType]||'Bir soruyla başla, bildiklerini paylaş ya da projeni birlikte geliştirelim.';
+  if(currentUser)document.getElementById('mainInput').placeholder=prompts[selectedType]||'Aklındakini duvara bırak…';
 }
 // Misafirde yazma kutusu: salt okunur, tıklayınca giriş açılır
 function setWriteLocked(locked){
@@ -3320,3 +3329,15 @@ document.getElementById('aiChatInput').addEventListener('keydown',e=>{
 });
 
 if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
+
+// Guided entry keeps the existing composer, uploads and draft behavior together.
+function beginPost(type){
+  if(postSaving)return;
+  selectedType=type;
+  document.querySelectorAll('#writeType .pill[data-type]').forEach(b=>{const on=b.dataset.type===type;b.classList.toggle('active',on);b.setAttribute('aria-pressed',String(on));});
+  syncProjectForm();syncWriteType();
+  if(!currentUser){showAuth();return;}
+  scheduleCloudDraft();document.getElementById('mainInput').focus();
+}
+document.querySelectorAll('[data-compose]').forEach(b=>b.addEventListener('click',()=>beginPost(b.dataset.compose)));
+document.querySelector('[data-profile-saved]').addEventListener('click',()=>{closePanels();switchNav('duvar');setView('saved');});
