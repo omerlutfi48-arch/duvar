@@ -3,7 +3,7 @@ const {createClient} = supabase;
 const sb = createClient('https://tnxflwddhucvlejmoihj.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRueGZsd2RkaHVjdmxlam1vaWhqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjU5OTcsImV4cCI6MjA5MDA0MTk5N30.XFwCgn8lseNGsYDzigmHKDIBBRqByJ9gOpaPRmkT4Vs');
 
 // ── VERİ FONKSİYONLARI ──
-async function getPosts() { const {data} = await sb.from('posts').select('*, yorumlar(*)').eq('aktif',true).order('created_at',{ascending:false}); return data||[]; }
+async function getPosts() { const {data} = await sb.from('posts').select('*, yorumlar!yorumlar_post_id_fkey(*)').eq('aktif',true).order('created_at',{ascending:false}); return data||[]; }
 async function getReports() { const {data} = await sb.from('raporlar').select('id,created_at,post_id,sebep,bildiren,reviewed_at,review_note').order('reviewed_at',{ascending:true,nullsFirst:true}).order('created_at',{ascending:false}); return data||[]; }
 async function getFeedback() { const {data} = await sb.from('feedback').select('*').order('created_at',{ascending:false}); return data||[]; }
 async function getIlanlar() { const {data} = await sb.from('ilanlar').select('*').order('created_at',{ascending:false}); return data||[]; }

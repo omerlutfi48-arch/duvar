@@ -120,7 +120,7 @@ async function loadPosts(){
   const viewer=currentUser;
   const stale=()=>version!==wallLoadVersion||viewer!==currentUser;
   const {data,error}=await sb.from('posts')
-    .select('id,created_at,author,text,mood,type,fire,pinned,options,disfire,image_url,file_url,file_name,yorumlar(id,nick,text)')
+    .select('id,created_at,author,text,mood,type,fire,pinned,options,disfire,image_url,file_url,file_name,yorumlar!yorumlar_post_id_fkey(id,nick,text)')
     .eq('aktif',true).order('created_at',{ascending:false}).order('id',{ascending:false}).limit(200);
   if(stale())return;
   if(error){
