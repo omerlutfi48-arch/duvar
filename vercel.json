@@ -17,6 +17,11 @@
       "permanent": false
     },
     {
+      "source": "/affinity",
+      "destination": "/rehber/affinity-claude/",
+      "permanent": false
+    },
+    {
       "source": "/juri",
       "destination": "/#araclar/juri",
       "permanent": false
