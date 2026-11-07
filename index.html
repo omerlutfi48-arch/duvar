@@ -48,7 +48,7 @@
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap"></noscript>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
-<link rel="stylesheet" href="style.css?v=11">
+<link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
 
@@ -214,7 +214,7 @@
 <!-- HEADER -->
 <header>
   <div class="header-top">
-    <h1 class="site-title"><a href="./" id="homeLink" class="site-title-link">DUVAR</a><span class="beta-badge">BETA v1.0</span></h1>
+    <h1 class="site-title"><a href="./" id="homeLink" class="site-title-link">DUVAR</a><span class="beta-badge">BETA v1.1</span></h1>
     <div class="header-controls">
       <button class="icon-btn" id="themeBtn" title="tema">◑</button>
       <button class="icon-btn" id="dmBtn" title="mesajlar" style="display:none">✉<span class="notif-dot" id="dmDot"></span></button>
@@ -243,6 +243,11 @@
   <button type="button" role="menuitem" data-go="araclar">Araçlar</button>
   <button type="button" role="menuitem" data-go="mimarlar">Mimarlar</button>
   <button type="button" role="menuitem" data-view-go="saved">Kaydettiklerim</button>
+  <button type="button" role="menuitem" data-workspace="archive">Tüm arşivde ara</button>
+  <button type="button" role="menuitem" data-workspace="collections">Koleksiyonlarım</button>
+  <button type="button" role="menuitem" data-workspace="draft">Hesaptaki taslağım</button>
+  <button type="button" role="menuitem" data-workspace="planner">Teslim planlayıcısı</button>
+  <button type="button" role="menuitem" data-workspace="controls">Gizlediğim kişiler</button>
   <div class="menu-sep" role="separator"></div>
   <button type="button" role="menuitem" data-action="ai" id="moreAiBtn" hidden>AI asistan</button>
   <button type="button" role="menuitem" data-action="radio">Teslim gecesi radyosu</button>
@@ -259,6 +264,7 @@
     <script>(function(){var s=document.getElementById('guideStrip'),K='duvar_strip_render';try{if(localStorage.getItem(K)){s.hidden=true;return;}}catch(e){}document.getElementById('guideStripClose').addEventListener('click',function(){s.hidden=true;try{localStorage.setItem(K,'1');}catch(e){}});})();</script>
     <div class="write-box" id="writeBox">
       <p class="composer-identity" id="composerIdentity" hidden></p>
+      <button type="button" id="cloudDraftNotice" data-workspace="draft" hidden>Hesap taslağını kontrol et</button>
       <label class="sr-only" for="mainInput">Duvara yaz</label>
       <textarea id="mainInput" placeholder="Bir soru sor ya da bir şey paylaş…" maxlength="500" rows="3"></textarea>
       <div class="write-type" id="writeType" role="group" aria-label="Tür (isteğe bağlı)" hidden>
@@ -266,6 +272,12 @@
         <button type="button" class="pill" data-type="soru" aria-pressed="false">Soru</button>
         <button type="button" class="pill" data-type="dert" aria-pressed="false">Dert</button>
         <button type="button" class="pill" data-type="kaynak" aria-pressed="false">Kaynak</button>
+        <button type="button" class="pill" data-type="proje" aria-pressed="false">Proje eleştirisi</button>
+      </div>
+      <div id="projectFields" class="workspace-form project-form" hidden>
+        <label>Proje aşaması<select id="projectStage"><option value="">Seç…</option><option>Konsept</option><option>Şematik tasarım</option><option>Plan ve kesit</option><option>Malzeme ve strüktür</option><option>Pafta ve sunum</option></select></label>
+        <label>Hangi konuda görüş istiyorsun?<textarea id="projectFocus" maxlength="500" rows="2" placeholder="Örneğin dolaşım, kütle ilişkisi veya pafta okunaklılığı"></textarea></label>
+        <p>Pafta veya proje görselini + Ekle menüsünden yükleyebilirsin.</p>
       </div>
       <input type="file" id="imgFileInput" accept="image/*" style="display:none" onchange="handleImageSelect(event)">
       <input type="file" id="fileInput" accept=".dwg,.dxf,.pdf,.zip,.rvt,.skp,.3dm,.ifc,.doc,.docx,.ppt,.pptx,.xlsx" style="display:none" onchange="handleFileSelect(event)">
@@ -300,9 +312,12 @@
         <button class="wall-tab" role="tab" aria-selected="false" data-view="soru">Sorular</button>
         <button type="button" class="wall-tab" role="tab" aria-selected="false" data-view="cevapsiz">Cevapsız</button>
         <button class="wall-tab" role="tab" aria-selected="false" data-view="kaynak">Kaynaklar</button>
+        <button type="button" class="wall-tab" role="tab" aria-selected="false" data-view="proje">Projeler</button>
+        <button type="button" class="wall-tab" role="tab" aria-selected="false" data-view="cozuldu">Çözüldü</button>
       </div>
       <label class="sr-only" for="searchInput">Gönderilerde ara</label>
-      <input class="search-input" id="searchInput" type="search" placeholder="ara…" autocomplete="off">
+      <input class="search-input" id="searchInput" type="search" placeholder="Bu akışta ara…" autocomplete="off">
+      <button type="button" class="archive-link" data-workspace="archive">Tüm arşivde ara</button>
     </div>
     <div class="view-note hidden" id="viewNote"></div>
 
@@ -1001,6 +1016,7 @@
 </div>
 
 <script src="utils.js?v=4"></script>
-<script src="main.js?v=16"></script>
+<script src="main.js?v=17"></script>
+<script src="features.js?v=1"></script>
 </body>
 </html>

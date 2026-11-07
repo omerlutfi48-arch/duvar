@@ -114,13 +114,14 @@ async function loadAvatarUrls(nicks,refresh=false){
 }
 
 let wallLoadVersion=0;
+let archiveFocusedPostId=null;
 
 async function loadPosts(){
   const version=++wallLoadVersion;
   const viewer=currentUser;
   const stale=()=>version!==wallLoadVersion||viewer!==currentUser;
   const {data,error}=await sb.from('posts')
-    .select('id,created_at,author,text,mood,type,fire,pinned,options,disfire,image_url,file_url,file_name,yorumlar!yorumlar_post_id_fkey(id,nick,text)')
+    .select('id,created_at,author,text,mood,type,fire,pinned,options,disfire,image_url,file_url,file_name,resolved,solution_comment_id,project_details,yorumlar!yorumlar_post_id_fkey(id,nick,text)')
     .eq('aktif',true).order('created_at',{ascending:false}).order('id',{ascending:false}).limit(200);
   if(stale())return;
   if(error){
@@ -130,6 +131,21 @@ async function loadPosts(){
     return;
   }
 
+  if(archiveFocusedPostId&&!data.some(p=>p.id===archiveFocusedPostId)){
+    const extra=await sb.from('posts').select('*,yorumlar!yorumlar_post_id_fkey(id,nick,text)').eq('id',archiveFocusedPostId).eq('aktif',true).maybeSingle();
+    if(stale())return;
+    if(extra.data)data.push(extra.data);
+  }
+  const result=await hydratePosts(data,viewer);
+  if(stale())return;
+  posts=result.posts;
+  dislikedPosts=result.dislikedPosts;
+  postsLoaded=true;
+  postsLoadError=false;
+  render();
+}
+
+async function hydratePosts(data,viewer){
   const nextPosts=(data||[]).map(p=>({
     ...p,time:p.created_at,fired:[],disfire:p.disfire||0,
     comments:p.yorumlar||[]
@@ -148,8 +164,6 @@ async function loadPosts(){
     ownRows('anket_oylar','post_id,option_idx',pollIds),
     loadAvatarUrls(nicks,true)
   ]);
-  if(stale())return;
-
   const likedIds=new Set((likes.data||[]).map(row=>row.post_id));
   const nextDisliked=new Set((dislikes.data||[]).map(row=>row.post_id));
   const ownVotes=new Map((myVotes.data||[]).map(row=>[row.post_id,row.option_idx]));
@@ -165,15 +179,13 @@ async function loadPosts(){
       p.myVote=ownVotes.get(p.id)??null;
     }
   }
-  posts=nextPosts;
-  dislikedPosts=nextDisliked;
-  postsLoaded=true;
-  postsLoadError=false;
-  render();
+  return {posts:nextPosts,dislikedPosts:nextDisliked};
 }
 
 async function sbAddPost(author,text,mood,type,options=null,imageUrl=null,fileUrl=null,fileName=null){
   const row={author,text,mood,type};
+  const project=projectPayload();
+  if(project)row.project_details=project;
   if(options)row.options=options;
   if(imageUrl)row.image_url=imageUrl;
   if(fileUrl)row.file_url=fileUrl;
@@ -318,18 +330,20 @@ function setTagFilter(tag){activeTag=activeTag===tag?null:tag;visibleCount=PAGE_
 // ── DRAFT ──
 let draftTimer=null;
 function saveDraft(){
+  if(typeof scheduleCloudDraft==='function')scheduleCloudDraft();
   clearTimeout(draftTimer);
   draftTimer=setTimeout(()=>{
     const v=document.getElementById('mainInput').value;
-    if(v)localStorage.setItem('duvar_draft',v);else localStorage.removeItem('duvar_draft');
+    const key=currentUser?'duvar_draft_'+currentUser:'duvar_draft';
+    if(v)localStorage.setItem(key,v);else localStorage.removeItem(key);
     const el=document.getElementById('draftSaved');
     el.classList.add('show');
     setTimeout(()=>el.classList.remove('show'),1500);
   },600);
 }
 function restoreDraft(){
-  const d=localStorage.getItem('duvar_draft');
-  if(d)document.getElementById('mainInput').value=d;
+  const d=localStorage.getItem(currentUser?'duvar_draft_'+currentUser:'duvar_draft');
+  document.getElementById('mainInput').value=d||'';
   updateCharCount();syncWriteType();
 }
 
@@ -1041,6 +1055,8 @@ async function findMyRow(user,strict=false){
 }
 function loginSuccess(nick,isMod=false){
   currentUser=nick;
+  restoreDraft();
+  if(typeof loadWorkspaceUser==='function')loadWorkspaceUser().catch(()=>toast('Hesap alanları yüklenemedi.'));
   document.getElementById('googleProfileModal').classList.add('hidden');
   setModeratorMode(isMod);
   document.getElementById('authModal').classList.add('hidden');
@@ -1206,6 +1222,7 @@ const NAV_META={
 };
 
 function switchNav(tab,pushState=true){
+  if(typeof closeWorkspace==='function')closeWorkspace();
   document.getElementById('section-duvar').style.display=tab==='duvar'?'block':'none';
   ['rehber','sozluk','araclar','kesit','mimarlar','ilanlar','etkinlik'].forEach(t=>document.getElementById('section-'+t).classList.toggle('active',t===tab));
   document.querySelectorAll('.nav-tab[data-nav]').forEach(b=>b.classList.toggle('active',b.dataset.nav===tab));
@@ -1293,7 +1310,7 @@ function nickAvatar(nick,size=22){
 
 // ── RENDER ──
 const moodL={yorgun:'😮‍💨 yorgunum',yardim:'🆘 yardım lazım',iyi:'✓ iyiyim',tesekkur:'♡ teşekkür'};
-const typeL={dert:'Dert',soru:'Soru',kaynak:'Kaynak',acil:'Acil'};
+const typeL={dert:'Dert',soru:'Soru',kaynak:'Kaynak',proje:'Proje eleştirisi',acil:'Acil'};
 
 function render(){
   const identity=document.getElementById('composerIdentity');
@@ -1311,8 +1328,11 @@ function render(){
   const savedScroll=window.scrollY;
   const q=(document.getElementById('searchInput')?.value||'').toLowerCase().trim();
   let filtered=[...posts];
+  if(typeof hiddenAuthor==='function')filtered=filtered.filter(p=>!hiddenAuthor(p.author));
   if(activeView==='soru'||activeView==='kaynak'){filtered=filtered.filter(p=>p.type===activeView);}
-  else if(activeView==='cevapsiz'){filtered=filtered.filter(p=>p.type==='soru'&&!p.comments.length);}
+  else if(activeView==='cevapsiz'){filtered=filtered.filter(p=>p.type==='soru'&&!p.resolved&&!p.comments.length);}
+  else if(activeView==='cozuldu'){filtered=filtered.filter(p=>p.type==='soru'&&p.resolved);}
+  else if(activeView==='proje'){filtered=filtered.filter(p=>p.type==='proje');}
   else if(activeView==='saved'){filtered=filtered.filter(p=>bookmarks.includes(p.id));}
   else if(activeView==='anket'){filtered=filtered.filter(p=>p.options?.length>=2);}
   if(q){filtered=filtered.filter(p=>p.text.toLowerCase().includes(q)||visibleName(p.author).toLowerCase().includes(q));}
@@ -1375,9 +1395,11 @@ function render(){
         ${DM_ENABLED&&!isMine&&currentUser?`<button class="dm-btn" data-nick="${esc(p.author)}" onclick="openConversation(this.dataset.nick)" title="mesaj gönder">✉</button>`:''}
         ${isMine?'<span class="mini-tag mine-tag">sen</span>':''}
         ${p.pinned?'<span class="mini-tag pin-tag">📌 sabit</span>':''}
+        ${p.resolved?'<span class="solution-badge">Çözüldü</span>':''}
       </div>
       ${(mB||tB)?`<div class="post-badges">${tB}${mB}</div>`:''}
       <div class="post-text">${renderText(needsTrunc?p.text.slice(0,TRUNCATE_LEN).trimEnd():p.text)}${needsTrunc?`<button class="devami-btn" data-pid="${p.id}"> devamını oku →</button>`:''}</div>
+      ${typeof renderProjectDetails==='function'?renderProjectDetails(p):''}
       ${safeMediaUrl(p.image_url)?`<div class="post-img-wrap"><img src="${safeMediaUrl(p.image_url)}" class="post-img" loading="lazy" alt="gönderi görseli" onclick="openImageModal(this.src)"></div>`:''}
       ${safeMediaUrl(p.file_url)?`<a href="${safeMediaUrl(p.file_url)}" class="post-file-attach" target="_blank" rel="noopener noreferrer" download="${esc(p.file_name||'dosya')}">📎 ${esc(p.file_name||'dosyayı indir')} <span style="color:var(--muted)">↓ indir</span></a>`:''}
       ${anketHtml}
@@ -1390,6 +1412,9 @@ function render(){
             <button type="button" class="act act-more" data-more="${p.id}" aria-haspopup="menu" aria-expanded="false" aria-label="Diğer seçenekler">···</button>
             <div class="pop-menu post-menu" role="menu" hidden>
               <button type="button" role="menuitem" onclick="toggleBookmark(${Number(p.id)})">${isBkm?'Kaydı kaldır':'Kaydet'}</button>
+              <button type="button" role="menuitem" onclick="addToCollection(${Number(p.id)})">Koleksiyona ekle</button>
+              ${isMine&&p.type==='soru'?`<button type="button" role="menuitem" onclick="chooseSolution(${Number(p.id)},null,${!p.resolved})">${p.resolved?'Soruyu yeniden aç':'Çözüldü olarak işaretle'}</button>`:''}
+              ${!isMine&&currentUser?`<button type="button" role="menuitem" data-nick="${esc(p.author)}" onclick="setUserControl(this.dataset.nick,'mute')">Sessize al</button><button type="button" role="menuitem" data-nick="${esc(p.author)}" onclick="setUserControl(this.dataset.nick,'block')">Engelle</button>`:''}
               <button type="button" role="menuitem" onclick="copyPostLink(${Number(p.id)})">Linki kopyala</button>
               <button type="button" role="menuitem" onclick="dislike(${Number(p.id)})">${mD?'Beğenmemeyi geri al':'Beğenmedim'}</button>
               ${!isMine?(isRep?'<button type="button" role="menuitem" disabled>Şikayet edildi</button>':`<button type="button" role="menuitem" onclick="openReport(${Number(p.id)})">Şikayet et</button>`):''}
@@ -1400,7 +1425,7 @@ function render(){
         </div>
       </div>
       <div class="comments-wrap"id="c-${p.id}">
-        ${p.comments.map(c=>`<div class="comment">${nickAvatar(c.nick,18)}<button class="post-author-link comment-nick${c.nick===currentUser?' me':''}" data-nick="${esc(c.nick)}" onclick="openUserProfile(this.dataset.nick)">${esc(visibleName(c.nick))}</button>${esc(c.text)}</div>`).join('')}
+        ${p.comments.filter(c=>typeof hiddenAuthor!=='function'||!hiddenAuthor(c.nick)).sort((a,b)=>(b.id===p.solution_comment_id?1:0)-(a.id===p.solution_comment_id?1:0)).map(c=>`<div class="comment${c.id===p.solution_comment_id?' accepted-answer':''}">${nickAvatar(c.nick,18)}<button class="post-author-link comment-nick${c.nick===currentUser?' me':''}" data-nick="${esc(c.nick)}" onclick="openUserProfile(this.dataset.nick)">${esc(visibleName(c.nick))}</button><span>${esc(c.text)}</span>${c.id===p.solution_comment_id?'<span class="solution-badge">Seçilen cevap</span>':''}${isMine&&p.type==='soru'?`<button type="button" class="solution-action" onclick="chooseSolution(${Number(p.id)},${c.id===p.solution_comment_id?'null':Number(c.id)},${c.id!==p.solution_comment_id})">${c.id===p.solution_comment_id?'Seçimi kaldır':'Çözüm olarak seç'}</button>`:''}</div>`).join('')}
         <div class="comment-row">
           <input class="comment-input"id="ci-${p.id}"placeholder="${currentUser?'yanıt yaz…':'yanıtlamak için giriş yap'}"maxlength="200"${!currentUser?' disabled':''}>
           <button class="comment-send"onclick="sendComment(${Number(p.id)})"${!currentUser?' disabled':''}>gönder</button>
@@ -1438,6 +1463,7 @@ function selectType(el,type){
     const on=p.dataset.type===selectedType;
     p.classList.toggle('active',on);p.setAttribute('aria-pressed',on);
   });
+  syncProjectForm();scheduleCloudDraft();
 }
 // Tür etiketi yazmaya başlayınca görünür (isteğe bağlı)
 function syncWriteType(){
@@ -1479,15 +1505,28 @@ function checkRateLimit(){
   localStorage.setItem(key,JSON.stringify(times));
   return true;
 }
+let postSaving=false;
 async function addPost(){
-  if(!currentUser)return;
+  if(!currentUser||postSaving)return;
+  postSaving=true;
+  const viewer=currentUser;
+  const submit=document.getElementById('addPostBtn');
+  submit.disabled=true;
+  const composerFields=[...document.querySelectorAll('#writeBox textarea,#writeBox select,#writeType button,#ekleBtn')];
+  composerFields.forEach(field=>{field.disabled=true;});
+  try{
   if(!checkRateLimit())return;
   const {data:banRow,error:banErr}=await sb.from('kullanicilar').select('banli').eq('nick',currentUser).maybeSingle();
+  if(viewer!==currentUser)return;
   if(banErr){toast('// bağlantı hatası, tekrar dene');return;}
   if(!banRow){toast('// hesabın silinmiş');logout();return;}
   if(banRow?.banli){toast('// hesabın askıya alınmış');logout();return;}
   const val=document.getElementById('mainInput').value.trim();
   if(!val)return;
+  if(selectedType==='proje'){
+    const details=projectPayload();
+    if(!details.stage||!details.focus){toast('Proje aşamasını ve hangi konuda görüş istediğini yaz.');return;}
+  }
   // Anket seçenekleri
   let options=null;
   if(anketOpen){
@@ -1496,17 +1535,26 @@ async function addPost(){
     else if(opts.length===1){toast('// en az 2 seçenek gir');return;}
   }
   const newPost=await sbAddPost(currentUser,val,selectedMood,selectedType,options,currentImageUrl,currentFileUrl,currentFileName);
-  if(!newPost)return;
+  if(!newPost||viewer!==currentUser)return;
+  await clearPublishedDraft(val);
+  if(viewer!==currentUser)return;
   document.getElementById('mainInput').value='';
   updateCharCount();
-  localStorage.removeItem('duvar_draft');
+  localStorage.removeItem('duvar_draft_'+currentUser);
+  document.getElementById('projectStage').value='';
+  document.getElementById('projectFocus').value='';
   selectedMood=null;selectedType=null;
+  syncProjectForm();
   document.querySelectorAll('#writeType .pill').forEach(p=>{p.classList.remove('active');p.setAttribute('aria-pressed','false');});
   syncWriteType();
   if(anketOpen)toggleAnket();
   removeImage();removeFile();
   toast('// duvara yazıldı');
   await loadPosts();
+  }finally{
+    postSaving=false;submit.disabled=false;
+    composerFields.forEach(field=>{field.disabled=false;});
+  }
 }
 async function react(id,type){
   if(!currentUser){showAuth();return;}
@@ -1541,6 +1589,7 @@ async function sendComment(id){
   if(p)addNotif(p.author,currentUser,p.type==='soru'?'💬 sorunuzu cevapladı':'💬 yorum yaptı');
   const ok=await sbComment(id,currentUser,val);
   if(ok){document.getElementById('c-'+id)?.classList.add('open');toast('// yanıtın gönderildi');}
+  else if(document.getElementById('ci-'+id))document.getElementById('ci-'+id).value=val;
 }
 
 // ── GÖRSEL YÜKLEME ──
@@ -3187,6 +3236,7 @@ if(localStorage.getItem('duvar_users')){localStorage.removeItem('duvar_users');l
   loadBasliklar(); // sidebar için arka planda yükle
   handlePermalink();
   restoreDraft();
+  if(typeof loadWorkspaceUser==='function'&&currentUser)loadWorkspaceUser().catch(()=>{});
   // ziyaret kaydı — bot/crawler hariç
   if(!navigator.userAgent.match(/bot|crawl|spider|slurp|facebook|twitter/i)){
     sb.from('page_views').insert({}).then(()=>{}).catch(()=>{});

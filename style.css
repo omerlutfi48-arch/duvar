@@ -932,6 +932,57 @@ footer{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:1.5rem
 }
 
 
+/* Hesaba bağlı çalışma alanları */
+.feature-workspace { max-width: 56rem; margin: 0 auto 2rem; }
+.feature-workspace[hidden], #projectFields[hidden], #cloudDraftNotice[hidden] { display: none; }
+.workspace-heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+.workspace-heading h2 { font: 650 clamp(1.4rem, 4vw, 2rem)/1.25 var(--ff-body); letter-spacing: -.035em; }
+.workspace-tabs { display: flex; flex-wrap: wrap; gap: .45rem; padding-bottom: 1rem; margin-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+.feature-workspace button, .archive-link, #cloudDraftNotice, .solution-action { font: 500 .85rem/1.4 var(--ff-body); border: 1px solid var(--border2); border-radius: 8px; padding: .65rem .85rem; min-height: 44px; color: var(--text); background: var(--surface); cursor: pointer; }
+.feature-workspace button:hover, .archive-link:hover, .solution-action:hover { border-color: var(--yellow); }
+.feature-workspace button[aria-current="page"] { border-color: var(--yellow); color: var(--yellow); }
+.feature-workspace button:disabled { opacity: .55; cursor: wait; }
+.feature-workspace :is(button, input, select, textarea, a):focus-visible, .project-form :is(select,textarea):focus-visible, .archive-link:focus-visible { outline: 2px solid var(--yellow); outline-offset: 3px; }
+.workspace-form { display: grid; gap: .85rem; margin: 1rem 0; }
+.workspace-form label { display: grid; gap: .4rem; font-size: .86rem; color: var(--text2); }
+.workspace-form :is(input,select,textarea) { width: 100%; box-sizing: border-box; min-width: 0; min-height: 44px; border: 1px solid var(--border2); border-radius: 8px; padding: .7rem; background: var(--surface); color: var(--text); font: inherit; color-scheme: dark; }
+[data-theme="light"] .workspace-form :is(input,select,textarea), [data-theme="warm"] .workspace-form :is(input,select,textarea) { color-scheme: light; }
+.workspace-form textarea { resize: vertical; }
+.workspace-form > button { justify-self: start; border-color: var(--red); }
+.form-columns { display: grid; grid-template-columns: repeat(auto-fit,minmax(10rem,1fr)); gap: .85rem; }
+.workspace-list { display: grid; gap: 1rem; margin: 1rem 0; }
+.workspace-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.2rem; overflow-wrap: anywhere; }
+.workspace-card h3 { font: 650 1.05rem/1.4 var(--ff-body); margin: 0 0 .7rem; }
+.workspace-card p, .feature-workspace > p { white-space: pre-wrap; line-height: 1.65; margin: .65rem 0 1rem; }
+.workspace-card-meta { color: var(--text2); font-size: .8rem; }
+.workspace-card button { margin: .2rem .25rem .2rem 0; }
+.workspace-card progress { accent-color: var(--yellow); width: 100%; height: .5rem; }
+.task-list { list-style: none; padding: 0; margin: 1rem 0; }
+.task-list li { display: flex; align-items: center; justify-content: space-between; gap: .7rem; border-top: 1px solid var(--border); padding: .5rem 0; }
+.task-list label { display: flex; align-items: center; gap: .75rem; line-height: 1.5; }
+.task-list input { min-width: 20px; height: 20px; accent-color: var(--yellow); }
+.task-list label:has(input:checked) { text-decoration: line-through; color: var(--muted); }
+.collection-item { border-top: 1px solid var(--border); margin-top: .75rem; padding-top: .5rem; }
+.project-details { display: grid; gap: .8rem; margin: 1rem 0; padding: 1rem; background: var(--surface2); border-radius: 8px; overflow-wrap: anywhere; }
+.project-details dt { color: var(--text2); font-size: .78rem; margin-bottom: .25rem; }
+.project-details dd { margin: 0; font-size: .92rem; line-height: 1.6; }
+.solution-badge { color: var(--yellow); font: 500 .75rem var(--ff-body); padding: .25rem .4rem; border: 1px solid var(--yellow); border-radius: 4px; }
+.comment.accepted-answer { border-left: 3px solid var(--yellow); background: var(--surface2); padding: .8rem; }
+.comment { flex-wrap: wrap; }
+.solution-action { padding: .4rem .6rem; font-size: .75rem; margin-left: auto; }
+.badge-type-proje { color: var(--yellow); }
+.project-form p { font-size: .8rem; color: var(--text2); }
+.post[data-pid] { scroll-margin-top: 2rem; }
+@media(max-width:600px) {
+  .workspace-heading { align-items: flex-start; flex-direction: column; }
+  .workspace-tabs { display: grid; grid-template-columns: 1fr 1fr; }
+  .workspace-tabs button { text-align: left; }
+  .workspace-card { padding: 1rem; }
+  .task-list li { align-items: flex-start; }
+  .form-columns { grid-template-columns: 1fr; }
+  .archive-link { width: 100%; margin-bottom: .6rem; }
+}
+
 /* Beta v1.1 duvar görünümü */
 body { cursor: auto; }
 body::before { opacity: .28; }
