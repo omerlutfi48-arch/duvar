@@ -1373,6 +1373,10 @@ function render(){
     const isRep=reportedPosts.has(p.id);
     const isExp=expandedPosts.has(p.id);
     const needsTrunc=!isExp&&p.text.length>TRUNCATE_LEN;
+    const shownText=needsTrunc?p.text.slice(0,TRUNCATE_LEN).trimEnd():p.text;
+    const resourceBreak=shownText.indexOf('\n');
+    const resourceTitle=p.type==='kaynak'&&resourceBreak>0&&resourceBreak<=100;
+    const postTextHtml=resourceTitle?`<strong class="resource-title">${renderText(shownText.slice(0,resourceBreak))}</strong>${renderText(shownText.slice(resourceBreak+1))}`:renderText(shownText);
     // Duygu rozetleri artık gösterilmiyor (eski verideki mood alanı korunuyor)
     const mB='';
     const tB=typeL[p.type]?`<span class="badge badge-type-${p.type}">${typeL[p.type]}</span>`:'';
@@ -1403,7 +1407,7 @@ function render(){
         ${p.resolved?'<span class="solution-badge">Çözüldü</span>':p.type==='soru'?`<span class="question-status">${p.comments.length?`${p.comments.length} yanıt`:'Cevap bekliyor'}</span>`:''}
       </div>
       ${(mB||tB)?`<div class="post-badges">${tB}${mB}</div>`:''}
-      <div class="post-text">${p.type==='kaynak'?'<span class="resource-label">PAYLAŞILAN KAYNAK</span>':''}${renderText(needsTrunc?p.text.slice(0,TRUNCATE_LEN).trimEnd():p.text)}${needsTrunc?`<button class="devami-btn" data-pid="${p.id}"> devamını oku →</button>`:''}</div>
+      <div class="post-text">${p.type==='kaynak'?'<span class="resource-label">PAYLAŞILAN KAYNAK</span>':''}${postTextHtml}${needsTrunc?`<button class="devami-btn" data-pid="${p.id}"> devamını oku →</button>`:''}</div>
       ${typeof renderProjectDetails==='function'?renderProjectDetails(p):''}
       ${safeMediaUrl(p.image_url)?`<div class="post-img-wrap"><img src="${safeMediaUrl(p.image_url)}" class="post-img" loading="lazy" alt="gönderi görseli" onclick="openImageModal(this.src)"></div>`:''}
       ${safeMediaUrl(p.file_url)?`<a href="${safeMediaUrl(p.file_url)}" class="post-file-attach" target="_blank" rel="noopener noreferrer" download="${esc(p.file_name||'dosya')}">📎 ${esc(p.file_name||'dosyayı indir')} <span style="color:var(--muted)">↓ indir</span></a>`:''}
