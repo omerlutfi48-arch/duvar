@@ -38,8 +38,8 @@ Deno.serve(async (req) => {
   } catch {
     return response({ error: "Geçersiz istek." }, 400);
   }
-  if (input?.dry_run === true)
-    return response({ configured: Boolean(apiKey && apiSecret) });
+  if (input?.dry_run === true && (!apiKey || !apiSecret))
+    return response({ configured: false, verified: false });
   if (!apiKey || !apiSecret)
     return response(
       {
@@ -48,6 +48,21 @@ Deno.serve(async (req) => {
       },
       503,
     );
+  let verified = false;
+  try {
+    const check = await fetch("https://api.cloudinary.com/v1_1/dxsvzlv1m/ping", {
+      headers: { Authorization: "Basic " + btoa(`${apiKey}:${apiSecret}`) },
+      signal: AbortSignal.timeout(10000),
+    });
+    const status = await check.json();
+    verified = check.ok && status.status === "ok";
+  } catch {
+    verified = false;
+  }
+  if (input?.dry_run === true)
+    return response({ configured: true, verified });
+  if (!verified)
+    return response({ error: "Cloudinary erişimi doğrulanamadı. Anahtar çiftini ve yetkisini kontrol et." }, 503);
   const server = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,

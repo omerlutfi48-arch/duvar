@@ -615,9 +615,11 @@ async function refreshMaintenance(){
   const counts=queue.data||{};
   status.textContent=`Bekleyen ${counts.pending||0} · Temizlenen ${counts.done||0} · Kullanıldığı için korunan ${counts.retained||0} · İnceleme gereken ${(counts.invalid||0)+(counts.failed||0)}`;
   const cleanupButton=document.querySelector('[data-action="cleanMediaQueue"]');
-  cleanupButton.disabled=media.error||!media.data?.configured;
+  cleanupButton.disabled=media.error||!media.data?.verified;
   if(media.error)status.textContent+=' · Dosya temizliği bağlantısı doğrulanamadı.';
   else if(!media.data?.configured)status.textContent+=' · Cloudinary erişim bilgileri tanımlanmalı.';
+  else if(!media.data?.verified)status.textContent+=' · Cloudinary anahtar doğrulaması başarısız. Anahtar çiftini ve yetkisini kontrol et.';
+  else status.textContent+=' · Cloudinary bağlantısı doğrulandı.';
   document.getElementById('clientErrorSummary').innerHTML='<h3>Son 7 gündeki uygulama hataları</h3>'+(errors.data?.length?errors.data.map(item=>`<p>${esc(item.source)} · satır ${Number(item.line)} · ${Number(item.total)} kayıt</p>`).join(''):'<p>Henüz hata kaydı yok.</p>');
 }
 async function cleanMediaQueue(){
