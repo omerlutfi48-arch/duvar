@@ -49,7 +49,7 @@
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Inter:wght@300;400;500&display=swap"></noscript>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="style.css?v=12">
-<link rel="stylesheet" href="site-refresh.css?v=1">
+<link rel="stylesheet" href="site-refresh.css?v=2">
 </head>
 <body>
 
@@ -262,11 +262,13 @@
   <!-- DUVAR -->
   <div id="section-duvar">
     <div class="project-heading"><div><p>STÜDYODAN DUVARA</p><h2>Birlikte geliştirelim.</h2><span>Projeni paylaş, farklı gözlerden görüş al.</span></div><button type="button" onclick="beginPost('proje')">Projeni paylaş ↗</button></div>
-    <div class="guide-strip" id="guideStrip">
-      <a href="/rehber/affinity-claude/"><img src="affinity-cover.jpg" alt="" width="144" height="96" loading="lazy"><span class="guide-copy"><span class="guide-strip-tag">YENİ REHBER · ÖMER GÜMÜŞ STUDIO İLE</span><strong>Affinity’yi Claude’a bağla</strong><span class="guide-summary">Ücretsiz tasarım programını yapay zekâyla kullan <span aria-hidden="true">↗</span></span></span></a>
+    <div class="guide-strip" id="guideStrip" aria-roledescription="döngü" aria-label="Rehberler">
+      <a href="/rehber/affinity-claude/" class="gs-slide"><img src="affinity-cover.jpg" alt="" width="144" height="96" loading="lazy"><span class="guide-copy"><span class="guide-strip-tag">YENİ REHBER · ÖMER GÜMÜŞ STUDIO İLE</span><strong>Affinity’yi Claude’a bağla</strong><span class="guide-summary">Ücretsiz tasarım programını yapay zekâyla kullan <span aria-hidden="true">↗</span></span></span></a>
+      <a href="/rehber/ekran-goruntusunden-render/" class="gs-slide" hidden><img src="guide-cover.jpg" alt="" width="144" height="96" loading="lazy"><span class="guide-copy"><span class="guide-strip-tag">İŞİN MUTFAĞI · REHBER</span><strong>Ekran görüntüsünden render’a</strong><span class="guide-summary">Süreci adım adım keşfet <span aria-hidden="true">↗</span></span></span></a>
+      <span class="gs-dots" aria-hidden="true"><i class="on"></i><i></i></span>
       <button type="button" id="guideStripClose" aria-label="Şeridi kapat">×</button>
     </div>
-    <script>(function(){var s=document.getElementById('guideStrip'),K='duvar_strip_affinity';try{if(localStorage.getItem(K)){s.hidden=true;return;}}catch(e){}document.getElementById('guideStripClose').addEventListener('click',function(){s.hidden=true;try{localStorage.setItem(K,'1');}catch(e){}});})();</script>
+    <script>(function(){var s=document.getElementById('guideStrip'),K='duvar_strip_v2';try{if(localStorage.getItem(K)){s.hidden=true;return;}}catch(e){}document.getElementById('guideStripClose').addEventListener('click',function(){s.hidden=true;try{localStorage.setItem(K,'1');}catch(e){}});var sl=s.querySelectorAll('.gs-slide'),d=s.querySelectorAll('.gs-dots i'),i=0,p=false;if(sl.length<2)return;s.addEventListener('mouseenter',function(){p=true});s.addEventListener('mouseleave',function(){p=false});s.addEventListener('focusin',function(){p=true});s.addEventListener('focusout',function(){p=false});setInterval(function(){if(p||document.hidden||s.hidden)return;sl[i].hidden=true;d[i].className='';i=(i+1)%sl.length;sl[i].hidden=false;d[i].className='on';},10000);})();</script>
     <div class="write-box locked" id="writeBox">
       <h2 class="composer-title">Bugün ne paylaşmak istersin?</h2>
       <div class="compose-choices" role="group" aria-label="Paylaşımını başlat"><button type="button" data-compose="soru" aria-pressed="false">Soru sor <span aria-hidden="true">↗</span></button><button type="button" data-compose="proje" aria-pressed="false">Projene görüş al <span aria-hidden="true">↗</span></button><button type="button" data-compose="kaynak" aria-pressed="false">Kaynak paylaş <span aria-hidden="true">↗</span></button></div>
