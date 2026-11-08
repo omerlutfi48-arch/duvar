@@ -263,9 +263,10 @@
   <div id="section-duvar">
     <div class="project-heading"><div><p>STÜDYODAN DUVARA</p><h2>Birlikte geliştirelim.</h2><span>Projeni paylaş, farklı gözlerden görüş al.</span></div><button type="button" onclick="beginPost('proje')">Projeni paylaş ↗</button></div>
     <div class="guide-strip" id="guideStrip" aria-roledescription="döngü" aria-label="Rehberler">
-      <a href="/rehber/affinity-claude/" class="gs-slide"><img src="affinity-cover.jpg" alt="" width="144" height="96" loading="lazy"><span class="guide-copy"><span class="guide-strip-tag">YENİ REHBER · ÖMER GÜMÜŞ STUDIO İLE</span><strong>Affinity’yi Claude’a bağla</strong><span class="guide-summary">Ücretsiz tasarım programını yapay zekâyla kullan <span aria-hidden="true">↗</span></span></span></a>
+      <a href="/rehber/sketchup-eklenti/" class="gs-slide"><img src="sketchup-cover.jpg" alt="" width="144" height="96" loading="lazy"><span class="guide-copy"><span class="guide-strip-tag">YENİ REHBER · ÖMER GÜMÜŞ STUDIO İLE</span><strong>SketchUp'a kendi eklentini yazdır</strong><span class="guide-summary">Kod bilmeden eklenti oluştur: prompt, kurulum ve hata çözümü <span aria-hidden="true">↗</span></span></span></a>
+      <a href="/rehber/affinity-claude/" class="gs-slide" hidden><img src="affinity-cover.jpg" alt="" width="144" height="96" loading="lazy"><span class="guide-copy"><span class="guide-strip-tag">YENİ REHBER · ÖMER GÜMÜŞ STUDIO İLE</span><strong>Affinity’yi Claude’a bağla</strong><span class="guide-summary">Ücretsiz tasarım programını yapay zekâyla kullan <span aria-hidden="true">↗</span></span></span></a>
       <a href="/rehber/ekran-goruntusunden-render/" class="gs-slide" hidden><img src="guide-cover.jpg" alt="" width="144" height="96" loading="lazy"><span class="guide-copy"><span class="guide-strip-tag">İŞİN MUTFAĞI · REHBER</span><strong>Ekran görüntüsünden render’a</strong><span class="guide-summary">Süreci adım adım keşfet <span aria-hidden="true">↗</span></span></span></a>
-      <span class="gs-dots" aria-hidden="true"><i class="on"></i><i></i></span>
+      <span class="gs-dots" aria-hidden="true"><i class="on"></i><i></i><i></i></span>
       <button type="button" id="guideStripClose" aria-label="Şeridi kapat">×</button>
     </div>
     <script>(function(){var s=document.getElementById('guideStrip'),K='duvar_strip_v2';try{if(localStorage.getItem(K)){s.hidden=true;return;}}catch(e){}document.getElementById('guideStripClose').addEventListener('click',function(){s.hidden=true;try{localStorage.setItem(K,'1');}catch(e){}});var sl=s.querySelectorAll('.gs-slide'),d=s.querySelectorAll('.gs-dots i'),i=0,p=false;if(sl.length<2)return;s.addEventListener('mouseenter',function(){p=true});s.addEventListener('mouseleave',function(){p=false});s.addEventListener('focusin',function(){p=true});s.addEventListener('focusout',function(){p=false});setInterval(function(){if(p||document.hidden||s.hidden)return;sl[i].hidden=true;d[i].className='';i=(i+1)%sl.length;sl[i].hidden=false;d[i].className='on';},10000);})();</script>
@@ -353,6 +354,12 @@
       <div class="guide-sub">Hoca tavsiyesi değil. <span>Aynı yoldan geçmiş öğrencilerden.</span> Tıkla, aç, oku.</div>
     </div>
     <div class="guide-grid">
+      <a class="guide-card" href="/rehber/sketchup-eklenti/" style="display:block;text-decoration:none;border-color:var(--yellow)">
+        <span class="guide-card-num">// YENİ · Ömer Gümüş Studio ile</span>
+        <div class="guide-card-title">SKETCHUP'A KENDİ EKLENTİNİ YAZDIR</div>
+        <div class="guide-card-desc">Ruby bilmeden SketchUp eklentisi oluştur. Prompt, kurulum ve hata çözümünü gerçek ekran görüntüleriyle adım adım öğren. Rehberi aç →</div>
+        <span class="guide-card-tag">yapay zekâ</span>
+      </a>
       <a class="guide-card" href="/rehber/affinity-claude/" style="display:block;text-decoration:none;border-color:var(--yellow)">
         <span class="guide-card-num">// YENİ · Ömer Gümüş Studio ile</span>
         <div class="guide-card-title">AFFİNİTY'Yİ CLAUDE'A BAĞLA</div>

@@ -17,6 +17,11 @@
       "permanent": false
     },
     {
+      "source": "/sketchup",
+      "destination": "/rehber/sketchup-eklenti/",
+      "permanent": false
+    },
+    {
       "source": "/affinity",
       "destination": "/rehber/affinity-claude/",
       "permanent": false
