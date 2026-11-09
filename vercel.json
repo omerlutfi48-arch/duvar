@@ -22,6 +22,11 @@
       "permanent": false
     },
     {
+      "source": "/theori",
+      "destination": "/rehber/theori-vize/",
+      "permanent": false
+    },
+    {
       "source": "/affinity",
       "destination": "/rehber/affinity-claude/",
       "permanent": false
