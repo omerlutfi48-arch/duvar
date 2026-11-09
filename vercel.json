@@ -27,6 +27,11 @@
       "permanent": false
     },
     {
+      "source": "/yapihukuku",
+      "destination": "/rehber/yapi-hukuku-vize/",
+      "permanent": false
+    },
+    {
       "source": "/juri",
       "destination": "/#araclar/juri",
       "permanent": false

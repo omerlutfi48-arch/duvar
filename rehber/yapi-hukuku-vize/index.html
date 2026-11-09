@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yapı Hukuku I Vize: Özet ve 40 Soruluk Deneme · duvar.site</title>
+<meta name="description" content="Yapı Hukuku I vize özeti, konu testleri ve 40 soruluk boşluk doldurma denemesi. İpuçlu, yanlışta açıklamalı.">
+<link rel="canonical" href="https://duvar.site/rehber/yapi-hukuku-vize/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Yapı Hukuku I vize: özet ve 40 soruluk deneme">
+<meta property="og:description" content="İmar hukuku, 3194, plan hiyerarşisi: özet, konu testleri ve boşluk doldurma denemesi.">
+<meta property="og:url" content="https://duvar.site/rehber/yapi-hukuku-vize/">
+<meta property="og:image" content="https://duvar.site/og-image.png">
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap">
+<style>
+:root{
+  --bg:#0E0E0E; --card:#181818; --rule:#191919; --line:#333333;
+  --ink:#F0F0F0; --mute:#B9B9B9; --acc:#E5483B; --fill:#A82020; --mark:#F5C400;
+  --acc-soft:#2a1513; --ok:#6fcf97; --ok-soft:#12261b; --bad:#ff8a80; --bad-soft:#2d1413;
+  --hint:#F5C400; --hint-soft:#2a2408; --blue:#B9B9B9;
+  --display:'Bebas Neue','Arial Narrow',Impact,sans-serif;
+  --body:'Archivo','Segoe UI',system-ui,sans-serif;
+  --mono:'Space Mono','Consolas','Courier New',monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){ :root{
+  --bg:#F4EFE8; --card:#FFFFFF; --rule:#ECE6DC; --line:#CFC7BA;
+  --ink:#1A1A1A; --mute:#4A4A4A; --acc:#A82020; --mark:#7A5C00;
+  --acc-soft:#f6e1dd; --ok:#1f6b43; --ok-soft:#dff1e6; --bad:#A82020; --bad-soft:#f8dedb;
+  --hint:#7A5C00; --hint-soft:#f7edc9; --blue:#4A4A4A; color-scheme:light; } }
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:1.0625rem;line-height:1.6;
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 39px,var(--rule) 39px,var(--rule) 40px)}
+h1,h2,h3{margin:0;font-family:var(--display);font-weight:400;letter-spacing:.01em;line-height:1}
+.wrap{max-width:52rem;margin:0 auto;padding:0 clamp(1rem,4vw,2rem);border-left:6px solid var(--fill)}
+header{padding:2rem 0 0}
+.brandrow{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem}
+a.duvar{font-family:var(--mono);font-weight:700;font-size:.95rem;letter-spacing:.14em;text-decoration:none;border:2px solid var(--acc);padding:.3rem .8rem;color:var(--acc)}
+.kicker,.qtag,.week .tag,.src{font-family:var(--mono);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+header h1{font-size:clamp(3.2rem,12vw,6.5rem);line-height:.9}
+header h1 em{font-style:normal;color:var(--acc)}
+header p{margin:.9rem 0 1.4rem;max-width:36rem;font-size:1.15rem}
+nav{display:flex;gap:0;overflow-x:auto;border:2px solid var(--line);background:var(--bg)}
+nav button{appearance:none;flex:1;border:0;border-right:1px solid var(--line);background:none;color:var(--mute);font-family:var(--mono);font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:.85rem .6rem;cursor:pointer;white-space:nowrap}
+nav button:last-child{border-right:0}
+nav button[aria-selected="true"]{color:#fff;background:var(--fill)}
+main{padding:1.75rem 0 4rem}
+section[hidden]{display:none}
+.card{background:var(--card);border:2px solid var(--line);padding:1.25rem;margin:0 0 1.25rem}
+.btn{appearance:none;border:2px solid var(--fill);background:var(--fill);color:#fff;font-family:var(--mono);font-size:.82rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:.8rem 1.1rem;cursor:pointer}
+.btn.ghost{background:none;color:var(--ink);border-color:var(--line)}
+:focus-visible{outline:3px solid var(--mark);outline-offset:3px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.muted{color:var(--mute)}
+.small{font-size:.9rem}
+.week h2{font-size:clamp(1.9rem,6vw,2.6rem);margin:.2rem 0 .4rem}
+.week .tag{color:var(--acc);display:block}
+.qtag{display:inline-block}
+.week ul{margin:10px 0 0;padding-left:20px}
+.week li{margin:6px 0}
+.star{background:var(--acc-soft);border-left:6px solid var(--acc);padding:12px 14px;margin-top:14px}
+.star b:first-child{color:var(--acc)}
+table{border-collapse:collapse;width:100%;margin-top:10px;font-size:.95rem}
+th,td{border:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.scroll{overflow-x:auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.pick{text-align:left;background:var(--card);border:2px solid var(--line);padding:16px;cursor:pointer;font:inherit;color:inherit}
+.pick:hover{border-color:var(--acc)}
+.pick b{display:block;font-family:var(--display);font-weight:400;font-size:1.7rem;line-height:1.05;margin:4px 0}
+.bar{height:6px;background:var(--line);overflow:hidden;margin:10px 0 18px}
+.bar i{display:block;height:100%;background:var(--acc);width:0;transition:width .25s}
+.qtext{font-size:clamp(1.15rem,3.4vw,1.35rem);line-height:1.6;font-weight:500;margin:6px 0 16px}
+.gap{display:inline-block;min-width:110px;border-bottom:3px solid var(--mark);text-align:center;padding:0 8px;font-weight:600;color:var(--mute)}
+.gap.ok{color:var(--ok);border-color:var(--ok)}
+.gap.bad{color:var(--bad);border-color:var(--bad)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.opt{appearance:none;font:inherit;font-weight:600;text-align:left;background:var(--bg);color:var(--ink);border:2px solid var(--line);padding:12px 14px;cursor:pointer}
+.opt:not(:disabled):hover{border-color:var(--ink)}
+.opt:disabled{cursor:default;opacity:.7}
+.opt.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);opacity:1}
+.opt.bad{background:var(--bad-soft);border-color:var(--bad);color:var(--bad);opacity:1}
+.hintbtn{appearance:none;background:none;border:1px dashed var(--hint);color:var(--hint);font-family:var(--mono);font-size:.75rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;padding:5px 12px;cursor:pointer}
+.hint{background:var(--hint-soft);color:var(--hint);padding:9px 12px;margin:10px 0 0;font-size:.95rem}
+.fb{padding:13px 15px;margin-top:16px;border-left:6px solid}
+.fb.ok{background:var(--ok-soft);border-color:var(--ok)}
+.fb.bad{background:var(--bad-soft);border-color:var(--bad)}
+.fb h3{font-family:var(--body);font-weight:600;font-size:1.1rem;line-height:1.3;margin-bottom:4px}
+.fb.ok h3{color:var(--ok)} .fb.bad h3{color:var(--bad)}
+.src{display:block;margin-top:8px}
+.score{font-family:var(--display);font-size:5.5rem;line-height:.9;margin:6px 0;color:var(--acc)}
+.wrong{border-top:1px solid var(--line);padding:12px 0}
+.wrong:first-of-type{border-top:0}
+.wrong s{color:var(--bad)} .wrong strong{color:var(--ok)}
+.card > h2{font-size:2.2rem;margin-bottom:.4rem}
+footer{padding:0 0 3rem}
+footer .wrap{padding-top:1rem;padding-bottom:1rem;font-family:var(--mono);font-size:.75rem;letter-spacing:.06em;color:var(--mute)}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="brandrow"><a class="duvar" href="/">DUVAR</a><span class="kicker">Rehber · Vize hazırlık · 2026–27 Güz</span></div>
+    <h1>Yapı Hukuku <em>I</em></h1>
+    <p>2.–6. hafta ders notlarından özet, konu testleri ve 40 soruluk boşluk doldurma denemesi.</p>
+    <nav role="tablist" aria-label="Bölümler">
+      <button role="tab" data-tab="ozet" aria-selected="true">Özet</button>
+      <button role="tab" data-tab="konu" aria-selected="false">Konu Testleri</button>
+      <button role="tab" data-tab="vize" aria-selected="false">Vize Denemesi (40)</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- ÖZET -->
+<section id="ozet">
+  <div class="card week">
+    <span class="tag">Hafta 2</span>
+    <h2>İmar kavramı, hukuk kavramı, mevzuat, normlar hiyerarşisi</h2>
+    <ul>
+      <li><b>Kamu hukuku:</b> devlet–birey ya da devletin kendi içindeki ilişkileri düzenler; devlet egemenlik yetkisiyle emir ve talimat verir. Dalları: Anayasa, İdare, Ceza, Vergi, Devletler Genel, Yargılama, İcra-İflas.</li>
+      <li><b>Özel hukuk:</b> bireylerin kendi aralarındaki ilişkiler; devlet <b>tarafsız hakem</b>, bireyler arasında <b>eşitlik</b> geçerli. Dalları: Medeni, Borçlar, Ticaret, Devletler Özel, İş.</li>
+      <li><b>İmar hukuku:</b> şehir planlaması, yapılaşma düzeni, ruhsat, çevre düzenlemeleri. Devlet otorite kullandığı için <b>idare hukukunun parçası</b> sayılır; yerel yönetim ve merkezi yönetimin yetkilerini belirler.</li>
+      <li><b>Kanun:</b> yasama organının çıkardığı yazılı, genel, sürekli ve soyut kurallar.</li>
+      <li><b>Cumhurbaşkanlığı Kararnamesi (Any. m.104):</b> yürütme yetkisine ilişkin konularda çıkar. Temel haklar, kişi hakları ve siyasi haklar düzenlenemez; kanunda açıkça düzenlenen konuda çıkarılamaz; kanunla çelişirse <b>kanun uygulanır</b>; TBMM aynı konuda kanun çıkarırsa kararname <b>hükümsüz</b> kalır.</li>
+      <li><b>Uluslararası antlaşma:</b> kanun hükmünde; Anayasa Mahkemesi'ne götürülemez; temel haklarda kanunla çelişirse <b>antlaşma esas alınır</b>.</li>
+      <li><b>Yönetmelik:</b> kanun ve kararnamelerin uygulanması için. <b>Yönerge:</b> üstten alta buyruk/talimat/direktif. <b>Tebliğ:</b> bilgilendirme. <b>Genelge:</b> yol gösteren yazı (tamim, sirküler).</li>
+      <li><b>İmarın temel unsurları:</b> mekânsal planlama, imar planları, arazi kullanım yönetimi, altyapı gelişimi, çevresel etki değerlendirmesi.</li>
+    </ul>
+    <div class="scroll"><table>
+      <tr><th>Eski sistem</th><th>Yeni sistem</th></tr>
+      <tr><td>Anayasa → Kanun, KHK, UA → <b>Tüzük</b> → Yönetmelik → Yönerge → Tebliğ → Genelge → Talimat</td>
+          <td>Anayasa → Kanun, <b>Cumhurbaşkanlığı Kararnamesi</b>, UA → Yönetmelik → Yönerge → Tebliğ → Genelge → Talimat</td></tr>
+    </table></div>
+    <div class="star"><b>Sınavda çıkabilir:</b> hiyerarşi sıralaması, eski/yeni sistem farkı (Tüzük kalktı, KHK yerine CBK), CBK–kanun çatışması, hangi hukuk dalı kamu/özel.</div>
+  </div>
+
+  <div class="card week">
+    <span class="tag">Hafta 3</span>
+    <h2>İmarın tarihçesi ve anayasal temeli</h2>
+    <div class="scroll"><table>
+      <tr><th>Yıl</th><th>Düzenleme</th><th>Akılda kalacak</th></tr>
+      <tr><td>1836–39</td><td>İstanbul Von Moltke planı</td><td>Osmanlı'nın ilk planlama çalışması</td></tr>
+      <tr><td>1839</td><td>İlmühaber</td><td>Kâgir bina teşviki, çıkmaz sokak yasağı</td></tr>
+      <tr><td>1864</td><td>Türûk ve Ebniye Nizamnamesi</td><td></td></tr>
+      <tr><td>1884</td><td>Ebniye Kanunu</td><td>Hamur kuralı (zorunlu tevhid ve ifraz)</td></tr>
+      <tr><td>1924</td><td>442 s. Köy Kanunu</td><td></td></tr>
+      <tr><td>1926</td><td>Medeni Kanun</td><td>Taşınmaz mülkiyeti, tescil</td></tr>
+      <tr><td>1928</td><td>1315 s. Kanun</td><td>İlk kez belediyeye imar planı emri (Ankara)</td></tr>
+      <tr><td>1930</td><td>Belediye Kanunu</td><td>Tüm belediyelere plan zorunluluğu</td></tr>
+      <tr><td>1933</td><td>2290 s. Belediye Yapı ve Yollar K.</td><td>Berlin Yapı Tüzüğü'nden uyarlama</td></tr>
+      <tr><td>1934 / 1938</td><td>2644 Tapu K. / 3458 Mühendislik ve Mimarlık Hk. K.</td><td></td></tr>
+      <tr><td>1954</td><td>6235 s. TMMOB Kanunu</td><td></td></tr>
+      <tr><td>1956</td><td>6785 s. İmar Kanunu · 6831 Orman K.</td><td><b>İlk imar kanunu</b></td></tr>
+      <tr><td>1965 / 1966</td><td>634 Kat Mülkiyeti K. / Gecekondu K.</td><td></td></tr>
+      <tr><td>1983</td><td>2872 Çevre · 2960 Boğaziçi · 2863 KTVK · 2942 Kamulaştırma</td><td>Dört kanun aynı yıl</td></tr>
+      <tr><td>1984</td><td>2985 Toplu Konut K.</td><td></td></tr>
+      <tr><td>1985</td><td><b>3194 s. İmar Kanunu</b> · 3213 Maden K.</td><td>Yürürlükteki imar kanunu</td></tr>
+      <tr><td>1990 / 1998</td><td>3621 Kıyı K. / 4342 Mera K.</td><td></td></tr>
+      <tr><td>2001</td><td>4708 Yapı Denetimi K.</td><td></td></tr>
+      <tr><td>2004–05</td><td>5216 Büyükşehir · 5237 TCK · 5393 Belediye · 5302 İl Özel İdaresi</td><td></td></tr>
+      <tr><td>2006–07</td><td>5543 İskân · 5627 Enerji Verimliliği</td><td></td></tr>
+      <tr><td>2011 / 2012</td><td>6107 İller Bankası / 6306 Afet Riski (kentsel dönüşüm)</td><td></td></tr>
+    </table></div>
+    <ul>
+      <li><b>Anayasa m.35:</b> mülkiyet ve miras hakkı ancak kamu yararı amacıyla kanunla sınırlanır; kullanımı toplum yararına aykırı olamaz.</li>
+      <li><b>m.23:</b> yerleşme hürriyeti; sağlıklı ve düzenli kentleşme için kanunla sınırlanabilir. <b>m.56:</b> sağlıklı ve dengeli çevrede yaşama hakkı. <b>m.57:</b> konut hakkı, toplu konut teşebbüsleri desteklenir.</li>
+      <li><b>Res communis</b> = herkesin ortak malı (hava, uzay, uluslararası sular). <b>Res nullius</b> = kimseye ait olmayan ama edinilebilir şey (vahşi hayvan, keşfedilmemiş ada). Türk hukukunda <b>çevre res communis</b>'tir.</li>
+      <li><b>Sonuç:</b> imar hukuku, taşınmaz mülkiyeti üzerindeki yerleşme ve yapılaşmanın kamu yararı amacıyla sınırlandırılmasıdır; bu yüzden hem kamu hem özel hukuk karakteri taşır.</li>
+    </ul>
+    <div class="star"><b>Sınavda çıkabilir:</b> "ilk" olanlar (Von Moltke, 1315, 6785), kanun numarası–adı eşleştirme, anayasa madde numaraları, res communis / res nullius ayrımı.<br><span class="small">Not: Gecekondu Kanunu 3. hafta slaytında 755, 4. haftada 775 sayılı olarak geçiyor; doğrusu 775.</span></div>
+  </div>
+
+  <div class="card week">
+    <span class="tag">Hafta 4</span>
+    <h2>İmarı ilgilendiren mevzuat</h2>
+    <ul>
+      <li><b>Neden gerekli?</b> Kentli nüfus oranı 1960'ta %31,9 → 2020'de %93,0. Şahsi yararı kamu yararına üstün tutma çabasını kamu lehine çevirmek için.</li>
+      <li><b>Amaçları:</b> kamu yararını sağlamak ve sürekli kılmak; kamu yararı–birey yararı dengesi; şehirlerin çağdaş ve sürdürülebilir gelişimi.</li>
+      <li><b>3194 m.1 (amaç):</b> yerleşme yerleri ile yapılaşmaların <b>plan, fen, sağlık ve çevre</b> şartlarına uygun teşekkülü.</li>
+      <li><b>m.2 (kapsam):</b> belediye ve <b>mücavir alan</b> sınırları içinde ve dışında yapılacak planlar ile resmi ve özel bütün yapılar.</li>
+      <li><b>m.3 (genel esas):</b> hiçbir saha plan esaslarına, bölge şartlarına ve yönetmelik hükümlerine aykırı kullanılamaz.</li>
+      <li><b>m.4.1 (istisna):</b> 2634 Turizmi Teşvik, 2863 KTVK, 2960 Boğaziçi, 3030 Büyükşehir ve diğer özel kanunların alanlarında 3194'ün yalnızca aykırı olmayan hükümleri uygulanır. <b>m.4.2:</b> askeri/emniyet yapıları için Millî Savunma, İçişleri ve Çevre ve Şehircilik Bakanlıkları müştereken belirler.</li>
+      <li><b>Temel ilke:</b> imar mevzuatına, imar planına ve inşaat ruhsatiyesine aykırı bina yapılamaz.</li>
+      <li><b>Planlı Alanlar İmar Yön.:</b> uygulama imar planı bulunan alanlar; genel hükümler, tanımlar ve ruhsat hükümleri planlarla değiştirilemez; boşlukta ilgili idare takdir eder; TSE standartlarına uyulur.</li>
+      <li><b>Plansız Alanlar İmar Yön.:</b> boşlukta belediye/mücavir alan içinde belediye, dışında valilik; belediye anlamazsa valiliğe, anlaşmazlıkta Bakanlığa sorulur.</li>
+      <li><b>Diğer yönetmelikler:</b> Mekânsal Planlar Yapım, Yangından Korunma, Isı Yalıtımı, Enerji Performansı, Otopark.</li>
+      <li><b>Medeni Kanun m.722:</b> yapıda kullanılan malzeme arazinin bütünleyici parçası olur. <b>m.724:</b> yapı değeri araziden açıkça fazlaysa iyiniyetli taraf arazinin malzeme sahibine verilmesini isteyebilir.</li>
+      <li><b>775 Gecekondu K.:</b> ıslah, tasfiye, yeniden yapımın önlenmesi. <b>5393 Belediye K.:</b> m.14-a imar ve altyapı hizmetleri, m.15-b yönetmelik çıkarma, m.15-c izin/ruhsat verme.</li>
+      <li><b>5216 Büyükşehir K. m.7.b:</b> nazım imar planını yapar ve onaylar; ilçelerin uygulama planlarını onaylar ve denetler; ilçe <b>bir yıl</b> içinde yapmazsa kendisi yapar. <b>6306:</b> iyileştirme, tasfiye ve yenileme.</li>
+    </ul>
+    <div class="star"><b>Sınavda çıkabilir:</b> 3194 m.1–4 ezber cümleleri (özellikle "plan, fen, sağlık ve çevre"), planlı/plansız alan yetki farkı, büyükşehirin bir yıllık süresi.</div>
+  </div>
+
+  <div class="card week">
+    <span class="tag">Hafta 5</span>
+    <h2>İmar hukukunun temelleri ve mevzuat çerçevesi</h2>
+    <ul>
+      <li><b>Üç ayak:</b> kamu yararı · hukuki denge (mülkiyet–birey) · imara aykırılık yasağı.</li>
+      <li>Sosyal ve teknik altyapı alanları kamu lehine korunur; imar planı ve ruhsatı olmadan inşaat başlatılamaz.</li>
+      <li><b>Anayasa m.35</b> mülkiyet · <b>m.46</b> kamulaştırma (gerçek karşılığı ödenerek) · <b>m.56</b> çevre hakkı · <b>m.127</b> yerel yönetim kararları merkezin <b>vesayet denetimine</b> tabi · <b>m.166</b> planlama ulusal kalkınma hedefleriyle uyumlu.</li>
+      <li>3194, Türkiye'deki tüm yapılar için <b>ana şemsiye mevzuat</b>; özel kanuna tabi alanlarda (Boğaziçi, Kıyı, Sit…) özel kanun önceliklidir.</li>
+    </ul>
+    <div class="star"><b>Sınavda çıkabilir:</b> anayasa maddesi–konu eşleştirmesi (35, 46, 56, 127, 166) ve "özel kanun önce, sonra 3194" kuralı.</div>
+  </div>
+
+  <div class="card week">
+    <span class="tag">Hafta 6</span>
+    <h2>Mekânsal plan, imar planları, plan hiyerarşisi</h2>
+    <ul>
+      <li><b>Halihazır harita:</b> alandaki her şeyin (nirengi, bina, yol, eğri, ada/parsel) gösterildiği harita. Belediye veya valilik yapar/tasdik eder; bir nüsha Bakanlığa, bir nüsha tapu dairesine (3194 m.7.1.a).</li>
+      <li><b>Plan notu:</b> plana yön veren yazılı açıklamalar (emsal, TAKS, KAKS, çekme mesafeleri, ifraz/tevhit…).</li>
+      <li><b>Mekânsal plan (MPYY 4.1.h):</b> üstten alta <b>mekânsal strateji planı → çevre düzeni planı → imar planı</b>.</li>
+      <li><b>m.7.1.b:</b> nüfusu <b>10.000</b>'i aşan yerleşmede imar planı mecburi; aşmayanda <b>belediye meclisi</b> karar verir.</li>
+      <li><b>Kademeli birliktelik:</b> her plan üst kademeye uyar, raporuyla bütündür, alt kademeyi yönlendirir. Planlar büyütme/küçültme ile elde edilemez.</li>
+      <li><b>m.8.1.d:</b> alt plan, üst plan kesinleşince <b>en geç bir yıl</b> içinde uyumlu hale getirilir; getirilmezse üst planı onaylayan kurum <b>altı ay</b> içinde düzeltir ve re'sen onaylar.</li>
+    </ul>
+    <div class="scroll"><table>
+      <tr><th>Plan</th><th>Ölçek / düzey</th><th>Not</th></tr>
+      <tr><td>Mekânsal strateji planı</td><td>1/250.000, 1/500.000 veya üstü</td><td>Şematik ve grafik dil; ülke bütünü ve bölgeler</td></tr>
+      <tr><td>Ülke planı</td><td>Makro ölçek</td><td>DPT (bugün Cumhurbaşkanlığı Strateji ve Bütçe Başkanlığı)</td></tr>
+      <tr><td>Bölge planı</td><td>Bölge / alt bölge</td><td>DPT yapar veya yaptırırdı</td></tr>
+      <tr><td>Metropoliten imar planı</td><td>Metropol</td><td>3194 m.9; Bakanlık yapar ve re'sen onaylar</td></tr>
+      <tr><td>Çevre düzeni planı</td><td>Bölge, havza veya en az bir il</td><td>Konut, sanayi, tarım, turizm, ulaşım kararları</td></tr>
+      <tr><td>Nazım imar planı</td><td>1/5000 (büyükşehirde 1/5000–1/25000)</td><td>Genel kullanım, nüfus yoğunluğu, ulaşım</td></tr>
+      <tr><td>Uygulama imar planı</td><td>1/1000</td><td>Yapı adası, yapı nizamı, yükseklik, TAKS, emsal, yaklaşma mesafesi</td></tr>
+    </table></div>
+    <ul>
+      <li><b>Özel amaçlı planlar:</b> koruma amaçlı, turizm amaçlı, orman alanları, kıyılar, köy yerleşme, toplu konut alanları, ulaşım.</li>
+      <li><b>Tamamlayıcı planlar:</b> ıslah, revizyon, ilave, mevzi.</li>
+      <li>OSB, endüstri bölgesi, sanayi sitesi ve teknoloji geliştirme bölgesi kararları <b>Sanayi ve Teknoloji Bakanlığı</b>'nın uygun görüşüne tabidir.</li>
+      <li>Çevre düzeni, nazım ve uygulama planları: büyükşehir belediyesi; belediye ve mücavir alanda belediye; dışında il özel idaresi karar mercilerince onaylanır.</li>
+    </ul>
+    <div class="star"><b>Sınavda çıkabilir:</b> ölçekler (1/1000, 1/5000, 1/25000), süreler (bir yıl / altı ay), 10.000 nüfus eşiği, plan sınıflandırması (özel amaçlı – tamamlayıcı).</div>
+  </div>
+</section>
+
+<!-- KONU TESTLERİ -->
+<section id="konu" hidden>
+  <div id="konu-menu">
+    <p class="muted">Her hafta için ayrı kısa test. Buradaki sorular vize denemesindekilerden farklıdır.</p>
+    <div class="grid" id="konu-grid"></div>
+  </div>
+  <div id="konu-quiz"></div>
+</section>
+
+<!-- VİZE DENEMESİ -->
+<section id="vize" hidden>
+  <div id="vize-menu" class="card">
+    <h2>40 soruluk vize denemesi</h2>
+    <p>Boşluğa gelecek kelimeyi şıklardan seç. Takılırsan sorunun üstündeki <b>İpucu</b> düğmesine bas. Yanlış cevapta doğrusu, açıklaması ve hangi haftadan geldiği gösterilir.</p>
+    <p class="small muted" id="best"></p>
+    <div class="row">
+      <button class="btn" id="start-vize">Denemeyi başlat</button>
+      <label class="small"><input type="checkbox" id="shuffle"> Soruları karıştır</label>
+    </div>
+  </div>
+  <div id="vize-quiz"></div>
+</section>
+
+</main>
+
+<footer><div class="wrap">Kaynak: Yapı Hukuku I ders slaytları (2.–6. hafta). Çalışma amaçlıdır; soru kalıpları tahmindir.</div></footer>
+
+<script>
+/* [hafta, cümle (____ = boşluk), doğru, [çeldiriciler], ipucu, açıklama, kaynak] */
+var VIZE = [
+[2,"İmar hukuku, kamu yararı amacıyla devletin bireyler üzerinde otorite kullandığı bir hukuk dalı olduğundan ____ hukukunun bir parçası olarak kabul edilir.","idare",["medeni","borçlar","ticaret"],"Kamu hukukunun dalları arasında ara.","Devlet otorite kullandığı için imar hukuku kamu hukuku içinde, idare hukukunun parçası sayılır. Diğer üç şık özel hukuk dalıdır.","İmar Hukuku tanımı"],
+[2,"Özel hukukta devlet, bireyler arasında tarafsız bir ____ rolü oynar; yaptırım ya da otorite kullanmaz.","hakem",["denetçi","vasi","taraf"],"Maçı yönetir ama oynamaz.","Özel hukuk bireylerin kendi aralarındaki ilişkileri düzenler; devlet tarafsız hakemdir ve eşitlik prensibi geçerlidir.","Özel Hukuk"],
+[2,"____ Hukuku, özel hukukun dallarından biridir.","İş",["Ceza","Vergi","İcra-İflas"],"Özel hukuk dalları: Medeni, Borçlar, Ticaret, Devletler Özel ve bir tane daha.","Özel hukuk dalları Medeni, Borçlar, Ticaret, Devletler Özel ve İş Hukuku'dur. Ceza, Vergi ve İcra-İflas kamu hukuku dalıdır.","Kamu / Özel Hukuk Dalları"],
+[2,"Yeni sistemde normlar hiyerarşisinden çıkan basamak ____'tür.","Tüzük",["Yönerge","Tebliğ","Genelge"],"Eski sistemde Kanun ile Yönetmelik arasındaydı.","Eski sistem: Anayasa, Kanun-KHK-UA, Tüzük, Yönetmelik... Yeni sistemde Tüzük yoktur; kanundan sonra doğrudan Yönetmelik gelir.","Normlar Hiyerarşisi (eski / yeni)"],
+[2,"Yeni sistemde normlar hiyerarşisinde KHK'nin yerini ____ almıştır.","Cumhurbaşkanlığı Kararnamesi",["Tüzük","Yönetmelik","Genelge"],"Anayasa m.104'e dayanır.","Yeni sistemde ikinci basamak: Kanun, Cumhurbaşkanlığı Kararnamesi, Uluslararası Antlaşma.","Normlar Hiyerarşisi (eski / yeni)"],
+[2,"Cumhurbaşkanlığı kararnamesi ile kanunlarda farklı hükümler bulunması halinde ____ hükümleri uygulanır.","kanun",["kararname","yönetmelik","genelge"],"TBMM'nin iradesi önce gelir.","Çatışma halinde kanun uygulanır. TBMM aynı konuda kanun çıkarırsa kararname hükümsüz hale gelir.","Cumhurbaşkanlığı Kararnamesi"],
+[2,"Temel hak ve özgürlüklere ilişkin milletlerarası antlaşmalar ile kanunlar aynı konuda farklı hükümler içerirse ____ hükümleri esas alınır.","milletlerarası antlaşma",["kanun","Cumhurbaşkanlığı kararnamesi","yönetmelik"],"Bu belgeler aleyhine Anayasa Mahkemesi'ne de gidilemez.","Usulüne göre yürürlüğe konmuş temel haklara ilişkin antlaşmalar kanun hükmündedir ve kanunla çatışırsa antlaşma esas alınır.","Uluslararası Antlaşmalar"],
+[2,"Kanun; yasama organı tarafından çıkarılan yazılı, genel, sürekli ve ____ hukuk kurallarıdır.","soyut",["somut","geçici","özel"],"Tek bir olaya değil, benzer tüm olaylara uygulanır.","Slayttaki tanım: yazılı, genel, sürekli ve soyut hukuk kuralları.","Kanun tanımı"],
+
+[3,"Osmanlı döneminin ilk planlama çalışması, 1836–1839 tarihli İstanbul ____ planıdır.","Von Moltke",["Prost","Jansen","Haussmann"],"Prusyalı bir subay.","Tarihçenin ilk maddesi: 1836–1839 İstanbul Von Moltke planı.","Tarihçe · 1836–1839"],
+[3,"1884 tarihli Ebniye Kanunu ile zorunlu tevhid ve ifrazları ifade eden ____ kuralı getirilmiştir.","hamur",["emsal","şufa","çekme"],"Parseller önce karılır, sonra yeniden bölünür.","Hamur kuralı: parsellerin birleştirilip (tevhid) yeniden bölünmesi (ifraz). 1884 Ebniye Kanunu ile gelmiştir.","Tarihçe · 1884 Ebniye Kanunu"],
+[3,"1928 tarihli 1315 sayılı Kanun, ilk kez belediyelerin imar planı yapmasını emreden kanundur ve ____ için çıkarılmıştır.","Ankara",["İstanbul","İzmir","Bursa"],"Yeni başkent.","1315 sayılı Kanun yalnızca Ankara içindir; tüm belediyelere zorunluluk 1930 Belediye Kanunu ile gelmiştir.","Tarihçe · 1928"],
+[3,"1933 tarihli 2290 sayılı Belediye Yapı ve Yollar Kanunu, ____ Belediyesi Yapı Tüzüğü'nden uyarlanmış ayrıntıcı bir kanundur.","Berlin",["Paris","Viyana","Londra"],"Bir Alman şehri.","Savaşlar sonrası alelacele Berlin Belediyesi Yapı Tüzüğü'nden resepsiyon (uyarlama) yoluyla alınmıştır.","Tarihçe · 1933"],
+[3,"Türkiye'nin ilk imar kanunu, 1956 tarihli ____ sayılı İmar Kanunu'dur.","6785",["3194","2290","6831"],"Aynı yıl çıkan Orman Kanunu 6831 sayılıdır.","6785 ilk imar kanunudur (1956). 3194 bugünkü İmar Kanunu (1985), 2290 Belediye Yapı ve Yollar, 6831 Orman Kanunu'dur.","Tarihçe · 1956"],
+[3,"Yürürlükteki 3194 sayılı İmar Kanunu ____ yılında çıkarılmıştır.","1985",["1956","1983","1990"],"Maden Kanunu ile aynı yıl.","3194 sayılı İmar Kanunu 1985 tarihlidir. 1956 ilk imar kanunu, 1983 Çevre/Boğaziçi/KTVK/Kamulaştırma, 1990 Kıyı Kanunu yılıdır.","Tarihçe · 1985"],
+[3,"T.C. Anayasası m.35'e göre mülkiyet ve miras hakları ancak ____ amacıyla, kanunla sınırlanabilir.","kamu yararı",["kamu düzeni","milli güvenlik","genel ahlak"],"İmar hukukunun anahtar kavramı.","m.35: Bu haklar ancak kamu yararı amacıyla kanunla sınırlanabilir; mülkiyet hakkının kullanılması toplum yararına aykırı olamaz.","Anayasal Dayanak · m.35"],
+[3,"T.C. Anayasası'nın ____. maddesine göre herkes sağlıklı ve dengeli bir çevrede yaşama hakkına sahiptir.","56",["23","35","57"],"Konut hakkından bir önceki madde.","m.56 çevre hakkı. m.23 yerleşme ve seyahat, m.35 mülkiyet, m.57 konut hakkıdır.","Anayasal Dayanak · m.56"],
+[3,"Türk hukuk sistemine göre çevre ____'tir.","Res Communis",["Res Nullius","Res Publica","Res Privata"],"Herkesin ortak malı.","Res communis herkesin ortak malıdır ve özel mülkiyete konu olamaz. Res nullius ise kimseye ait olmayan ama edinilebilir şeydir.","Res Communis / Res Nullius"],
+
+[4,"3194 sayılı İmar Kanunu m.1: Bu Kanun, yerleşme yerleri ile bu yerlerdeki yapılaşmaların plan, fen, ____ ve çevre şartlarına uygun teşekkülünü sağlamak amacıyla düzenlenmiştir.","sağlık",["estetik","güvenlik","sanat"],"Dört şart: plan, fen, ? ve çevre.","Kanunun amaç maddesi: plan, fen, sağlık ve çevre şartları.","3194 · m.1 Amaç"],
+[4,"3194 m.2: Belediye ve ____ alan sınırları içinde ve dışında kalan yerlerde yapılacak planlar ile inşa edilecek resmi ve özel bütün yapılar bu Kanun hükümlerine tabidir.","mücavir",["metropoliten","kırsal","kentsel"],"Belediyeye komşu, onun kontrolüne verilen alan.","Kapsam maddesi: belediye ve mücavir alan sınırları içinde ve dışında kalan yerler.","3194 · m.2 Kapsam"],
+[4,"3194 m.3: Herhangi bir saha, her ölçekteki plan esaslarına, bulunduğu bölgenin şartlarına ve ____ hükümlerine aykırı maksatlar için kullanılamaz.","yönetmelik",["genelge","tebliğ","yönerge"],"Kanunun uygulanmasını sağlayan norm.","Genel esas üç ölçüt sayar: plan esasları, bölge şartları, yönetmelik hükümleri.","3194 · m.3 Genel Esas"],
+[4,"Temel ilke: İmar mevzuatına, imar planına ve ____ aykırı bina yapılamaz.","inşaat ruhsatiyesine",["tapu kaydına","iskân belgesine","plan notuna"],"İnşaata başlamadan önce alınan izin.","Üçlü: imar mevzuatı, imar planı, inşaat ruhsatiyesi.","3194 · Temel İlke"],
+[4,"3194 m.4.2: Askeri ve emniyet yapıları için hangi hükmün nasıl uygulanacağını Millî Savunma Bakanlığı, ____ Bakanlığı ile Çevre ve Şehircilik Bakanlığı müştereken belirler.","İçişleri",["Adalet","Kültür ve Turizm","Sanayi ve Teknoloji"],"Jandarma ve Emniyet hangi bakanlığa bağlı?","Üç bakanlık: Millî Savunma, İçişleri, Çevre ve Şehircilik.","3194 · m.4.2 İstisnalar"],
+[4,"Planlı Alanlar İmar Yönetmeliği, ____ imar planı bulunan alanları kapsar.","uygulama",["nazım","çevre düzeni","mevzi"],"1/1000 ölçekli olan.","Kapsam: uygulama imar planı bulunan alanlar.","Planlı Alanlar İmar Yönetmeliği"],
+[4,"Plansız Alanlar İmar Yönetmeliği'nde yer almayan hususlarda takdire, belediye ve mücavir alan sınırları içinde belediyeler, dışında ise ____ yetkilidir.","valilikler",["il özel idareleri","kaymakamlıklar","Bakanlık"],"İlin en üst mülki makamı.","İçeride belediye, dışarıda valilik. Belediyenin anlamadığı konuda valiliğin, anlaşmazlıkta Bakanlığın görüşü alınır.","Plansız Alanlar İmar Yönetmeliği · Yetki"],
+[4,"5216 m.7.b: Nazım imar planının yürürlüğe girdiği tarihten itibaren ____ içinde uygulama imar planlarını yapmayan ilçe belediyelerinin planlarını büyükşehir belediyesi yapar veya yaptırır.","bir yıl",["altı ay","üç ay","iki yıl"],"3194 m.8.1.d'deki ilk süreyle aynı.","Büyükşehir, ilçe bir yıl içinde uygulama imar planını ve parselasyon planını yapmazsa kendisi yapar.","5216 Büyükşehir Belediyesi K. · m.7.b"],
+[4,"Afet Riski Altındaki Alanların Dönüştürülmesi Hakkında Kanun ____ sayılıdır.","6306",["5393","5216","4708"],"2012 tarihli, listedeki en yeni kanun.","6306 kentsel dönüşüm kanunudur. 5393 Belediye, 5216 Büyükşehir Belediyesi, 4708 Yapı Denetimi Kanunu'dur.","6306 sayılı Kanun"],
+
+[5,"Anayasa m.____: Kamu yararı gerektirdiğinde gerçek karşılığı ödenerek kamulaştırma yapılır.","46",["35","56","127"],"35 mülkiyet, 56 çevre; aradaki.","m.46 kamulaştırma. Belediyeler imar planındaki kamu alanları için bu yetkiyi kullanır.","Anayasal Hükümler · m.46"],
+[5,"Anayasa m.127: Yerel yönetimlerin kararları merkezi idarenin ____ denetimine tabidir.","vesayet",["hiyerarşi","yargı","mali"],"İdari ... denetimi.","Merkezi idarenin yerel yönetimler üzerindeki denetimi vesayet denetimidir.","Anayasal Hükümler · m.127"],
+
+[6,"Mekânsal planlar üst kademeden alt kademeye doğru sırasıyla mekânsal strateji planı, ____ ve imar planıdır.","çevre düzeni planı",["bölge planı","nazım imar planı","ülke planı"],"Ortadaki plan bölge, havza veya il düzeyinde yapılır.","Mekânsal Planlar Yapım Yönetmeliği 4.1.h: mekânsal strateji planı → çevre düzeni planı → imar planı.","Mekânsal Plan Nedir? · MPYY 4.1.h"],
+[6,"3194 m.7.1.b: Son nüfus sayımında nüfusu ____'i aşan yerleşmelerin imar planlarının yaptırılması mecburidir.","10.000",["5.000","2.000","50.000"],"Beş haneli bir sayı.","Eşik 10.000'dir.","Mekânsal Plan Esasları · m.7.1.b"],
+[6,"Nüfusu 10.000'i aşmayan yerleşmelerde imar planı yapılmasının gerekli olup olmadığına ____ karar verir.","belediye meclisi",["belediye encümeni","valilik","Bakanlık"],"Belediyenin seçilmiş karar organı.","m.7.1.b devamı: karar belediye meclisine aittir.","Mekânsal Plan Esasları · m.7.1.b"],
+[6,"3194 m.8.1.d: Alt kademe planların, üst kademe planların kesinleştiği tarihten itibaren en geç ____ içinde üst kademe planlara uygun hale getirilmesi zorunludur.","bir yıl",["altı ay","üç ay","iki yıl"],"Önce uzun süre idareye, sonra kısa süre üst kuruma.","İlgili idarenin süresi bir yıldır.","Plan Kademeleri · m.8.1.d"],
+[6,"İdare süresinde uyum sağlamazsa, üst kademe planı onaylayan kurum alt kademe planları en geç ____ içinde uygun hale getirir ve re'sen onaylar.","altı ay",["bir yıl","üç ay","otuz gün"],"Bir yılın yarısı.","Bir yıl + altı ay. Bu sürede ruhsat işlemleri yürürlükteki uygulama imar planına göre yapılır.","Plan Kademeleri · m.8"],
+[6,"Nazım imar planı, varsa kadastral durumu işlenmiş olarak 1/____ ölçekte hazırlanır.","5000",["1000","500","100.000"],"Büyükşehirlerde bu değer ile 1/25000 arası.","Nazım 1/5000 (büyükşehirde 1/5000–1/25000), uygulama 1/1000.","Nazım İmar Planı"],
+[6,"Uygulama imar planı 1/____ ölçekte, onaylı halihazır haritalar üzerinde hazırlanır.","1000",["5000","25000","200"],"En ayrıntılı imar planı.","Uygulama imar planı 1/1000 ölçeklidir; yapı adası, yapı nizamı, yükseklik gibi kararları gösterir.","Uygulama İmar Planı"],
+[6,"Çevre düzeni planı; benzerlik gösteren bölge, havza veya en az bir ____ düzeyinde yapılır.","il",["ilçe","belde","mahalle"],"81 tane var.","Çevre düzeni planı bölge, havza veya en az bir il düzeyinde yapılır.","Çevre Düzeni Planı"],
+[6,"Metropoliten imar planı, 3194 m.9'a istinaden Çevre, Şehircilik ve İklim Değişikliği Bakanlığı'nca yapılır, yaptırılır, değiştirilir ve ____ onaylanır.","re'sen",["zımnen","rızaen","müştereken"],"Kendiliğinden, başka bir makama sormadan.","Re'sen: kendiliğinden. Bakanlık metropoliten imar planını re'sen onaylar.","Metropoliten İmar Planı"],
+[6,"Planlarda organize sanayi bölgesi, endüstri bölgesi, sanayi sitesi ve teknoloji geliştirme bölgesine ilişkin kararlar ____ Bakanlığı'nın uygun görüşüne tabidir.","Sanayi ve Teknoloji",["Ticaret","Enerji ve Tabii Kaynaklar","Ulaştırma ve Altyapı"],"Konunun adı bakanlığın adında.","Mekânsal strateji, çevre düzeni ve nazım imar planlarında bu kararlar Sanayi ve Teknoloji Bakanlığı görüşüne bağlıdır.","Çevre Düzeni / Nazım İmar Planı"],
+[6,"Tamamlayıcı planlar; ıslah, revizyon, ilave ve ____ imar planıdır.","mevzi",["nazım","koruma amaçlı","turizm amaçlı"],"Mevcut planın dışında, ayrı bir yer için yapılan plan.","Tamamlayıcı planlar: ıslah, revizyon, ilave, mevzi. Koruma ve turizm amaçlı planlar özel amaçlı planlardır.","Plan Hiyerarşisi tablosu"],
+[6,"Her plan, planlar arası ____ ilkesi uyarınca yürürlükteki üst kademe planların kararlarına uygun olmak ve bir alt kademedeki planı yönlendirmek zorundadır.","kademeli birliktelik",["hiyerarşik bağlılık","mekânsal uyum","tamamlayıcılık"],"Kademe kademe ama bir arada.","Slayttaki ifade: planlar arası kademeli birliktelik ilkesi.","Mekânsal Planlama Kademeleri"]
+];
+
+var KONU = [
+[2,"Özel hukukta bireyler arasında ____ prensibi geçerlidir.","eşitlik",["üstünlük","hiyerarşi","vesayet"],"Kamu hukukunda devlet üstündür; burada tersi.","Özel hukukta taraflar eşittir; devlet tarafsız hakemdir.","Özel Hukuk"],
+[2,"____, kanun ve kararnamelerin uygulanmasını sağlamak için Cumhurbaşkanlığı, bakanlıklar ve kamu tüzel kişilerince çıkarılır.","Yönetmelik",["Yönerge","Genelge","Tebliğ"],"Yeni sistemde kanundan hemen sonraki basamak.","Yönetmeliğin tanımıdır.","Normlar Hiyerarşisi · Yönetmelik"],
+[2,"____; üst makamlardan alt makamlara belli bir esasa dayanarak verilen buyruk, talimat, direktif şeklindeki belgedir.","Yönerge",["Tebliğ","Genelge","Yönetmelik"],"Yönetmeliklerde değinilmeyen konulara açıklık getirir.","Yönerge, yönetmelikte değinilmeyen konuları açıklayan resmî belgedir.","Normlar Hiyerarşisi · Yönerge"],
+[2,"____; yasa ve yönetmeliklerin uygulanmasında yol göstermek üzere ilgililere gönderilen yazıdır (tamim, sirküler).","Genelge",["Yönerge","Tebliğ","Talimat"],"Sirküler ile eş anlamlı.","Genelge yol gösterir, aydınlatır, dikkat çeker. Tebliğ ise bilgilendirme amaçlıdır.","Normlar Hiyerarşisi · Genelge"],
+[2,"TBMM'nin aynı konuda kanun çıkarması durumunda Cumhurbaşkanlığı kararnamesi ____ hale gelir.","hükümsüz",["kanun hükmünde","yönetmelik","askıda"],"Artık uygulanmaz.","Kanun çıkınca aynı konudaki kararname hükümsüz olur.","Cumhurbaşkanlığı Kararnamesi"],
+[2,"Anayasa m.104'e göre Cumhurbaşkanı, ____ yetkisine ilişkin konularda Cumhurbaşkanlığı kararnamesi çıkarabilir.","yürütme",["yasama","yargı","denetim"],"Üç erkten biri.","Kararname yalnızca yürütme yetkisine ilişkin konularda çıkar; temel haklar ve siyasi haklar düzenlenemez.","Cumhurbaşkanlığı Kararnamesi · m.104"],
+[2,"Temel hak ve özgürlüklere ilişkin milletlerarası antlaşmalar hakkında Anayasa'ya aykırılık iddiası ile ____ başvurulamaz.","Anayasa Mahkemesi'ne",["Danıştay'a","Yargıtay'a","TBMM'ye"],"Normların Anayasa'ya uygunluğunu denetleyen mahkeme.","Bu antlaşmalar kanun hükmündedir ama Anayasa Mahkemesi denetimine tabi değildir.","Uluslararası Antlaşmalar"],
+[2,"Olağanüstü hallerde çıkarılan Cumhurbaşkanlığı kararnamelerine ____ olma kuvveti tanınmıştır.","kanun hükmünde",["anayasa hükmünde","yönetmelik hükmünde","tüzük hükmünde"],"Anayasa m.119'un 6. ve 7. fıkraları.","OHCK: yalnızca olağanüstü hal kararnamelerine kanun hükmünde olma kuvveti tanınmıştır.","Normlar Hiyerarşisi · OHCK"],
+
+[3,"1839 tarihli İlmühaber ile ____ bina yapımı teşvik edilmiş, ahşap binalar kent merkezinin dışına bırakılmıştır.","kâgir",["ahşap","kerpiç","betonarme"],"Taş veya tuğla yapı.","İlmühaber: kâgir bina teşviki, geniş ve geometrik mahalleler, çıkmaz sokak yasağı.","Tarihçe · 1839 İlmühaber"],
+[3,"1839 tarihli İlmühaber ile ____ sokak yasaklanmıştır.","çıkmaz",["dar","eğimli","tek yönlü"],"Sonu kapalı.","İlmühaber'in getirdiği kurallardan biri çıkmaz sokak yasağıdır.","Tarihçe · 1839 İlmühaber"],
+[3,"Tüm belediyelere imar planı yapma zorunluluğunu ____ tarihli Belediye Kanunu getirmiştir.","1930",["1924","1933","1956"],"Ankara'ya özel kanundan iki yıl sonra.","1928'de yalnız Ankara için (1315), 1930'da tüm belediyeler için zorunluluk geldi.","Tarihçe · 1930"],
+[3,"Kıyı Kanunu ____ sayılıdır.","3621",["2960","2872","2863"],"1990 tarihli; diğer üçü 1983.","3621 Kıyı (1990). 2960 Boğaziçi, 2872 Çevre, 2863 Kültür ve Tabiat Varlıklarını Koruma Kanunu'dur.","Tarihçe · 1990"],
+[3,"1965 tarihli 634 sayılı Kanun, ____ Kanunu'dur.","Kat Mülkiyeti",["Gecekondu","Kooperatifler","Toplu Konut"],"Apartmanlarda malikler arası ilişkiler.","634 Kat Mülkiyeti (1965). Gecekondu 1966, Kooperatifler 1969, Toplu Konut 1984.","Tarihçe · 1965"],
+[3,"2001 tarihli 4708 sayılı Kanun, ____ Kanunu'dur.","Yapı Denetimi",["Enerji Verimliliği","İskân","Mera"],"İnşaat süreçlerinin denetlenmesi.","4708 Yapı Denetimi (2001). 5627 Enerji Verimliliği, 5543 İskân, 4342 Mera.","Tarihçe · 2001"],
+[3,"Anayasa m.57: Devlet, konut ihtiyacını karşılayacak tedbirleri alır, ayrıca ____ teşebbüslerini destekler.","toplu konut",["kooperatif","kentsel dönüşüm","gecekondu ıslah"],"1984 tarihli 2985 sayılı Kanun'un adı.","m.57 konut hakkı: şehirlerin özelliklerini ve çevre şartlarını gözeten planlama + toplu konut teşebbüsleri.","Anayasal Dayanak · m.57"],
+[3,"Henüz kimsenin mülkiyetine geçmemiş ancak edinilmeye müsait olan şeylere ____ denir.","Res Nullius",["Res Communis","Res Publica","Res Extra"],"Vahşi hayvanlar, denizdeki balıklar, keşfedilmemiş adalar.","Res nullius: hiç kimseye ait olmayan şey. Res communis ise herkesin ortak malıdır.","Res Communis / Res Nullius"],
+[3,"Anayasa m.23: Yerleşme hürriyeti; sağlıklı ve düzenli ____ gerçekleştirmek gibi amaçlarla kanunla sınırlanabilir.","kentleşmeyi",["kalkınmayı","sanayileşmeyi","göçü"],"İmarla doğrudan ilgili kelime.","m.23'teki sınırlama sebepleri: suçu önlemek, sosyal-ekonomik gelişme, sağlıklı ve düzenli kentleşme, kamu mallarını korumak.","Anayasal Dayanak · m.23"],
+[3,"Çevre Kanunu 3.1.e: Çevre politikalarının oluşmasında ____ hakkı esastır.","katılım",["mülkiyet","itiraz","yerleşme"],"Meslek odaları, STK'lar ve vatandaşlar sürece dahil olur.","Bakanlık ve yerel yönetimler katılım ortamını yaratmakla yükümlüdür.","2872 Çevre Kanunu · 3.1.e"],
+
+[4,"Türkiye'de kentli nüfus oranı 1960'ta %31,9 iken 2020'de %____ olmuştur.","93,0",["76,2","64,9","59,0"],"Onda dokuzdan fazla.","%76,2 2010, %64,9 2000, %59,0 1990 değeridir.","İmar mevzuatı niçin gereklidir?"],
+[4,"İmar mevzuatının amaçlarından biri, kamu yararı ile ____ yararı arasında denge kurmaktır.","birey",["devlet","belediye","yatırımcı"],"Kamunun karşısındaki taraf.","Üç amaç: kamu yararını sağlamak, kamu–birey dengesi, çağdaş ve sürdürülebilir gelişim.","İmar mevzuatının amaçları"],
+[4,"Planlı Alanlar İmar Yönetmeliği'ndeki genel hükümler, tanımlar ve ____ ilişkin hükümler, planlarla ve ilgili idarelerce çıkarılacak yönetmeliklerle değiştirilemez.","ruhsata",["otoparka","cepheye","peyzaja"],"İnşaat izni.","Değiştirilemeyen üçlü: genel hükümler, tanımlar, ruhsata ilişkin hükümler.","Planlı Alanlar İmar Yönetmeliği"],
+[4,"Planlı alanlarda yapılacak bütün yapılarda ____ tarafından belirlenmiş standartlara uyulması zorunludur.","Türk Standartları Enstitüsü",["TMMOB","Devlet Planlama Teşkilatı","İller Bankası"],"Kısaltması TSE.","Kanun, Cumhurbaşkanı Kararnamesi, yönetmelik hükümleri ve TSE standartlarına uyulur.","Planlı Alanlar İmar Yönetmeliği"],
+[4,"Plansız alanlarda belediyece anlaşılmayan konularda valiliğin, anlaşmazlığa düşülen konularda ____ görüşü alınır ve bu görüşe uyulur.","Bakanlığın",["belediye meclisinin","Danıştay'ın","il genel meclisinin"],"Çevre, Şehircilik ve İklim Değişikliği...","Sıra: belediye → valilik → Çevre, Şehircilik ve İklim Değişikliği Bakanlığı.","Plansız Alanlar İmar Yönetmeliği · Yetki"],
+[4,"Medeni Kanun m.722: Bir kimse kendi arazisindeki yapıda başkasının malzemesini kullanırsa, bu malzeme arazinin ____ parçası olur.","bütünleyici",["eklenti","bağımsız","geçici"],"Ayrılmaz parça.","Malzeme arazinin bütünleyici parçası (mütemmim cüz) olur.","Medeni Kanun · m.722"],
+[4,"Medeni Kanun m.724: Yapının değeri açıkça arazinin değerinden fazlaysa, ____ taraf uygun bir bedel karşılığında arazinin mülkiyetinin malzeme sahibine verilmesini isteyebilir.","iyiniyetli",["kötüniyetli","zarar gören","kiracı olan"],"Dürüst davranan.","Bu hak yalnızca iyiniyetli tarafa tanınır.","Medeni Kanun · m.724"],
+[4,"775 sayılı Gecekondu Kanunu; mevcut gecekonduların ıslahı, ____, yeniden gecekondu yapımının önlenmesi hakkında uygulanır.","tasfiyesi",["tescili","ruhsatlandırılması","kamulaştırılması"],"Ortadan kaldırılması.","Kapsam: ıslah, tasfiye, yeniden yapımın önlenmesi ve bu amaçlarla alınacak tedbirler.","775 sayılı Gecekondu Kanunu"],
+[4,"5393 m.15-c: Belediye, gerçek ve tüzel kişilerin faaliyetleri ile ilgili olarak kanunlarda belirtilen izin veya ____ vermekle yetkilidir.","ruhsatı",["tapuyu","teşviki","krediyi"],"Yapı için de alınır.","15-b yönetmelik çıkarmak ve yasak koymak; 15-c izin veya ruhsat vermek.","5393 Belediye Kanunu · m.15"],
+[4,"5216 m.7.o: Büyükşehir belediyesi, korunması mümkün olmayan kültür varlıklarını ____ uygun olarak yeniden inşa eder.","aslına",["plana","ruhsata","çağa"],"Orijinaline.","Kültür ve tabiat varlıklarının bakım-onarımı; korunamayanların aslına uygun yeniden inşası.","5216 Büyükşehir Belediyesi K. · m.7.o"],
+
+[5,"Anayasa m.____: Yerel planlama ulusal kalkınma hedefleriyle uyumlu yürütülür.","166",["127","46","57"],"Listedeki en büyük madde numarası.","m.166 planlama; m.127 yerel yönetimler ve vesayet; m.46 kamulaştırma.","Anayasal Hükümler · m.166"],
+[5,"Özel kanuna tabi alanlarda ____ kanun hükümleri öncelikle uygulanır; aykırı olmayan hallerde 3194 uygulanır.","özel",["genel","eski","yerel"],"Boğaziçi, Kıyı, Sit...","Özel kanun önce gelir; 3194'ün yalnızca özel kanuna aykırı olmayan hükümleri uygulanır.","Özel Kanunlar 3194'e İstisna Getirir"],
+[5,"3194 sayılı İmar Kanunu, Türkiye sınırı içindeki tüm yapılar için ana ____ mevzuattır.","şemsiye",["istisna","tali","geçici"],"Hepsini altında toplar.","Özet slaytı: 3194 ana şemsiye mevzuattır.","Özet ve Değerlendirme"],
+[5,"Sosyal ve teknik ____ alanları kamu lehine korunur.","altyapı",["konut","ticaret","turizm"],"Okul, park, yol, kanalizasyon...","Kamu yararı başlığı altında: sosyal ve teknik altyapı alanları kamu lehine korunur.","Kamu Yararını Sağlama"],
+[5,"İmar planı ve ____ olmaksızın inşaat başlatılamaz.","ruhsatı",["iskânı","tapusu","kat irtifakı"],"İmara aykırılık yasağının ikinci cümlesi.","Temel ilke: mevzuata aykırı bina yapılamaz; plan ve ruhsat olmadan inşaat başlatılamaz.","İmara Aykırılık Yasağı"],
+[5,"3194 m.4.1'de sayılan özel kanunlardan biri 2634 sayılı ____ Kanunu'dur.","Turizmi Teşvik",["Kıyı","Orman","Mera"],"Turizm alanları için.","m.4.1: 2634 Turizmi Teşvik, 2863 KTVK, 2960 Boğaziçi, 3030 Büyükşehir ve diğer özel kanunlar.","3194 · m.4.1 İstisnalar"],
+
+[6,"Çalışılan alanda bulunan her şeyin (nirengi, bina, yol, yükseklik eğrisi, ada ve parsel sınırları) gösterildiği haritaya ____ denir.","halihazır harita",["kadastro paftası","plan notu","aplikasyon krokisi"],"Mevcut durumu gösterir.","İmar planları onaylı halihazır haritalar üzerine çizilir.","Bazı Kavramlar · Halihazır harita"],
+[6,"3194 m.7.1.a: Halihazır haritaların tasdikli bir nüshası Bakanlığa, diğer bir nüshası da ilgili ____ gönderilir.","tapu dairesine",["il özel idaresine","belediye meclisine","nüfus müdürlüğüne"],"Mülkiyet kayıtlarının tutulduğu yer.","Tasdik mercii belediyeler ve valiliklerdir; nüshalar Bakanlık ve tapu dairesine gider.","Bazı Kavramlar · m.7.1.a"],
+[6,"Mekânsal strateji planı, 1/250.000, 1/____ veya daha üst ölçek haritalar üzerinde şematik ve grafik dil kullanılarak hazırlanır.","500.000",["100.000","50.000","25.000"],"Öncekinin iki katı.","1/250.000, 1/500.000 veya daha üst ölçek.","Mekânsal Strateji Planı"],
+[6,"Büyükşehir belediyelerinde nazım imar planı 1/5000 ile 1/____ arasındaki her ölçekte hazırlanabilir.","25000",["1000","50000","100000"],"Beş katı.","Normalde 1/5000; büyükşehirde 1/5000–1/25000.","Nazım İmar Planı"],
+[6,"Planlar, diğer kademedeki planların ____ veya küçültülmesi yolu ile elde edilemez.","büyütülmesi",["onaylanması","birleştirilmesi","kopyalanması"],"Küçültmenin tersi.","Her kademe kendi ölçeğinde ve ayrıntı düzeyinde ayrıca hazırlanır.","Genel Planlama Esasları · (n)"],
+[6,"Planların pafta, gösterim, plan notları ve ____ ile bir bütün olması esastır.","plan raporu",["ruhsat eki","tapu kaydı","halihazır harita"],"Planın yazılı gerekçesi.","Plan; paftası, gösterimi (lejant), notları ve raporuyla bir bütündür.","Mekânsal Plan Esasları · (k)"],
+[6,"Arazi kullanım ve yapılaşmada sadece mekânsal strateji planları, çevre düzeni planları ve ____ kararlarına uyulur.","imar planları",["kalkınma planları","bölge planları","ulaşım planları"],"Hiyerarşinin en alt halkası.","Mekânsal planın üç türü: mekânsal strateji, çevre düzeni, imar planı.","Mekânsal Planlama Kademeleri"],
+[6,"Ülke planını hazırlayan Devlet Planlama Teşkilatı'nın yerini bugün Cumhurbaşkanlığı ____ Başkanlığı almıştır.","Strateji ve Bütçe",["İdari İşler","Yatırım Ofisi","İletişim"],"Plan ve para.","Slaytta DPT 'hazırlardı' diye düzeltilmiş, parantez içinde Strateji ve Bütçe Başkanlığı yazılmıştır.","Ülke Planı"],
+[6,"Koruma amaçlı, turizm amaçlı, kıyılar ve köy yerleşme planları ____ planlar grubundadır.","özel amaçlı",["tamamlayıcı","üst düzey","mevzi"],"Tabloda B grubu.","A: plan kademeleri, B: özel amaçlı planlar, C: tamamlayıcı planlar (ıslah, revizyon, ilave, mevzi).","Plan Hiyerarşisi tablosu"]
+];
+
+var HAFTA = {2:"Hukuk ve normlar hiyerarşisi",3:"Tarihçe ve anayasal temel",4:"İmarı ilgilendiren mevzuat",5:"İmar hukukunun temelleri",6:"Mekânsal plan ve plan hiyerarşisi"};
+
+function $(id){return document.getElementById(id)}
+function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+function shuffled(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+
+/* sekmeler */
+var tabs=document.querySelectorAll("nav button");
+function show(name){
+  ["ozet","konu","vize"].forEach(function(n){$(n).hidden=(n!==name)});
+  tabs.forEach(function(b){b.setAttribute("aria-selected",b.dataset.tab===name?"true":"false")});
+  window.scrollTo(0,0);
+}
+tabs.forEach(function(b){b.addEventListener("click",function(){show(b.dataset.tab)})});
+
+/* sınav motoru */
+function runQuiz(mount,menu,title,list,onDone){
+  var i=0,right=0,wrong=[];
+  menu.hidden=true;
+  function sentence(q,word,cls){
+    var p=el("p","qtext"),parts=q[1].split("____");
+    p.appendChild(document.createTextNode(parts[0]));
+    var g=el("span","gap"+(cls?" "+cls:""),word||"…");
+    p.appendChild(g);p.appendChild(document.createTextNode(parts[1]||""));
+    return p;
+  }
+  function draw(){
+    var q=list[i];mount.innerHTML="";
+    var card=el("div","card");
+    var top=el("div","row");
+    top.appendChild(el("span","qtag","Hafta "+q[0]+" · Soru "+(i+1)+" / "+list.length));
+    var hb=el("button","hintbtn","İpucu göster");hb.type="button";
+    top.appendChild(hb);card.appendChild(top);
+    var bar=el("div","bar"),fill=el("i");fill.style.width=(i/list.length*100)+"%";bar.appendChild(fill);card.appendChild(bar);
+    var hint=el("div","hint","İpucu: "+q[4]);hint.hidden=true;
+    hb.addEventListener("click",function(){hint.hidden=false;hb.hidden=true});
+    var sent=sentence(q);card.appendChild(sent);card.appendChild(hint);
+    var opts=el("div","opts");opts.style.marginTop="14px";
+    var out=el("div");out.setAttribute("aria-live","polite");
+    shuffled([q[2]].concat(q[3])).forEach(function(o){
+      var b=el("button","opt",o);b.type="button";
+      b.addEventListener("click",function(){
+        var ok=(o===q[2]);
+        opts.querySelectorAll("button").forEach(function(x){x.disabled=true;if(x.textContent===q[2])x.classList.add("ok")});
+        if(!ok)b.classList.add("bad");
+        var ns=sentence(q,o,ok?"ok":"bad");card.replaceChild(ns,sent);sent=ns;
+        if(ok)right++;else wrong.push({q:q,pick:o});
+        var fb=el("div","fb "+(ok?"ok":"bad"));
+        fb.appendChild(el("h3",null,ok?"Doğru.":"Yanlış. Doğru cevap: "+q[2]));
+        fb.appendChild(el("div",null,q[5]));
+        fb.appendChild(el("span","src","Nereden: Hafta "+q[0]+" slaytları · "+q[6]));
+        out.appendChild(fb);
+        var nx=el("button","btn",i+1<list.length?"Sonraki soru":"Sonucu gör");nx.type="button";nx.style.marginTop="14px";
+        nx.addEventListener("click",function(){i++;if(i<list.length)draw();else finish()});
+        out.appendChild(nx);nx.focus();
+      });
+      opts.appendChild(b);
+    });
+    card.appendChild(opts);card.appendChild(out);mount.appendChild(card);
+    card.scrollIntoView({block:"start",behavior:"smooth"});
+  }
+  function finish(){
+    mount.innerHTML="";
+    var pct=Math.round(right/list.length*100);
+    var card=el("div","card");
+    card.appendChild(el("span","qtag",title));
+    card.appendChild(el("div","score",right+" / "+list.length));
+    card.appendChild(el("p","muted","Başarı: %"+pct+(wrong.length?" · "+wrong.length+" yanlış":" · Hepsi doğru")));
+    var per={};list.forEach(function(q){per[q[0]]=per[q[0]]||[0,0];per[q[0]][1]++});
+    wrong.forEach(function(w){per[w.q[0]][0]++});
+    var ks=Object.keys(per);
+    if(ks.length>1){
+      var ul=el("ul");ks.forEach(function(k){ul.appendChild(el("li",null,"Hafta "+k+" ("+HAFTA[k]+"): "+(per[k][1]-per[k][0])+" / "+per[k][1]))});
+      card.appendChild(ul);
+    }
+    var row=el("div","row");
+    if(wrong.length){
+      var rw=el("button","btn","Yanlışları tekrar çöz");rw.type="button";
+      rw.addEventListener("click",function(){runQuiz(mount,menu,title+" · yanlışlar",wrong.map(function(w){return w.q}),null)});
+      row.appendChild(rw);
+    }
+    var back=el("button","btn ghost","Baştan başla");back.type="button";
+    back.addEventListener("click",function(){mount.innerHTML="";menu.hidden=false;window.scrollTo(0,0)});
+    row.appendChild(back);card.appendChild(row);mount.appendChild(card);
+    if(wrong.length){
+      var wc=el("div","card");wc.appendChild(el("h2",null,"Yanlış yaptıkların"));
+      wrong.forEach(function(w){
+        var d=el("div","wrong");
+        d.appendChild(el("div",null,w.q[1].replace("____","[ … ]")));
+        var l=el("div","small");var s=el("s",null,w.pick);var st=el("strong",null,w.q[2]);
+        l.appendChild(document.createTextNode("Senin cevabın: "));l.appendChild(s);
+        l.appendChild(document.createTextNode(" → Doğrusu: "));l.appendChild(st);d.appendChild(l);
+        d.appendChild(el("div","small muted",w.q[5]));
+        d.appendChild(el("span","src","Hafta "+w.q[0]+" · "+w.q[6]));
+        wc.appendChild(d);
+      });
+      mount.appendChild(wc);
+    }
+    if(onDone)onDone(right,list.length);
+    window.scrollTo(0,0);
+  }
+  draw();
+}
+
+/* konu testleri */
+Object.keys(HAFTA).forEach(function(w){
+  var qs=KONU.filter(function(q){return q[0]==w});
+  var b=el("button","pick");b.type="button";
+  b.appendChild(el("span","qtag","Hafta "+w));b.appendChild(el("b",null,HAFTA[w]));
+  b.appendChild(el("span","small muted",qs.length+" soru"));
+  b.addEventListener("click",function(){runQuiz($("konu-quiz"),$("konu-menu"),"Hafta "+w+" testi",qs,null)});
+  $("konu-grid").appendChild(b);
+});
+
+/* vize denemesi */
+function bestText(){
+  try{var v=localStorage.getItem("yh1-best");if(v)$("best").textContent="En iyi sonucun: "+v+" / "+VIZE.length}catch(e){}
+}
+bestText();
+$("start-vize").addEventListener("click",function(){
+  var list=$("shuffle").checked?shuffled(VIZE):VIZE;
+  runQuiz($("vize-quiz"),$("vize-menu"),"Vize denemesi",list,function(r){
+    try{var old=parseInt(localStorage.getItem("yh1-best")||"0",10);if(r>old)localStorage.setItem("yh1-best",String(r))}catch(e){}
+    bestText();
+  });
+});
+</script>
+</body>
+</html>
