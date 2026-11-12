@@ -37,6 +37,11 @@
       "permanent": false
     },
     {
+      "source": "/kentsel",
+      "destination": "/rehber/kentsel-tasarim-vize/",
+      "permanent": false
+    },
+    {
       "source": "/juri",
       "destination": "/#araclar/juri",
       "permanent": false

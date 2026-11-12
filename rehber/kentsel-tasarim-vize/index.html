@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kentsel Tasarım Tarihi Vize: Özet ve 69 Soruluk Test · duvar.site</title>
+<meta name="description" content="Antik Yunan ve Roma'dan Haussmann, Cerdà, Bahçe Kent ve City Beautiful'a kentsel tasarım tarihi: görselli özet ve 69 soruluk test.">
+<link rel="canonical" href="https://duvar.site/rehber/kentsel-tasarim-vize/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kentsel tasarım tarihi vizesi: özet ve 69 soruluk test">
+<meta property="og:description" content="11 ders sunumu tek sayfada: kronoloji, planlar, diyagramlar ve görselli test. duvar.site ders notu.">
+<meta property="og:url" content="https://duvar.site/rehber/kentsel-tasarim-vize/">
+<meta property="og:image" content="https://duvar.site/og-image.png">
+<link rel="icon" href="/favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap">
+<style>
+/* DUVAR rehber paftası: siyah zemin, çizgili pafta, kırmızı ray, Bebas/Archivo/Space Mono. */
+:root{
+  --bg:#0E0E0E; --surface:#181818; --rule:#191919; --line:#333333;
+  --fg:#F0F0F0; --fg2:#B9B9B9; --accent:#E5483B; --fill:#A82020; --on-fill:#FFFFFF; --mark:#F5C400;
+  --ok:#5FBF7F; --ok-bg:rgba(95,191,127,.12); --bad:#E5483B; --bad-bg:rgba(229,72,59,.12);
+  --display:'Bebas Neue','Arial Narrow',Impact,sans-serif;
+  --body:'Archivo','Segoe UI',system-ui,sans-serif;
+  --mono:'Space Mono','Consolas','Courier New',monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){ :root:not([data-theme="dark"]){
+  --bg:#F4EFE8; --surface:#FFFFFF; --rule:#ECE6DC; --line:#CFC7BA;
+  --fg:#1A1A1A; --fg2:#4A4A4A; --accent:#A82020; --fill:#A82020; --on-fill:#FFFFFF; --mark:#7A5C00;
+  --ok:#1F6B3A; --ok-bg:#E3F1E7; --bad:#A82020; --bad-bg:#F7E3E1; color-scheme:light; } }
+:root[data-theme="light"]{
+  --bg:#F4EFE8; --surface:#FFFFFF; --rule:#ECE6DC; --line:#CFC7BA;
+  --fg:#1A1A1A; --fg2:#4A4A4A; --accent:#A82020; --fill:#A82020; --on-fill:#FFFFFF; --mark:#7A5C00;
+  --ok:#1F6B3A; --ok-bg:#E3F1E7; --bad:#A82020; --bad-bg:#F7E3E1; color-scheme:light; }
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:1.125rem;line-height:1.65;
+  background-image:repeating-linear-gradient(0deg,transparent,transparent 39px,var(--rule) 39px,var(--rule) 40px)}
+.sheet{max-width:52rem;margin-inline:auto;padding-inline:clamp(1rem,4vw,2rem);padding-block:2rem 5rem;display:flex;flex-direction:column;gap:4rem;border-left:6px solid var(--fill)}
+a{color:var(--accent)}
+:focus-visible{outline:3px solid var(--mark);outline-offset:3px}
+.mono{font-family:var(--mono);font-size:.875rem;line-height:1.5;letter-spacing:.08em;text-transform:uppercase}
+
+.top{display:flex;flex-direction:column;gap:1.75rem}
+.brand{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.brand a.duvar{font-family:var(--mono);font-weight:700;font-size:.95rem;letter-spacing:.14em;text-decoration:none;border:2px solid var(--accent);padding:.3rem .8rem;color:var(--accent)}
+.brand > span{color:var(--fg2)}
+h1{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(3.4rem,13vw,7.5rem);line-height:.9;letter-spacing:.01em;text-wrap:balance}
+h1 em{font-style:normal;color:var(--accent)}
+.lede{margin:0;max-width:38rem;font-size:1.3rem;line-height:1.5}
+.antet{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));border:2px solid var(--line);background:var(--bg);margin:0}
+.antet div{padding:.75rem 1rem;border:1px solid var(--line);display:flex;flex-direction:column;gap:.15rem;min-width:0}
+.antet dt{font-family:var(--mono);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--fg2)}
+.antet dd{margin:0;font-weight:600;font-size:1.05rem}
+
+.step{display:grid;grid-template-columns:4.5rem minmax(0,1fr);gap:0 1.5rem}
+.step > .no{font-family:var(--display);font-size:4.5rem;line-height:.85;color:var(--accent)}
+.step > .body{display:flex;flex-direction:column;gap:1.25rem;min-width:0}
+@media (max-width:40rem){ .step{grid-template-columns:minmax(0,1fr);gap:.25rem} .step > .no{font-size:3.2rem} }
+h2{margin:0;font-family:var(--display);font-weight:400;font-size:clamp(2.4rem,7vw,3.4rem);line-height:1;letter-spacing:.02em;text-wrap:balance}
+h3{margin:.25rem 0 .5rem;font-family:var(--display);font-weight:400;font-size:2rem;line-height:1;letter-spacing:.02em;color:var(--mark)}
+p{margin:0 0 .8rem;max-width:40rem}
+b,strong{font-weight:600}
+.note{border-left:4px solid var(--accent);padding-left:1rem;color:var(--fg2)}
+
+.act{border-left:3px solid var(--accent);padding-left:1rem;margin:1.25rem 0}
+.act .tag{color:var(--accent);font-size:.78rem}
+
+.tbl{width:100%;border-collapse:collapse;border:2px solid var(--line);font-size:1rem;margin-top:.5rem}
+.tbl th,.tbl td{text-align:left;vertical-align:top;padding:.6rem .75rem;border:1px solid var(--line)}
+.tbl th{font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--fg2);font-weight:700;background:var(--surface)}
+.tbl td:first-child{font-weight:600;white-space:nowrap}
+@media (max-width:34rem){ .tbl td:first-child{white-space:normal} .tbl th,.tbl td{padding:.5rem} }
+
+.key{border:2px solid var(--line);border-top:4px solid var(--accent);background:var(--surface);padding:1rem 1.1rem}
+.key > b{display:block;font-family:var(--mono);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mark);margin-bottom:.5rem}
+
+/* test */
+.bar{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.progress{flex:1;min-width:10rem;height:8px;background:var(--surface);border:1px solid var(--line)}
+.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s}
+.count{color:var(--fg2);font-size:.78rem}
+.score{color:var(--mark);font-size:.78rem}
+.card{border:2px solid var(--line);background:var(--surface);padding:1.25rem}
+.topic{display:inline-block;color:var(--accent);border:1px solid var(--accent);padding:.1rem .5rem;font-size:.72rem;margin-bottom:.75rem}
+.qtext{font-weight:600;font-size:1.2rem;line-height:1.45;margin-bottom:.25rem}
+.qtr{color:var(--fg2);margin-bottom:1rem;font-size:1.05rem}
+.opts{display:grid;gap:.6rem}
+.opt{text-align:left;font:inherit;font-size:1.05rem;line-height:1.45;background:var(--bg);color:var(--fg);border:2px solid var(--line);padding:.75rem .9rem;cursor:pointer;display:grid;grid-template-columns:2rem minmax(0,1fr);gap:.25rem .5rem}
+.opt .l{font-family:var(--mono);font-weight:700;color:var(--accent)}
+.opt .tr{grid-column:2;color:var(--fg2);font-size:.95rem}
+.opt:hover:not([disabled]){border-color:var(--fg)}
+.opt.correct{border-color:var(--ok);background:var(--ok-bg)}
+.opt.correct .l{color:var(--ok)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.opt[disabled]{cursor:default}
+.explain{margin-top:1rem;border-left:4px solid var(--line);padding:.25rem 0 .25rem 1rem;color:var(--fg);display:none;font-size:1.02rem}
+.explain.on{display:block}
+.explain.ok{border-left-color:var(--ok)} .explain.bad{border-left-color:var(--bad)}
+.verdict{font-family:var(--mono);font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:.25rem}
+.explain.ok .verdict{color:var(--ok)} .explain.bad .verdict{color:var(--bad)}
+.nav{display:flex;justify-content:space-between;gap:.75rem;margin-top:1.25rem;flex-wrap:wrap}
+.btn{font-family:var(--mono);font-size:.85rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;min-height:2.75rem;padding:0 1.1rem;border:2px solid var(--fill);background:var(--fill);color:var(--on-fill);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--fg);border-color:var(--line)}
+.btn[disabled]{opacity:.35;cursor:default}
+.btn:hover:not([disabled]){filter:brightness(1.15)}
+.result{text-align:center}
+.result .big{font-family:var(--display);font-size:clamp(4rem,16vw,7rem);line-height:.9;color:var(--accent)}
+.review{margin-top:1.5rem;padding-left:1.25rem;display:flex;flex-direction:column;gap:.9rem}
+.review li::marker{color:var(--accent);font-family:var(--mono);font-weight:700}
+.review .ans{color:var(--ok);font-size:1rem}
+.review .ex{color:var(--fg2);font-size:.95rem}
+
+footer{display:flex;flex-direction:column;gap:.75rem;border-top:2px solid var(--line);padding-top:1.5rem;color:var(--fg2)}
+footer .big{font-family:var(--display);font-size:clamp(3rem,12vw,6rem);line-height:.9;color:var(--fg)}
+.foot-links{display:flex;flex-wrap:wrap;gap:.75rem 1.5rem;margin-top:.25rem}
+.foot-links a{color:var(--fg);text-decoration:none;border-bottom:2px solid var(--accent);padding-bottom:.15rem}
+.foot-links a:hover{color:var(--accent)}
+
+.toc{display:flex;flex-wrap:wrap;gap:.5rem}
+.toc a{color:var(--fg);text-decoration:none;border:1px solid var(--line);padding:.35rem .6rem;font-size:.75rem}
+.toc a:hover{border-color:var(--accent);color:var(--accent)}
+.fig{margin:.5rem 0 1rem;display:flex;flex-direction:column;gap:.4rem}
+.fig img{width:100%;height:auto;display:block;border:2px solid var(--line);background:#fff}
+.fig figcaption{font-family:var(--mono);font-size:.75rem;letter-spacing:.06em;text-transform:uppercase;color:var(--fg2)}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(16rem,1fr));gap:1rem}
+.list{margin:0;padding-left:1.4rem;display:flex;flex-direction:column;gap:.35rem}
+.list li::marker{color:var(--accent);font-family:var(--mono);font-weight:700}
+.key{line-height:1.6}
+.qimg{display:block;width:100%;max-height:22rem;object-fit:contain;border:2px solid var(--line);background:#fff;margin:.5rem 0 1rem}
+</style>
+
+</head>
+<body>
+<div class="sheet">
+  <div class="top">
+    <div class="brand">
+      <a class="duvar" href="https://duvar.site">DUVAR.SITE</a>
+      <span class="mono">Ders notu · Kentsel tasarım tarihi</span>
+    </div>
+    <h1>Kentsel tasarım <em>vizesi</em></h1>
+    <p class="lede">Antik Yunan'dan City Beautiful'a 2500 yıllık kent tasarımı tek sayfada. Önce özeti oku, plan ve diyagramlara bak, sonra 69 soruda kendini dene.</p>
+    <dl class="antet"><div><dt>Kaynak</dt><dd>11 ders sunumu · 811 sayfa</dd></div><div><dt>Dönem</dt><dd>MÖ 5. yy – 1937</dd></div><div><dt>Test</dt><dd>69 soru · görselli</dd></div><div><dt>Kısa yol</dt><dd>duvar.site/kentsel</dd></div></dl>
+    <nav class="toc mono" aria-label="İçindekiler">
+      <a href="#kronoloji">Kronoloji</a><a href="#antik">Antik</a><a href="#ortacag">Ortaçağ</a><a href="#ideal">İdeal kent</a><a href="#meydan">Meydanlar · Sixtus V</a><a href="#barok">Barok</a><a href="#utopya">Ütopya</a><a href="#haussmann">Haussmann</a><a href="#barcelona">Barcelona</a><a href="#lineer">Lineer kent</a><a href="#bahce">Bahçe kent</a><a href="#cb">City Beautiful</a><a href="#test">Teste geç →</a>
+    </nav>
+  </div>
+
+<section class="step" id="kronoloji"><div class="no" aria-hidden="true">0</div><div class="body">
+  <h2>Hocanın kronolojisi</h2>
+  <p>Bu tablo Barok, Haussmann ve City Beautiful sunumlarının başında tekrar ediyor. Ezberle; sınavda büyük ihtimalle doldurtulur.</p>
+  <table class="tbl">
+    <tr><th>Yıl</th><th>Yer</th><th>Planı yaptıran / öneren / yapan</th></tr>
+    <tr><td>1585–1590</td><td>Roma</td><td>Domenico Fontana'nın planı (Papa Sixtus V'in yaptırdığı)</td></tr>
+    <tr><td>1661</td><td>Versailles</td><td>Kralın (XIV. Louis) yaptırdığı barok plan</td></tr>
+    <tr><td>1671</td><td>Versailles</td><td>XIV. Louis döneminde kraliyet kentinin gelişimi</td></tr>
+    <tr><td>1791</td><td>Washington DC</td><td>Pierre L'Enfant'ın planı</td></tr>
+    <tr><td>1852/53–1870</td><td>Paris</td><td>Napoleon III; Haussmann'ın planı</td></tr>
+    <tr><td>1858</td><td>Central Park</td><td>Frederick Law Olmsted ve Calvert Vaux</td></tr>
+    <tr><td>1893</td><td>Chicago, World Columbian Exp.</td><td>Burnham ve Olmsted'in Beyaz Kenti (White City)</td></tr>
+    <tr><td>1898</td><td>Bahçe Kent</td><td>Ebenezer Howard</td></tr>
+    <tr><td>1902</td><td>Washington DC</td><td>McMillan Planı: L'Enfant planının revizyonu (Burnham, McKim, Olmsted Jr.)</td></tr>
+    <tr><td>1903</td><td>Letchworth</td><td>Howard'ın önerisiyle gerçekleşen bahçe kent (Parker &amp; Unwin)</td></tr>
+    <tr><td>1920</td><td>Welwyn</td><td>Bahçe kent örneği (Louis de Soissons)</td></tr>
+  </table>
+  <div class="key"><b>Diğer kritik tarihler</b>
+  MÖ 753 / 509 / 27 – MS 395 Roma Krallığı / Cumhuriyeti / İmparatorluğu · MÖ 5. yy Milet · MÖ 4. yy Priene · 705–715 Şam Emevi Camii · ~1412 Vitruvius'un keşfi · 1452 Alberti · 1453 İstanbul · 1460–65 Sforzinda · 1516 More, Ütopya · 1593 Palmanova · 1606 Pont Neuf · 1613 Place Dauphine · 1693 Grammichele · 1715 Karlsruhe · 1811 Manhattan · 1825 New Harmony · 1829 Phalanstère · 1856 Familistère · 1859 Cerdà · 1882/1892 Soria y Mata · 1896 Fritsch · 1909 Chicago Planı · 1911–31 Yeni Delhi · 1923–29 Perry · 1928 Radburn · 1930–31 Algiers · 1937 Germania · 1946 New Towns Act · 1997 Astana</div>
+</div></section>
+
+<section class="step" id="antik"><div class="no" aria-hidden="true">1</div><div class="body">
+  <h2>Antik Yunan ve Roma</h2>
+  <p><b>Ana fikir:</b> Yunan kenti topoğrafyaya uyar ve akropolis ile agora etrafında örgütlenir. Roma kenti ise askeri kamp (castrum) mantığıyla iki ana caddenin kesiştiği ızgaraya oturur; bu iz bugünkü Avrupa kentlerinde hâlâ okunur (Plovdiv, Verona, İznik, Floransa, Tarragona).</p>
+  <h3>Yunan kent öğeleri</h3>
+  <p>Akropolis (tepe, kutsal/savunma) · Agora (kamusal toplanma, ticaret) · Stoa (sütunlu galeri) · Tiyatro · Bouleuterion (kent meclisi) · Tapınaklar · Asklepieion (sağlık kompleksi) · Nekropol · Nymphaeum (anıtsal çeşme) · Odeion · Gymnasium · Palestra · Stadion.</p>
+  <p><b>Izgara planlı Yunan kentleri:</b> Pire (Atina'ya Uzun Duvarlarla bağlı), <b>Milet MÖ 5. yy</b> (yarımadada ızgara, üç agora, Didyma'ya kutsal yol), <b>Priene MÖ 4. yy</b> (Aydın; dik yamaçta ızgara, yapı adaları 30–50 × 80–120 m).</p>
+  <figure class="fig"><img src="img/priene.jpg" alt="Priene planı" loading="lazy"><figcaption>Priene, MÖ 4. yy: yamaçta ızgara.</figcaption></figure>
+  <h3>Roma kentinin 14 temel elemanı</h3>
+  <ol class="list">
+    <li><b>Tapınak:</b> podyum üzerinde, önden merdivenli, cephesel (Maison Carrée, Nîmes). Yunan tapınağı dört yandan basamaklı, her yönden algılanır.</li>
+    <li><b>Cardo Maximus (K-G) & Decumanus Maximus (D-B):</b> kesişiminde forum.</li>
+    <li><b>Forum:</b> Forum Romanum ve İmparatorluk Forumları (Caesar, Augustus, Barış, Nerva, Trajan).</li>
+    <li><b>Bazilika:</b> yargı ve ticaret salonu (Basilica Ulpia).</li>
+    <li><b>Tiyatro:</b> Roma tiyatrosu düz zemine de kurulur, yarım daire orkestralı, kapalı; Yunan tiyatrosu yamaçta, tam daire orkestralı. Aspendos'un sahnesi Selçuklu'da kervansaray oldu.</li>
+    <li><b>Amfitiyatro:</b> Kolezyum, Arles, Verona Arena; Lucca'da amfitiyatro izi oval meydan.</li>
+    <li><b>Stadion:</b> Domitianus Stadyumu → Piazza Navona.</li>
+    <li><b>Circus:</b> araba yarışı, spina; Circus Maximus, İstanbul Hipodromu.</li>
+    <li><b>Sukemeri:</b> Valens (Bozdoğan), Kavala, Segovia.</li>
+    <li><b>Hamam:</b> Yozgat Sarıkaya Roma Hamamı (Basilica Therma).</li>
+    <li><b>Zafer takları</b> (Orange).</li>
+    <li><b>Domus:</b> elitlerin içe dönük evi; vestibül → atrium (havuz/sarnıç) → peristil avlu.</li>
+    <li><b>Insula:</b> orta/alt gelirin çok katlı apartmanı; zeminde dükkân ve thermopolium.</li>
+    <li><b>Sütunlu cadde:</b> Jerash (Ürdün); Ankara Ulus.</li>
+  </ol>
+  <figure class="fig"><img src="img/roma-modeli.jpg" alt="Roma kenti modeli" loading="lazy"><figcaption>Roma kenti modeli: cardo ve decumanus.</figcaption></figure>
+  <p><b>Ayrıca:</b> Roma toplum piramidi (Patrisyen, Pleb, Azatlı, Köle); Romalılar evi uyumak için kullanır, günü kamusal alanlarda geçirir. <b>Timgad</b> (Trajan, MS ~100) en iyi ızgara örneği. <b>Ankara:</b> Augustus Tapınağı MÖ 25, Hacı Bayram Camii yanında, UNESCO geçici listesi.</p>
+</div></section>
+
+<section class="step" id="ortacag"><div class="no" aria-hidden="true">2</div><div class="body">
+  <h2>Ortaçağ ve İslam kenti</h2>
+  <p>Roma'nın çöküşünden sonra kent yaşamı ~400–500 yıl zayıfladı; <b>10. yy'dan sonra ticaret canlanınca</b> kentler geri geldi. Elemanlar: sur, kapılar, <b>pazar meydanı, kilise meydanı, belediye meydanı</b>, dar sokaklar, bahçeli parseller. <b>En önemli yol: kent kapısı → pazar meydanı aksı.</b></p>
+  <table class="tbl">
+    <tr><th>Morris'in sınıflaması</th><th>Başlangıç</th><th>Örnek</th></tr>
+    <tr><td>1. Roma kökenli</td><td>Eski forum pazar meydanı olur</td><td>Floransa, Verona (Piazza Erbe)</td></tr>
+    <tr><td>2. Burgs</td><td>Askeri kale → ticaret → kent</td><td>Edinburgh, Salzburg</td></tr>
+    <tr><td>3. Organik köy</td><td>Köy → pazar → kent</td><td>Ghent, Siena, Bruges</td></tr>
+    <tr><td>4. Bastide</td><td>13. yy, Fransa-İngiltere, ızgara planlı</td><td>Monpazier, Aigues-Mortes</td></tr>
+    <tr><td>5. Planted towns</td><td>Kral/lordların bilinçli kurduğu</td><td>Lübeck, Freiburg, New Winchelsea</td></tr>
+    <tr><td>6. Manastır kentleri*</td><td>Manastır çevresinde</td><td>St. Gallen, Westminster, Cluny</td></tr>
+  </table>
+  <p class="note">* Morris 5 kategori der; 6.'yı başka tarihçiler ekler.</p>
+  <p><b>İslam kenti:</b> sokak hiyerarşisi ana caddeden çıkmaz sokağa iner (Tunus medinesi); Córdoba, Selanik; Martina Franca'nın organik dokusu "İslam kenti mi?" sorusuyla gösterildi.</p>
+  <p><b>Şam Emevi Camii alanının katmanları:</b> Arami Hadad Tapınağı → Helenistik Zeus-Hadad Tapınağı → Roma Jüpiter Tapınağı (1.–3. yy) → Bizans Aziz Yahya Bazilikası → <b>Emevi Camii (705–715)</b>. <b>Temenos</b> = duvarlı kutsal alan, <b>peribolos</b> = duvarlı kutsal avlu. Roma ızgarası (Via Recta / Doğru Sokak) zamanla çıkmaz sokaklı İslam dokusuna dönüştü.</p>
+  <figure class="fig"><img src="img/sam.jpg" alt="Roma Şam'ı planı" loading="lazy"><figcaption>Roma Şam'ı: Jüpiter Tapınağı, forum, Via Recta.</figcaption></figure>
+</div></section>
+
+<section class="step" id="ideal"><div class="no" aria-hidden="true">3</div><div class="body">
+  <h2>Rönesans ideal kentleri</h2>
+  <p>Bağlam: Floransa, 1420 · Vitruvius ~1412'de keşfedildi · Alberti 1452 · 1453 İstanbul · 1516 More. İdeal kent: <b>merkez + ışınsal yollar + çokgen sur, savunma odaklı.</b></p>
+  <p><b>Vitruvius:</b> sekizgen sur, köşelerde kuleler, 4 kenarda kapı, merkezde forum, kulelere giden <b>8 cadde</b> (ters rüzgârlara karşı; askeri önem).</p>
+  <p><b>Filarete (Antonio Averlino) – Sforzinda (1460–65):</b> ilk tamamen planlanmış ideal kent; adı patron Sforza'dan. Üst üste iki kare → sekizgen yıldız, <b>16 radyal cadde</b> (biri sukemeri), ring yol, merkez 3 noktalı (kilise/saray + 2 pazar) → Roma forumunu andırır.</p>
+  <div class="figs">
+    <figure class="fig"><img src="img/sforzinda.jpg" alt="Sforzinda" loading="lazy"><figcaption>Sforzinda, Filarete.</figcaption></figure>
+    <figure class="fig"><img src="img/palmanova.jpg" alt="Palmanova" loading="lazy"><figcaption>Palmanova, Scamozzi 1593.</figcaption></figure>
+  </div>
+  <p><b>Palmanova (Scamozzi, 1593):</b> Venedik sınır kalesi, dokuz köşeli yıldız, altıgen Piazza Grande, 3 kapı. Diğer önerenler: Fra Giocondo, Maggi, Vasari, Lupicini, Barbaro, Cattaneo, Francesco di Giorgio Martini, Dürer (kare ve dairesel). Uygulananlar: <b>Grammichele</b> (1693, altıgen), <b>Naarden</b>, <b>Neuf-Brisach</b>.</p>
+</div></section>
+
+<section class="step" id="meydan"><div class="no" aria-hidden="true">4</div><div class="body">
+  <h2>Rönesans meydanları ve Sixtus V</h2>
+  <table class="tbl">
+    <tr><th>Meydan</th><th>Özellik</th></tr>
+    <tr><td>Plaza Mayor, Madrid</td><td>Dört yanı kapalı dikdörtgen</td></tr>
+    <tr><td>Place Dauphine, Paris</td><td>1613, üçgen; Pont Neuf (1606) için adanın ucu dolduruldu</td></tr>
+    <tr><td>Place des Victoires</td><td>Dairesel, ortada heykel</td></tr>
+    <tr><td>Place Vendôme</td><td>Köşeleri pahlı, ortada sütun, eksenel</td></tr>
+    <tr><td>Place Louis XV (Concorde)</td><td>Madeleine–Rue Royale ve Tuileries–Zafer Takı akslarının kesişimi</td></tr>
+    <tr><td>Campidoglio, Roma</td><td>Michelangelo; trapez, oval desen, Marcus Aurelius</td></tr>
+    <tr><td>Amalienborg, Kopenhag</td><td>Sekizgen, 4 saray</td></tr>
+    <tr><td>Piazza Navona</td><td>Domitianus Stadyumu (MS 86); Bernini Dört Nehir Çeşmesi 1651; Sant'Agnese (Rainaldi, Borromini)</td></tr>
+  </table>
+  <p><b>Sixtus V ve Domenico Fontana (1585–90):</b> hac kiliselerini düz caddelerle bağladı; kavşaklara <b>antik dikilitaşlar</b> dikerek odak yarattı. Sixtus döneminde 4 dikilitaş: Popolo (1589), S. Pietro (1586), Esquilino (1587), Laterano (1588, <b>en uzun</b>, 32,18 m). Piazza del Popolo'dan <b>trident</b>: Via del Corso, Ripetta, Babuino. S. Pietro'nun oval kolonatları Bernini 1656–67.</p>
+  <figure class="fig"><img src="img/sixtus.jpg" alt="Sixtus V Roma planı" loading="lazy"><figcaption>Sixtus V'in Roma'sı, plancı Domenico Fontana.</figcaption></figure>
+</div></section>
+
+<section class="step" id="barok"><div class="no" aria-hidden="true">5</div><div class="body">
+  <h2>Barok kent</h2>
+  <p>Kent mekânı <b>siyasal ve dinsel otoritenin temsil edildiği anıtsal kompozisyon</b>dur. <b>Yapılar arasındaki mekân ve görsel ilişkiler de tasarlanır.</b></p>
+  <p><b>6 ilke:</b> merkezilik ve hiyerarşi · aksiyel düzen · perspektif ve vista · geometrik düzen ve simetri · anıtsallık ve temsil · mekânsal deneyim.</p>
+  <p><b>Elemanlar:</b> düz, ağaçlı geniş caddeler · <b>trivium / trident</b> (patte d'oie = kaz ayağı) · simetri ve cephe uyumu · geometrik meydanlar · tören aksı · vista · anıtlar ve dikilitaşlar · kot farkının merdiven, rampa ve çeşmeyle kullanımı.</p>
+  <div class="figs">
+    <figure class="fig"><img src="img/versailles.jpg" alt="Versailles" loading="lazy"><figcaption>Versailles 1661–1710: Le Vau ve Le Nôtre.</figcaption></figure>
+    <figure class="fig"><img src="img/karlsruhe.jpg" alt="Karlsruhe" loading="lazy"><figcaption>Karlsruhe 1715: saray ışınsal düzenin merkezinde.</figcaption></figure>
+  </div>
+  <p>Saray-bahçe: Vaux-le-Vicomte, Versailles, Het Loo, Belvedere (Viyana), Sanssouci (Potsdam). Barok kentler: Versailles, Nancy, Dresden, Karlsruhe, Kopenhag, St. Petersburg, Aranjuez. Günümüz yansıması: <b>Astana (1997)</b>.</p>
+</div></section>
+
+<section class="step" id="utopya"><div class="no" aria-hidden="true">6</div><div class="body">
+  <h2>Ütopyacılar</h2>
+  <p><b>Ütopya = mevcut topluma eleştiri + ideal toplum tasarımı.</b> Felsefi (More), sosyal reform (Owen, Fourier), kentsel tasarım (Howard, Garnier). Tepki: toplumsal eşitsizlik, kötü yaşam koşulları, mevcut düzen.</p>
+  <p><b>Thomas More, 1516:</b> "güzel yer / hiçbir yer"; hayali ada, 54 şehir, mülkiyet yok, dini hoşgörü, konutlar 10 yılda bir değişir, aynı kıyafet.</p>
+  <p><b>Charles Fourier – Phalanstère (1829):</b> phalanx (işbirliği örgütü) + monastère; ~1600 kişi; Versailles'a dayanan "proleter mega saray". 4 kat; orta bölüm sessiz, kanatlar gürültülü. Uygulamalar: North American Phalanx (1844), LaGrange (1843–48), <b>Familistère (Godin, 1856)</b>. Topluluklar başarısız oldu ama kolektif konutun önünü açtı.</p>
+  <figure class="fig"><img src="img/phalanstere.jpg" alt="Phalanstère" loading="lazy"><figcaption>Phalanstère planı.</figcaption></figure>
+  <p><b>Robert Owen – New Harmony (1825):</b> işadamı, ateist, yenilikçi; üç engel: mülkiyet eşitsizliği, geleneksel din, geleneksel evlilik. 200–3000 kişi, tarımsal, 1–4 kat, kâr paylaşımı.</p>
+</div></section>
+
+<section class="step" id="haussmann"><div class="no" aria-hidden="true">7</div><div class="body">
+  <h2>Haussmann'ın Paris'i (1852–1870)</h2>
+  <p><b>Tarih:</b> Parisii → Lutetia ("bataklık"), MÖ 52 Roma fethi; 10–12 bin nüfus; Rue Saint-Jacques = cardo; forum 160 × 100 m; 360'ta Julian, ad "Paris". Kalıntılar: Pilier des Nautes, Arènes de Lutèce, Cluny hamamları.</p>
+  <p><b>Gerekçe:</b> 1832 kolera, 1848 ayaklanması, barikatlar; nüfus <b>1815: 700 bin → 1861: 1,7 milyon</b>.</p>
+  <table class="tbl">
+    <tr><th>Ana hedefler</th><th>Araçlar</th></tr>
+    <tr><td>İmparatorluğa yakışan başkent</td><td>Eski Paris'i kesen bulvarlar ve düz caddeler</td></tr>
+    <tr><td>Düşük gelir grubunu kontrol</td><td>Ulaşımın iyileştirilmesi; anıtların birleştirilmesi</td></tr>
+    <tr><td>Merkezde burjuvaziye mekân</td><td>Yeşil alan; sağlıklı altyapı</td></tr>
+  </table>
+  <p><b>350.000 kişi çepere gönderildi.</b> Grande croisée (Rivoli + Sébastopol), yıldız meydanlar (Étoile 12 cadde, Trocadéro, Victor Hugo, Nation), Avenue de l'Opéra, Rue Soufflot vistası, Bois de Boulogne ve Vincennes, Buttes-Chaumont, kanalizasyon.</p>
+  <div class="figs">
+    <figure class="fig"><img src="img/haussmann-croisee.jpg" alt="Grande croisée" loading="lazy"><figcaption>Grande croisée.</figcaption></figure>
+    <figure class="fig"><img src="img/haussmann-caddeler.jpg" alt="Haussmann caddeleri" loading="lazy"><figcaption>Açılan caddeler (kırmızı), Pinkney 1958.</figcaption></figure>
+  </div>
+  <div class="key"><b>5 boyut</b>İşlevsel (bulvar, erişim, anıt, yeşil) · Estetik (cephe uyumu, perspektif, kodlama) · Teknik (kanalizasyon, su, asfalt) · Yönetsel · Sosyal (aynı binada farklı sınıflar; merkez orta-üst tabakaya, alt gelir çepere).</div>
+</div></section>
+
+<section class="step" id="barcelona"><div class="no" aria-hidden="true">8</div><div class="body">
+  <h2>Barcelona ve Cerdà (1859)</h2>
+  <p>Izgara geleneği: Lima 1535 (Laws of the Indies), Manhattan 1811, La Plata 1882. Barcino (Roma castrum'u) → ortaçağ surları → 1808 barok askeri kamp → <b>Eixample = genişleme</b>. Slogan: <b>"Hijyenik, işlevsel, tüm sakinler arasında eşitlik: herkes için eşit hava ve ışık."</b></p>
+  <table class="tbl">
+    <tr><th>Özellik</th><th>Değer</th></tr>
+    <tr><td>Blok</td><td>~113 × 113 m, perimeter block</td></tr>
+    <tr><td>Köşe kesimi</td><td>~20 m</td></tr>
+    <tr><td>Sokak / bulvar</td><td>~20 m / 50–60 m</td></tr>
+  </table>
+  <p><b>Köşeler neden pahlı?</b> Tramvay dönüş yarıçapı · kavşakta görüş · güneş ışığı · havalandırma · kavşakta mini meydan. Zamanla bloklar 4 kenardan kapandı, iç avlular doldu.</p>
+  <div class="figs">
+    <figure class="fig"><img src="img/cerda-kose.jpg" alt="Cerdà blokları" loading="lazy"><figcaption>Pahlı köşeler.</figcaption></figure>
+    <figure class="fig"><img src="img/superblok.jpg" alt="Süperblok" loading="lazy"><figcaption>Süperblok: dışta 50, içte 10 km/s.</figcaption></figure>
+  </div>
+  <p><b>Süperbloklar (PMU 2013–2018):</b> 3×3 blok (~400 × 400 m); transit trafik giremez. Yeşil + dinlenme alanı: Cerdà <b>%34,8</b> → bugün <b>%0,6</b> → süperblok <b>%35,6</b>. Örnekler: Poblenou, Sant Antoni, Glòries.</p>
+</div></section>
+
+<section class="step" id="lineer"><div class="no" aria-hidden="true">9</div><div class="body">
+  <h2>Soria y Mata ve Lineer Kent</h2>
+  <p>Arturo Soria y Mata (1844–1920): fikir <b>1882</b>, detaylı öneri <b>1892</b>. Tramvay boyunca doğrusal erişim; "Her aileye bir ev, her eve bir meyve bahçesi ve bahçe". Amaç: kenti kırlaştırmak, kırsalı kentleştirmek.</p>
+  <figure class="fig"><img src="img/soria-kesit.jpg" alt="Ciudad Lineal kesiti" loading="lazy"><figcaption>Ana cadde kesiti: ortada tramvay.</figcaption></figure>
+  <p>Ana cadde <b>40 m</b>; ikincil caddeler <b>20 m</b>, 80–100 m aralıkla; süperbloklar ~80–100 × 200 m. Zenginler ana caddeye, ortalar kesişen caddelere, yoksullar paralel caddelere bakar ama yan yana yaşar. Altyapı caddelerin altında, ağaç sıraları "kentin ciğerleri".</p>
+  <p><b>Madrid:</b> planlanan 48 km'nin ilk 5 km'si (1894–1904); atlı tramvay 1909'da elektriklendi; 1934 şirket battı; bugün Arturo Soria metro istasyonu. Etkisi: 1928 Benoît-Lévy'nin Uluslararası Lineer Kentler Derneği, Rus deurbanistleri, <b>Le Corbusier Algiers 1930–31</b>.</p>
+</div></section>
+
+<section class="step" id="bahce"><div class="no" aria-hidden="true">10</div><div class="body">
+  <h2>Bahçe kent, Perry, Radburn</h2>
+  <p><b>Arka plan:</b> Engels 1844; 1848; Public Health Act; Richardson'ın Hygeia'sı (1876); Olmsted'in Central Park'ı ve Parks Movement.</p>
+  <p><b>Ebenezer Howard (1850–1928):</b> mecliste stenograf. <i>To-morrow</i> 1898 → <i>Garden Cities of To-morrow</i> 1902. Kent-kır, kapitalizm-sosyalizm, gelenek-modernite arasında orta yol. <b>Üç Mıknatıs:</b> Kent, Kır, Kent-Kır.</p>
+  <div class="figs">
+    <figure class="fig"><img src="img/uc-miknatis.jpg" alt="Üç Mıknatıs" loading="lazy"><figcaption>Üç Mıknatıs.</figcaption></figure>
+    <figure class="fig"><img src="img/bahce-kent-dilim.jpg" alt="Bahçe kent dilimi" loading="lazy"><figcaption>Ward and Centre: merkez park, Grand Avenue, çeperde fabrikalar.</figcaption></figure>
+  </div>
+  <p>Desantralizasyon: merkez kent 58.000, raylı sistemle bağlı uydu bahçe kentler <b>32.000</b> kişi; 1000 akr kent + 5000 akr tarım; merkezde kamu yapıları ve Central Park, Crystal Palace, Grand Avenue, çeperde sanayi ve ~2000 ha yeşil kuşak. "Yalnızca diyagram; plan araziye bağlıdır." <b>Letchworth 1903</b> (Parker &amp; Unwin), <b>Welwyn 1920</b> (de Soissons). 1946 New Towns Act.</p>
+  <p><b>Avrupa:</b> Garnier'nin Cité Industrielle'i (tek metalürji fabrikası, hiç yapılmadı) · Fritsch'in 1896 Gelecek Kenti (ırkçı, 1 milyon kişi) · Benoît-Lévy bahçe kenti bahçe banliyösüyle karıştırdı · Margarethenhöhe ve Hellerau aslında tramvay ucundaki banliyöler.</p>
+  <p><b>Perry'nin komşuluk birimi (1923–29):</b> büyüklüğü ilkokul belirler; okul merkezde, ~400–800 m yürüme; arterler birimin içinden geçmez; dükkânlar köşelerde.</p>
+  <p><b>Radburn (1928, Stein &amp; Wright):</b> taşıt-yaya ayrımı; süperblok, cul-de-sac, ortak park, alt geçit. "Otomobile rağmen nasıl yaşarım?"</p>
+  <figure class="fig"><img src="img/radburn.jpg" alt="Radburn" loading="lazy"><figcaption>Radburn: kırmızı taşıt, yeşil yaya.</figcaption></figure>
+  <table class="tbl">
+    <tr><th>Problem</th><th>Çözüm</th></tr>
+    <tr><td>Sanayi kentinin kaosu</td><td>Howard: Garden City</td></tr>
+    <tr><td>Komşuluk kaybı</td><td>Perry: Neighbourhood Unit</td></tr>
+    <tr><td>Otomobil</td><td>Radburn</td></tr>
+    <tr><td>Modern sanayi üretimi</td><td>Garnier</td></tr>
+  </table>
+</div></section>
+
+<section class="step" id="cb"><div class="no" aria-hidden="true">11</div><div class="body">
+  <h2>City Beautiful Movement</h2>
+  <p><b>Tanım:</b> kentsel biçimdeki güzellik yoluyla ahlaki ve sivil düzen arayan reform hareketi (1890'lar–1930'lar). Kökleri: Beaux-Arts (aksiyellik, hiyerarşi, anıtsallık, vista, sanatların bütünleşmesi), Haussmann'ın Paris'i, Viyana Ringstrasse (eski glacis üzerinde). Atina planı 1833.</p>
+  <p><b>Önceller:</b> L'Enfant'ın Washington'ı 1791 (Capitol ve Başkanlık Evi odakları), Jefferson'ın Virginia Üniversitesi 1819, Columbia (McKim 1894). <b>Daniel Burnham (1846–1912):</b> 1893 Chicago fuarının <b>Beyaz Kenti</b>, endüstriyel kaosa karşı ahlaki düzen modeli.</p>
+  <figure class="fig"><img src="img/washington-1902.jpg" alt="National Mall" loading="lazy"><figcaption>Bugünkü National Mall.</figcaption></figure>
+  <table class="tbl">
+    <tr><th></th><th>L'Enfant 1791</th><th>McMillan 1902</th></tr>
+    <tr><td>Plancı</td><td>L'Enfant</td><td>Burnham, McKim, Olmsted Jr.</td></tr>
+    <tr><td>Amaç</td><td>Demokrasi, açıklık</td><td>Ulusal birlik ve ihtişam</td></tr>
+    <tr><td>İlke</td><td>Herkes için sivil mekân</td><td>Tören aksı, formalite</td></tr>
+    <tr><td>Simge</td><td>Halk-devlet eşitliği</td><td>Ulus-devletin gücü</td></tr>
+  </table>
+  <p>McMillan: Mall 2 kat genişledi, ~2 kat uzadı; Lincoln Anıtı 1922. Diğer planlar: Cleveland 1902 (100 akr slum temizliği), Baguio, Manila 1905, San Francisco 1906, <b>Chicago 1909</b> ("Haussmann'ın Paris için yaptığı…" → <b>mekânsal determinizm</b>; merkez öğe hiç yapılmadı). Sonrası Edward H. Bennett.</p>
+  <figure class="fig"><img src="img/chicago-1909.jpg" alt="Chicago Planı 1909" loading="lazy"><figcaption>Chicago Planı 1909.</figcaption></figure>
+  <div class="key"><b>Eleştiriler</b>Sosyal körlük (yoksullar yok sayıldı, yeniden iskânsız slum temizliği) · Elitist ve anıtsal vizyon (katılım yok, otorite simgesi) · Fiziksel determinizm (güzellik = ahlak varsayımı, gündelik hayata ilgisizlik).</div>
+  <p><b>Yayılış:</b> Yeni Delhi 1911–31 (emperyal kontrol) · <b>Canberra</b> (Griffin, 1911 yarışma, 1955'te uygulamaya başlandı; demokratik ideal, "istisnai") · 1930'lar diktatörleri: Mussolini, Franco, Hitler; Speer'in Germania'sında zafer takı <b>117 m</b> (Arc de Triomphe 50 m).</p>
+  <figure class="fig"><img src="img/canberra.jpg" alt="Canberra" loading="lazy"><figcaption>Canberra, Walter Burley Griffin.</figcaption></figure>
+</div></section>
+
+<section class="step" id="test"><div class="no" aria-hidden="true">12</div><div class="body">
+  <h2>Kendini test et</h2>
+  <p class="note">69 soru, bazıları görselli. Şıklar her açılışta karışır. Cevaplayınca açıklama çıkar; sonunda sadece yanlışları tekrar edebilirsin.</p>
+  <div class="bar"><div class="progress"><i id="prog"></i></div><span class="mono count" id="count"></span><span class="mono score" id="score"></span></div>
+  <div class="card" id="quiz"></div>
+</div></section>
+
+  <footer>
+    <div class="big">DUVAR.SITE</div>
+    <p>Mimarlık öğrencileri için yardımlaşma platformu. Takıldığın yeri duvara yaz.</p>
+    <nav class="foot-links" aria-label="Sitede devam et">
+      <a href="/#rehber">Diğer rehberler →</a>
+      <a href="/">Duvara soru yaz →</a>
+    </nav>
+  </footer>
+</div>
+<script>
+(function(){
+  var Q=[
+    {t:"Antik Yunan",q:"Antik Yunan kentinde kamusal toplanma, ticaret ve siyasetin merkezi olan açık alan hangisidir?",o:["Akropolis","Agora","Stoa","Odeion"],a:1,e:"Agora kamusal toplanma alanıdır; akropolis tepe üstündeki kutsal/savunma alanı, stoa agorayı çevreleyen sütunlu galeri, odeion küçük kapalı tiyatrodur."},
+    {t:"Antik Yunan",q:"Görseldeki yamaçta kurulmuş ızgara planlı MÖ 4. yy kenti hangisidir? (Yapı adaları ortalama 30–50 m × 80–120 m)",img:"q-priene",o:["Milet","Pire","Priene","Atina"],a:2,e:"Priene (Aydın), MÖ 4. yy: dik yamaçta ızgara; akropolis üstte, stadion ve gymnasium en altta."},
+    {t:"Antik Yunan",q:"Milet hangi yüzyılda ızgara planla yeniden kurulmuştur?",o:["MÖ 7. yy","MÖ 5. yy","MÖ 4. yy","MS 2. yy"],a:1,e:"Milet MÖ 5. yy (Hippodamos ızgarası); Priene MÖ 4. yy. Bu ikisini karıştırma."},
+    {t:"Roma",q:"Roma kronolojisinde Roma Cumhuriyeti hangi tarihler arasındadır?",o:["MÖ 753 – 509","MÖ 509 – 27","MÖ 27 – MS 395","MS 395 – 1453"],a:1,e:"Krallık MÖ 753–509; Cumhuriyet MÖ 509–27 (son Etrüsk kralının devrilmesiyle); İmparatorluk MÖ 27 – MS 395."},
+    {t:"Roma",q:"Roma kentinde Cardo Maximus ve Decumanus Maximus nedir?",img:"roma-modeli",o:["Kentin iki ana kapısı","Kuzey-güney ve doğu-batı yönündeki iki ana cadde","Forum ve bazilika","İki surun adı"],a:1,e:"Cardo K-G, decumanus D-B ana caddedir; kesiştikleri yerde forum bulunur. Castrum (askeri kamp) kökenli model."},
+    {t:"Roma",q:"Roma tapınağını Yunan tapınağından ayıran temel özellik hangisidir?",o:["Dört yandan basamaklıdır, her yönden algılanır","Yüksek podyum üzerindedir, önden merdivenle çıkılır, cepheden algılanır","Daima yuvarlak planlıdır","Sütun kullanılmaz"],a:1,e:"Yunan (İyon) tapınağı dört yandan basamaklı ve her yönden algılanır; Roma tapınağı (ör. Maison Carrée, Nîmes) podyumlu ve cephesel."},
+    {t:"Roma",q:"Ortasında havuz/sarnıç bulunan avlusu (atrium) ve bitkilendirilmiş sütunlu avlusu (peristil) olan, iç mekâna önem veren Roma konutu hangisidir?",o:["Insula","Domus","Villa rustica","Thermopolium"],a:1,e:"Domus yüksek gelir grubunun evidir. Insula ise orta/düşük gelirlilerin çok katlı apartmanıdır."},
+    {t:"Roma",q:"Insula için hangisi doğrudur?",o:["Elitlerin tek katlı avlulu evidir","Orta ve düşük gelirlilerin çok katlı apartmanıdır; zeminde dükkanlar bulunur","İmparatorların kır villasıdır","Bir hamam türüdür"],a:1,e:"Zemin katta dükkanlar (tabernae) ve thermopolium (yemek yeri), üstte daireler (cenacula), ortada ışıklık."},
+    {t:"Roma",q:"Yunan tiyatrosu ile Roma tiyatrosu arasındaki fark hangisidir?",o:["Yunan tiyatrosu düz zemine kurulur, Roma yamaca","Yunan tiyatrosu yamaca oturur ve orkestra tam dairedir; Roma tiyatrosu yarım daire orkestralı, yüksek sahne binasıyla kapalıdır","İkisi aynıdır","Roma tiyatrosunda sahne yoktur"],a:1,e:"Örnek: Aspendos Roma tiyatrosu. Selçuklu döneminde sahne yapısı kervansaray olarak kullanılmıştır."},
+    {t:"Roma",q:"Görseldeki oval meydan, evlerin eski bir Roma yapısının izine oturmasıyla oluşmuştur. Bu meydan hangi kentte ve hangi yapının izindedir?",img:"q-lucca",o:["Verona – tiyatro","Lucca – amfitiyatro","Roma – circus","Floransa – forum"],a:1,e:"Lucca, Piazza dell'Anfiteatro: Roma amfitiyatrosunun formu meydan olarak korunmuştur."},
+    {t:"Roma",q:"Görseldeki Piazza Navona hangi antik Roma yapısının formunu korur?",img:"q-navona",o:["Circus Maximus","Domitianus Stadyumu","Kolezyum","Marcellus Tiyatrosu"],a:1,e:"Piazza Navona = Domitianus Stadyumu (MS 86). Slayttaki 'Stadium? Circus?' sorusunun cevabı: Navona stadion, Circus Maximus circus."},
+    {t:"Roma",q:"Araba yarışlarının yapıldığı, ortasında 'spina' bulunan Roma yapısı hangisidir? İstanbul'daki örneği Hipodromdur.",o:["Stadion","Amfitiyatro","Circus","Odeion"],a:2,e:"Circus: araba yarışı. Stadion koşu yarışı, amfitiyatro gladyatör dövüşleri içindir."},
+    {t:"Roma",q:"Derste Roma hamamı örneği olarak gösterilen Türkiye'deki yapı hangisidir?",o:["Ankara Augustus Tapınağı","Yozgat Sarıkaya Roma Hamamı (Basilica Therma)","Aspendos","Efes Celsus Kütüphanesi"],a:1,e:"Yozgat Sarıkaya Roma Hamamı (Basilica Therma). Sukemeri örnekleri ise Valens (Bozdoğan), Kavala ve Segovia."},
+    {t:"Roma",q:"Trajan tarafından MS ~100'de kurulan ve Roma ızgara planının en iyi korunmuş örneği olarak gösterilen kent hangisidir?",o:["Jerash","Timgad","Tarragona","Nîmes"],a:1,e:"Timgad (Cezayir). Jerash (Ürdün) ise sütunlu cadde örneğidir."},
+    {t:"Roma",q:"Ankara'daki Augustus Tapınağı ne zaman yapılmıştır ve neyin yanındadır?",o:["MS 2. yy – Kocatepe Camii","MÖ 25 – Hacı Bayram Camii","MÖ 5. yy – Ankara Kalesi","MS 395 – Ulus Meydanı"],a:1,e:"Augustus Tapınağı, Ancyra, MÖ 25; Hacı Bayram Camii bitişiğinde, çok kültürlü kült alanı, UNESCO geçici listesinde."},
+    {t:"Ortaçağ",q:"Avrupa'da ortaçağ kentleri hangi gelişmeyle yeniden ortaya çıkmaya başladı?",o:["Roma'nın kurulmasıyla","10. yüzyıldan sonra ticaretin yeniden canlanmasıyla","Sanayi Devrimiyle","Rönesans'la"],a:1,e:"Roma'nın çöküşünden sonra kent yaşamı ~400–500 yıl zayıfladı; 10. yy'dan sonra ticaret canlanınca kentler yeniden doğdu."},
+    {t:"Ortaçağ",q:"Hocaya göre tipik bir ortaçağ kentinde 'en önemli yol' hangisidir?",o:["Sur boyunca uzanan yol","Kent kapısı → pazar meydanı aksı","Kilise → belediye aksı","Liman yolu"],a:1,e:"Ortaçağ kentinin üç meydanı: pazar (ticaret), kilise (dini), belediye (idari)."},
+    {t:"Ortaçağ",q:"Morris'in sınıflamasında askeri kale yerleşmesi olarak başlayıp etrafında ticaretin gelişmesiyle oluşan kentlere ne denir? (Örn. Edinburgh, Salzburg)",o:["Bastide","Burg (burgh/borough/bourg)","Planted town","Organik köy"],a:1,e:"Burgs: askeri kale → ticaret → kent."},
+    {t:"Ortaçağ",q:"13. yy civarında Fransa ve İngiltere'de askeri ve ekonomik kontrol amacıyla kurulan ızgara planlı ortaçağ kentleri hangileridir?",o:["Burg kentler","Bastide kentler","Manastır kentleri","Roma kökenli kentler"],a:1,e:"Bastide örnekleri: Monpazier, Aigues-Mortes."},
+    {t:"Ortaçağ",q:"Lübeck, Freiburg im Breisgau ve New Winchelsea Morris'in hangi kategorisine örnektir?",o:["Organik köy yerleşimleri","Planted towns (krallar veya lordların bilinçli kurduğu kentler)","Manastır etrafında gelişen kentler","Burgs"],a:1,e:"Ghent, Siena, Bruges organik köy; St. Gallen, Westminster, Cluny manastır kentidir."},
+    {t:"Ortaçağ",q:"Morris'in 11–15. yy Avrupa kentleri sınıflamasında kaç kategori vardır ve hangisi sonradan başka tarihçilerce eklenmiştir?",o:["4; bastide","5; manastır etrafında gelişen kentler","6; Roma kökenli kentler","3; planted towns"],a:1,e:"Morris'in 5 kategorisi: Roma kökenli, burgs, organik köy, bastide, planted towns. 6. kategori (manastır) diğer tarihçilerin eklemesidir."},
+    {t:"İslam kenti · Şam",q:"Şam Emevi Camii'nin bulunduğu alanın tarihsel katman sıralaması hangisidir?",img:"sam",o:["Jüpiter Tapınağı → Hadad Tapınağı → Bazilika → Cami","Hadad Tapınağı → Zeus-Hadad Tapınağı → Jüpiter Tapınağı → Aziz Yahya Bazilikası → Emevi Camii","Bazilika → Jüpiter → Hadad → Cami","Zeus Tapınağı → Kilise → Hadad → Cami"],a:1,e:"Arami (Hadad) → Helenistik (Zeus-Hadad) → Roma (Jüpiter) → Bizans (Aziz Yahya Bazilikası) → Emevi Camii (705–715)."},
+    {t:"İslam kenti · Şam",q:"'Temenos' terimi ne anlama gelir?",o:["Tapınak çevresindeki duvarlarla çevrili kutsal alan","Ana cadde","Pazar yeri","Mahalle birimi"],a:0,e:"Temenos: duvarlarla çevrili kutsal alan. Peribolos: duvarla çevrili kutsal avlu."},
+    {t:"Rönesans ideal kent",q:"Vitruvius'un ideal kent modelinde merkezden çıkan 8 caddenin kulelere yöneltilmesinin temel nedeni nedir?",o:["Güneş ışığını almak","Ters rüzgârların olumsuz etkilerini azaltmak (aynı zamanda askeri önem)","Hac yollarını bağlamak","Tramvay geçirmek"],a:1,e:"Vitruvius: sekizgen sur, köşelerde kuleler, 4 kenarda kapı, merkezde forum, 8 cadde."},
+    {t:"Rönesans ideal kent",q:"Görseldeki ideal kent Rönesans'ın ilk tamamen planlanmış ideal kentidir. Tasarımcısı ve kentin adı nedir?",img:"q-sforzinda",o:["Scamozzi – Palmanova","Filarete (Antonio Averlino) – Sforzinda","Dürer – ideal kent","Vauban – Neuf-Brisach"],a:1,e:"Üst üste binmiş 2 kare → sekizgen; 16 radyal cadde (biri sukemeri); adı patronu Sforza'dan gelir."},
+    {t:"Rönesans ideal kent",q:"Filarete'nin Sforzinda'sı için hocanın vurguladığı yorum hangisidir?",o:["Tamamen ortaçağ kentine benzer","Merkezi 3 ayrı noktadan oluşur ve aslında Rönesans'tan çok Roma forum planlamasını andırır","Hiç meydanı yoktur","Lineer bir kenttir"],a:1,e:"Merkez: kilise/yönetici sarayı + iki pazar yeri. Ring yol ikincil meydanları bağlar."},
+    {t:"Rönesans ideal kent",q:"Görseldeki altıgen kent, 1693 depreminden sonra Sicilya'da kurulmuştur. Hangisidir?",img:"q-grammichele",o:["Palmanova","Naarden","Grammichele","Neuf-Brisach"],a:2,e:"Grammichele (1693), Catania yakını. Palmanova Venedik (1593), Naarden Hollanda, Neuf-Brisach Fransa."},
+    {t:"Rönesans ideal kent",q:"Görseldeki sekizgen tahkimatlı, içi dik açılı ızgaralı kent hangisidir?",img:"q-neufbrisach",o:["Neuf-Brisach","Palmanova","Sforzinda","Karlsruhe"],a:0,e:"Neuf-Brisach (Fransa, Vauban). Palmanova'nın merkezi altıgen meydanlı ve ışınsaldır."},
+    {t:"Rönesans meydanları",q:"Paris'te Pont Neuf'e açılan, Île de la Cité'nin ucunda 1613'te tamamlanan üçgen meydan hangisidir?",o:["Place Vendôme","Place des Victoires","Place Dauphine","Place de la Concorde"],a:2,e:"Pont Neuf 1606'da tamamlandı (adanın ucu dolduruldu); Place Dauphine 1613."},
+    {t:"Rönesans meydanları",q:"Roma'daki Campidoglio Meydanı'nın tasarımcısı kimdir?",o:["Bernini","Michelangelo","Domenico Fontana","Borromini"],a:1,e:"Capitolino tepesinde, trapez meydan, oval zemin deseni, Marcus Aurelius heykeli."},
+    {t:"Rönesans meydanları",q:"Görseldeki dört saraylı sekizgen meydan hangi kenttedir?",img:"q-amalienborg",o:["Paris – Place Vendôme","Kopenhag – Amalienborg","Madrid – Plaza Mayor","Roma – Campidoglio"],a:1,e:"Amalienborg, Kopenhag: sekizgen meydan, köşelerde 4 saray, Frederik Kilisesi aksı."},
+    {t:"Sixtus V",q:"Papa Sixtus V'in Roma planını (1585–1590) yapan plancı kimdir?",img:"q-sixtus",o:["Bernini","Domenico Fontana","Michelangelo","Giuseppe Valadier"],a:1,e:"Hac kiliselerini düz caddelerle bağladı; kavşaklara antik dikilitaşlar dikerek görüş odakları oluşturdu."},
+    {t:"Sixtus V",q:"Görseldeki Piazza del Popolo'dan kente açılan üç caddeli düzen nasıl adlandırılır?",img:"q-popolo",o:["Grande croisée","Trident (trivium)","Cardo","Superilla"],a:1,e:"Via del Corso, Via di Ripetta, Via del Babuino. Fransızcası patte d'oie (kaz ayağı)."},
+    {t:"Sixtus V",q:"Roma'daki en uzun antik dikilitaş hangi meydandadır?",o:["Piazza del Popolo","Piazza S. Pietro","Piazza S. Giovanni in Laterano","Piazza Navona"],a:2,e:"San Giovanni in Laterano: 32,18 m (kaideyle 45,70 m), Mısır kökenli, 1588."},
+    {t:"Sixtus V",q:"Aziz Petrus Meydanı'nın oval kompozisyonunu ve kolonatlarını kim tasarlamıştır?",o:["Domenico Fontana, 1586","Bernini, 1656–1667 (Papa VII. Alexander döneminde)","Michelangelo, 1546","Valadier, 19. yy"],a:1,e:"Dikilitaşı 1586'da Fontana taşıdı; oval meydan ve kolonatlar Bernini'nin."},
+    {t:"Barok",q:"Barok kent tasarımının özünü anlatan cümle hangisidir?",o:["Kent organik olarak büyümelidir","Sadece tek tek yapılar değil, yapılar arasındaki mekân ve görsel ilişkiler de tasarlanır","Kentte meydan olmamalıdır","Konut en önemli yapıdır"],a:1,e:"Barokta kent mekânı siyasal ve dinsel otoritenin temsil edildiği anıtsal bir kompozisyondur."},
+    {t:"Barok",q:"Versailles'ın (1661–1710) mimarı ve bahçe tasarımcısı kimlerdir?",img:"versailles",o:["Haussmann ve Alphand","Louis Le Vau ve André Le Nôtre","Bernini ve Borromini","L'Enfant ve Olmsted"],a:1,e:"Le Vau XIV. Louis'nin mimarı, Le Nôtre bahçe tasarımcısı. Öncüsü Vaux-le-Vicomte."},
+    {t:"Barok",q:"Görseldeki 1715'te kurulan kentte saray, 32 yolun ışınsal olarak yayıldığı düzenin merkezindedir. Kent hangisidir?",img:"q-karlsruhe",o:["Versailles","Karlsruhe","Potsdam","Nancy"],a:1,e:"Karlsruhe (Almanya), Heinrich Schwarz gravürü 1721."},
+    {t:"Barok",q:"Barok kent tasarımı ilkelerinin 20. yy'daki yansıması olarak gösterilen başkent hangisidir (1997)?",img:"q-astana",o:["Canberra","Astana","Brasília","Yeni Delhi"],a:1,e:"Astana (Kazakistan): başkanlık sarayından uzanan anıtsal aks, simetri, vista."},
+    {t:"Ütopya",q:"Thomas More'un 'Ütopya'sı (1516) için hangisi doğrudur?",o:["Mülkiyet serbesttir, 100 şehir vardır","54 şehir, mülkiyet yok, dini hoşgörü, konutlar 10 yılda bir değişir, herkes aynı kıyafeti giyer","Bir sosyal reform ütopyasıdır","Gerçek bir İngiliz kentidir"],a:1,e:"Ütopya = 'güzel yer' veya 'hiçbir yer'. More felsefi ütopya; Owen ve Fourier sosyal reform; Howard ve Garnier kentsel tasarım ütopyası."},
+    {t:"Ütopya",q:"Fourier'in Phalanstère'inde orta bölüm ve yan kanatlar nasıl düzenlenmiştir?",img:"q-phalanstere",o:["Orta bölüm gürültülü, kanatlar sessiz aktiviteler","Orta bölüm sessiz (yemek, kütüphane, toplantı), yan kanatlar gürültülü aktiviteler (marangozluk, zanaat, çocuk odaları)","Tüm bina konut","Orta bölüm fabrika"],a:1,e:"4 katlı kompleks, ~1600 kişi; Versailles'a dayanan 'proleter mega saray'."},
+    {t:"Ütopya",q:"Görseldeki, Fourier'in phalanstère fikrinin 1856'da Jean-Baptiste Godin tarafından uygulanmış hali hangisidir?",img:"q-familistere",o:["New Harmony","North American Phalanx","Familistère (Guise)","Letchworth"],a:2,e:"Fourierist topluluklar pratikte başarısız oldu ama kolektif/sosyal konut deneylerinin önünü açtı."},
+    {t:"Ütopya",q:"Robert Owen'ın sosyal reformun önündeki 'üç büyük engel' (trinity of evils) olarak gördükleri nelerdir?",o:["Kent, kır, sanayi","Gelir ve özel mülkiyette eşitsizlik, geleneksel din, din ve mülke dayalı geleneksel evlilik","Savaş, kıtlık, salgın","Monarşi, ordu, kilise"],a:1,e:"Owen: işadamı, ateist, yenilikçi. New Harmony (1825), 200–3000 kişi, kâr paylaşımı."},
+    {t:"Haussmann",q:"Haussmann'ın Paris planının ana hedeflerinden biri DEĞİLDİR?",img:"haussmann-croisee",o:["İmparatorluğa yakışan bir başkent oluşturmak","Düşük gelir grubunu kontrol altına almak","Kent merkezinde burjuvaziye yönelik mekânlar tasarlamak","Ortaçağ dokusunu olduğu gibi korumak"],a:3,e:"Tam tersine eski Paris'i kesen/silen bulvarlar açıldı; 350.000 kişi kent çeperine gönderildi."},
+    {t:"Haussmann",q:"Paris'in nüfusu 1815'ten 1861'e nasıl değişmiştir?",o:["300 bin → 700 bin","700 bin → 1,7 milyon","1 milyon → 3 milyon","1,7 milyon → 700 bin"],a:1,e:"Kalabalık, 1832 kolerası ve 1848 ayaklanmasıyla birlikte dönüşümün gerekçeleri."},
+    {t:"Haussmann",q:"Görseldeki, 12 caddenin buluştuğu ve ortasında Arc de Triomphe bulunan meydan hangisidir?",img:"q-etoile",o:["Place de la Nation","Place de l'Étoile","Place Vendôme","Place des Victoires"],a:1,e:"Haussmann'ın yıldız meydanları: Étoile, Trocadéro, Victor Hugo, Nation."},
+    {t:"Haussmann",q:"Haussmann'ın müdahalesinde 'binalarda bütüne uyum, perspektif, belirli elemanların tekrarı ve detaylarla farklılaştırılması (kodlama)' hangi boyuta aittir?",o:["İşlevsel","Estetik","Teknik","Sosyal"],a:1,e:"5 boyut: işlevsel, estetik, teknik (kanalizasyon, su, asfalt), yönetsel, sosyal."},
+    {t:"Haussmann",q:"Roma Paris'i (Lutetia) için hangisi doğrudur?",o:["Cardo maximus bugünkü Rue Saint-Jacques'tır","Roma forumu Sağ Yaka'dadır ve 400 × 300 m'dir","Nüfusu 100.000'dir","Adı 'orman' demektir"],a:0,e:"Lutetia/Leucotecia 'bataklık' demek; 10–12 bin nüfus; forum 160 × 100 m; 360'ta Julian imparator ilan edildi, kentin adı Paris oldu."},
+    {t:"Barcelona",q:"Cerdà bloğunun (1859) yaklaşık ölçüsü nedir?",o:["~50 × 50 m","~113 × 113 m","~200 × 80 m","~400 × 400 m"],a:1,e:"Blok ~113 × 113 m, köşe kesimi ~20 m, sokak ~20 m, bulvar 50–60 m, perimeter block."},
+    {t:"Barcelona",q:"Cerdà bloklarının köşelerinin kesilmesinin (pahlı köşe) nedenlerinden biri DEĞİLDİR?",img:"q-cerda-kose",o:["Tramvay dönüş yarıçapı","Kavşakta görüş açısı","Güneş ışığı ve havalandırma","Yapı yoğunluğunu artırmak"],a:3,e:"5 neden: tramvay dönüşü, görüş, güneş ışığı, havalandırma, kavşakta mini meydan."},
+    {t:"Barcelona",q:"Barcelona süperbloğunda (superilla) iç yerel ağın hız sınırı ve dış temel ağın hız sınırı nedir?",o:["İç 30, dış 70 km/s","İç 10, dış 50 km/s","İç 20, dış 50 km/s","İç 50, dış 90 km/s"],a:1,e:"3×3 Cerdà bloğu (~400 × 400 m); transit trafik içeri giremez. Yeşil oranı: Cerdà %34,8 → bugün %0,6 → süperblok %35,6."},
+    {t:"Lineer kent",q:"Soria y Mata'nın lineer kentinde ana caddenin genişliği ve ortasında ne vardır?",img:"q-soria-kesit",o:["20 m – kanal","40 m – tramvay hattı","60 m – park","100 m – demiryolu"],a:1,e:"İkincil caddeler 20 m, 80–100 m aralıkla; süperbloklar ~80–100 × 200 m."},
+    {t:"Lineer kent",q:"Madrid Ciudad Lineal'den ne kadarı gerçekleştirildi?",o:["Planlanan 48 km'nin ilk 5 km'si (1894–1904)","Tamamı, 48 km","Hiçbiri","20 km, 1920'de"],a:0,e:"Tramvay atlıydı, 1909'da elektriklendi; 1934'te şirket iflas etti; bugün metro istasyonunun adı Arturo Soria."},
+    {t:"Lineer kent",q:"Soria y Mata'nın fikrinden etkilenen Le Corbusier projesi hangisidir?",o:["Ville Radieuse, Paris","Cezayir (Algiers) Planı, 1930–31","Chandigarh","Pessac"],a:1,e:"Ayrıca 1928'de Benoît-Lévy öncülüğünde Uluslararası Lineer Kentler Derneği kuruldu; Rus deurbanistleri de etkilendi."},
+    {t:"Bahçe kent",q:"Görseldeki 'Üç Mıknatıs' diyagramının sahibi kimdir ve üçüncü mıknatıs nedir?",img:"q-uc-miknatis",o:["Owen – Fabrika","Ebenezer Howard – Kent-Kır","Perry – Okul","Soria – Tramvay"],a:1,e:"Kent (yüksek maaş, eğlence), Kır (doğal güzellik, temiz hava), Kent-Kır (ikisinin iyi yanları)."},
+    {t:"Bahçe kent",q:"Howard'ın bahçe kent diyagramında bir bahçe kentin nüfusu ve alanı nedir?",img:"bahce-kent-dilim",o:["58.000 kişi, 5000 akr kent","32.000 kişi; 1000 akr kent + 5000 akr tarım alanı","1 milyon kişi","10.000 kişi, ormanlık"],a:1,e:"Merkez kent 58.000; çeperde fabrikalar ve yeşil kuşak. 'Yalnızca bir diyagram; plan seçilen araziye bağlıdır.'"},
+    {t:"Bahçe kent",q:"Howard'ın önerisiyle 1903'te kurulan ilk bahçe kentin tasarımcıları kimlerdir?",o:["Stein & Wright","Barry Parker & Raymond Unwin","Louis de Soissons","Le Corbusier"],a:1,e:"Letchworth (1903). Welwyn (1920) Louis de Soissons. İkisi de tam anlamıyla bahçe kent değildir."},
+    {t:"Bahçe kent",q:"Howard'dan iki yıl önce 'Gelecek Kenti'ni (1896) yayımlayan ve ırkçı, katı ayrışmış bir toplum öngören kişi kimdir?",o:["Tony Garnier","Theodor Fritsch","Georges Benoît-Lévy","Clarence Perry"],a:1,e:"Fritsch'in kentinde desantralizasyon yok, 1 milyon kişi. Benoît-Lévy ise bahçe kenti bahçe banliyösüyle karıştırdı."},
+    {t:"Bahçe kent",q:"Tony Garnier'nin Cité Industrielle'i için hangisi doğrudur?",o:["1903'te Letchworth'te inşa edildi","Kent tek büyük metalürji fabrikasına bağlıdır; hiç yapılmadı","Lineer bir kenttir","Bir barok saray planıdır"],a:1,e:"1899–1900 Beaux-Arts öğrenci projesi (reddedildi), 1904 sergi, 1917 revizyon. 'Modern sanayi üretimi' problemine yanıt."},
+    {t:"Perry · Radburn",q:"Clarence Perry'nin komşuluk biriminde (1923–29) birimin büyüklüğünü ne belirler ve merkezinde ne vardır?",o:["Bir fabrika","Bir ilkokulun hizmet alanı; merkezde okul ve oyun alanı","Bir alışveriş merkezi","Tren istasyonu"],a:1,e:"Ana arterler birimin etrafından geçer, içinden asla geçmez; dükkânlar köşelerde (kesişimlerde)."},
+    {t:"Perry · Radburn",q:"Görseldeki Radburn (1928, Stein & Wright) planının asıl katkısı nedir?",img:"radburn",o:["Izgara planı yaygınlaştırmak","Taşıt ve yaya dolaşımını ayırmak: süperblok, cul-de-sac, ortak park, alt geçitler","Gökdelen yapmak","Tramvay hattı"],a:1,e:"'Otomobile rağmen nasıl yaşarım?' sorusunun cevabı. Problem-çözüm: Howard–sanayi kaosu, Perry–komşuluk kaybı, Radburn–otomobil, Garnier–sanayi üretimi."},
+    {t:"City Beautiful",q:"City Beautiful Movement'ın tanımı hangisidir?",o:["Kenti tamamen yeşile çeviren bir park akımı","Kentsel biçimdeki güzellik yoluyla ahlaki ve sivil düzen arayan reform hareketi (1890'lar–1930'lar)","İşçi konutu hareketi","Fütürist mimarlık akımı"],a:1,e:"Kökleri Beaux-Arts ve barok; modelleri Haussmann'ın Paris'i ve Viyana Ringstrasse."},
+    {t:"City Beautiful",q:"Görseldeki 1791 Washington planını kim yapmıştır?",img:"q-washington",o:["Daniel Burnham","Pierre L'Enfant","F. L. Olmsted","Thomas Jefferson"],a:1,e:"İki odak: Capitol ve Başkanlık Evi; ızgara + diyagonal caddeler. 1902 McMillan Planı bunun revizyonudur."},
+    {t:"City Beautiful",q:"1902 McMillan Planı'nı hazırlayan komisyon kimlerden oluşur?",o:["L'Enfant, Jefferson, Washington","Burnham, Charles McKim, F. L. Olmsted Jr. (sonra Saint-Gaudens)","Haussmann, Alphand, Belgrand","Stein, Wright, Perry"],a:1,e:"Mall'un genişliği 2 katına, uzunluğu neredeyse 2 katına çıktı; Lincoln Anıtı 1922."},
+    {t:"City Beautiful",q:"L'Enfant Planı (1791) ile McMillan Planı (1902) karşılaştırmasında hangisi doğrudur?",o:["L'Enfant ulusal gücü, McMillan demokrasiyi simgeler","L'Enfant demokrasi ve açıklığı, McMillan ulusal birlik, ihtişam ve tören aksını simgeler","İkisi de monarşiyi simgeler","McMillan halk katılımına dayanır"],a:1,e:"L'Enfant: halk ile devlet arasında eşitlik. McMillan: ulus-devletin gücü ve birliği."},
+    {t:"City Beautiful",q:"Görseldeki 1909 planının sahibi Burnham, 'Haussmann'ın Paris için yaptığı iş Chicago için yapılması gereken işe karşılık gelir' der. Bu plana yöneltilen kavramsal eleştiri nedir?",img:"chicago-1909",o:["Mekânsal (fiziksel) determinizm: güzelliğin tek başına sosyal düzen yaratacağı varsayımı","Aşırı halk katılımı","Çok fazla konut üretmesi","Tarihi korumaya fazla önem vermesi"],a:0,e:"Eleştiriler: sosyal körlük (slum temizliği, ör. Cleveland 1902), elitist/anıtsal vizyon, fiziksel determinizm."},
+    {t:"City Beautiful",q:"'İstisnai City Beautiful' olarak gösterilen, demokratik ideali temsil eden ve planı 45 yıl sonra uygulanabilen başkent hangisidir?",img:"q-canberra",o:["Yeni Delhi","Canberra (Walter Burley Griffin)","Washington","Berlin"],a:1,e:"Yeni Delhi (1911–1931) emperyal kontrolü temsil eder. Canberra yarışması 1911, merkezi otorite 1955."},
+    {t:"City Beautiful",q:"Albert Speer'in 1937 Germania planındaki zafer takının yüksekliği, Paris'teki Arc de Triomphe ile karşılaştırıldığında nedir?",o:["50 m'ye karşı 117 m","117 m'ye karşı 50 m","200 m'ye karşı 50 m","Aynı yükseklik"],a:1,e:"1930'larda City Beautiful diktatörlerin (Mussolini, Franco, Hitler) elinde 'gücün mimarisi'ne dönüştü."},
+    {t:"Kronoloji",q:"Hocanın kronoloji tablosunda hangi eşleşme YANLIŞTIR?",o:["1585–1590 Roma – Fontana (Sixtus V)","1791 Washington – L'Enfant","1858 Central Park – Olmsted ve Vaux","1893 Letchworth – Howard"],a:3,e:"1893 Chicago World Columbian Exposition (Beyaz Kent, Burnham & Olmsted). Letchworth 1903, Welwyn 1920, Bahçe Kent 1898."}
+  ];
+
+  // şıkları karıştır
+  Q.forEach(function(q){
+    var idx=q.o.map(function(_,k){return k});
+    for(var j=idx.length-1;j>0;j--){var r=Math.floor(Math.random()*(j+1));var t=idx[j];idx[j]=idx[r];idx[r]=t;}
+    q.o=idx.map(function(k){return q.o[k]}); q.a=idx.indexOf(q.a);
+  });
+  var root=document.getElementById('quiz'), prog=document.getElementById('prog'),
+      countEl=document.getElementById('count'), scoreEl=document.getElementById('score');
+  var answers=new Array(Q.length).fill(null), i=0;
+  function esc(s){return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function correct(){return answers.reduce(function(n,a,k){return n+(a===Q[k].a?1:0)},0)}
+  function answered(){return answers.filter(function(a){return a!==null}).length}
+  function bar(){
+    prog.style.width=(answered()/Q.length*100)+'%';
+    countEl.textContent='Soru '+Math.min(i+1,Q.length)+' / '+Q.length;
+    scoreEl.textContent='Doğru '+correct();
+  }
+  function render(){
+    if(i>=Q.length) return result();
+    var q=Q[i], p=answers[i], done=p!==null;
+    var h='<span class="mono topic">'+esc(q.t)+'</span><div class="qtext">'+(i+1)+'. '+esc(q.q)+'</div>';
+    if(q.img) h+='<img class="qimg" src="img/'+q.img+'.jpg" alt="Soru görseli">';
+    h+='<div class="opts">';
+    q.o.forEach(function(o,k){
+      var c='opt'; if(done){ if(k===q.a)c+=' correct'; else if(k===p)c+=' wrong'; }
+      h+='<button type="button" class="'+c+'" data-k="'+k+'"'+(done?' disabled':'')+'><span class="l">'+String.fromCharCode(65+k)+'</span><span>'+esc(o)+'</span></button>';
+    });
+    h+='</div>';
+    if(done){ var ok=p===q.a;
+      h+='<div class="explain on '+(ok?'ok':'bad')+'"><div class="verdict">'+(ok?'Doğru':'Yanlış · doğru cevap '+String.fromCharCode(65+q.a))+'</div>'+esc(q.e)+'</div>'; }
+    h+='<div class="nav"><button type="button" class="btn ghost" id="prev"'+(i===0?' disabled':'')+'>← Önceki</button><button type="button" class="btn" id="next"'+(done?'':' disabled')+'>'+(i===Q.length-1?'Sonucu gör →':'Sonraki →')+'</button></div>';
+    root.innerHTML=h;
+    root.querySelectorAll('.opt').forEach(function(b){ b.addEventListener('click',function(){ answers[i]=+b.getAttribute('data-k'); render(); }); });
+    document.getElementById('prev').onclick=function(){ if(i>0){i--;render();} };
+    document.getElementById('next').onclick=function(){ i++; render(); };
+    bar();
+  }
+  function result(){
+    var c=correct(), pct=Math.round(c/Q.length*100);
+    var msg=pct>=85?'Harika, sınava hazırsın.':pct>=65?'İyi gidiyorsun; yanlışları tekrar et.':'Özeti tekrar oku ve yanlışlara bak.';
+    var wrong=Q.map(function(q,k){return {q:q,k:k}}).filter(function(x){return answers[x.k]!==x.q.a});
+    var h='<div class="result"><div class="mono count">Sonuç</div><div class="big">'+c+' / '+Q.length+'</div><p style="margin-inline:auto">'+msg+'</p><div class="nav" style="justify-content:center"><button type="button" class="btn" id="again">Baştan başla</button>'+(wrong.length?'<button type="button" class="btn ghost" id="retry">Sadece yanlışlar</button>':'')+'</div></div>';
+    if(wrong.length){
+      h+='<h3>Tekrar et</h3><ol class="review">';
+      wrong.forEach(function(x){ h+='<li><b>'+esc(x.q.q)+'</b><br><span class="ans">✓ '+esc(x.q.o[x.q.a])+'</span><br><span class="ex">'+esc(x.q.e)+'</span></li>'; });
+      h+='</ol>';
+    }
+    root.innerHTML=h; bar(); countEl.textContent='Tamamlandı';
+    document.getElementById('again').onclick=function(){ answers.fill(null); i=0; render(); };
+    var r=document.getElementById('retry');
+    if(r) r.onclick=function(){ wrong.forEach(function(x){answers[x.k]=null}); i=wrong[0].k; render(); };
+  }
+  render();
+})();
+</script>
+</body>
+</html>
