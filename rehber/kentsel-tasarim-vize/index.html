@@ -619,7 +619,7 @@ footer .big{font-family:var(--display);font-size:clamp(3rem,12vw,6rem);line-heig
     var q=Q[i], p=answers[i], done=p!==null;
     var m=mode();
     function two(a,cls){ if(m==='tr')return esc(a[0]); if(m==='en')return '<span lang="en">'+esc(a[1])+'</span>'; return esc(a[0])+(cls?'<span class="'+cls+'" lang="en">'+esc(a[1])+'</span>':''); }
-    var h='<span class="mono topic">'+esc(m==='en'?q.t[1]:q.t[0])+'</span><div class="qtext">'+(i+1)+'. '+(m==='en'?'<span lang="en">'+esc(q.q[1])+'</span>':esc(q.q[0]))+'</div>';
+    var h='<span class="mono topic"'+(m==='en'?' lang="en"':'')+'>'+esc(m==='en'?q.t[1]:q.t[0])+'</span><div class="qtext">'+(i+1)+'. '+(m==='en'?'<span lang="en">'+esc(q.q[1])+'</span>':esc(q.q[0]))+'</div>';
     if(m==='both') h+='<div class="qtr" lang="en">'+esc(q.q[1])+'</div>';
     if(q.img) h+='<img class="qimg" src="img/'+q.img+'.jpg" alt="Soru görseli / Question image">';
     h+='<div class="opts">';
