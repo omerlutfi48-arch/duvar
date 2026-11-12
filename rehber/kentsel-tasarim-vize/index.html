@@ -143,6 +143,18 @@ footer .big{font-family:var(--display);font-size:clamp(3rem,12vw,6rem);line-heig
 .opt .tr{grid-column:2;color:var(--fg2);font-size:.95rem}
 .show-tr .en-only,.show-en .tr-only{display:none}
 .langswitch{position:fixed;right:1rem;bottom:1rem;z-index:20}
+
+.contents{border:2px solid var(--line);border-top:4px solid var(--accent);background:var(--surface);padding:1rem 1.1rem}
+.contents .ch{color:var(--mark);font-size:.8rem;margin-bottom:.6rem}
+.contents ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:.15rem 1.25rem}
+.contents a{display:flex;gap:.75rem;align-items:baseline;text-decoration:none;color:var(--fg);padding:.45rem .25rem;border-bottom:1px solid var(--line)}
+.contents a:hover .tt{color:var(--accent)}
+.contents .tn{font-family:var(--display);font-size:1.6rem;line-height:1;color:var(--accent);min-width:1.6rem}
+.contents .tt{display:flex;flex-direction:column;font-weight:600;font-size:1rem;line-height:1.3}
+.contents .te{font-weight:400;font-size:.85rem;color:var(--fg2);font-style:italic}
+.contents .ts{font-weight:400;font-size:.8rem;color:var(--fg2)}
+.totop{position:fixed;right:1rem;bottom:1rem;z-index:20;font-family:var(--mono);font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--fill);color:var(--on-fill);text-decoration:none;padding:.7rem .9rem;border:2px solid var(--fill)}
+.step{scroll-margin-top:1rem}
 </style>
 
 </head>
@@ -153,6 +165,10 @@ footer .big{font-family:var(--display);font-size:clamp(3rem,12vw,6rem);line-heig
       <a class="duvar" href="https://duvar.site">DUVAR.SITE</a>
       <span class="mono">Ders notu · Kentsel tasarım tarihi</span>
     </div>
+    <nav class="contents" id="basliklar" aria-label="İçindekiler / Contents">
+      <div class="mono ch">İçindekiler / <span lang="en">Contents</span></div>
+      <ol><li><a href="#kronoloji"><span class="tn">0</span><span class="tt">Hocanın kronolojisi<span class="te" lang="en">Chronology</span><span class="ts">1585–1920 tablosu, kritik tarihler</span></span></a></li><li><a href="#antik"><span class="tn">1</span><span class="tt">Antik Yunan ve Roma<span class="te" lang="en">Ancient Greece and Rome</span><span class="ts">Agora, Priene, Milet, Roma'nın 14 elemanı</span></span></a></li><li><a href="#ortacag"><span class="tn">2</span><span class="tt">Ortaçağ ve İslam kenti<span class="te" lang="en">Medieval and Islamic city</span><span class="ts">Morris sınıflaması, Şam</span></span></a></li><li><a href="#ideal"><span class="tn">3</span><span class="tt">Rönesans ideal kentleri<span class="te" lang="en">Renaissance ideal cities</span><span class="ts">Vitruvius, Sforzinda, Palmanova</span></span></a></li><li><a href="#meydan"><span class="tn">4</span><span class="tt">Rönesans meydanları ve Sixtus V<span class="te" lang="en">Renaissance squares and Sixtus V</span><span class="ts">Paris meydanları, Campidoglio, dikilitaşlar</span></span></a></li><li><a href="#barok"><span class="tn">5</span><span class="tt">Barok kent<span class="te" lang="en">The Baroque city</span><span class="ts">Versailles, Karlsruhe, ilkeler</span></span></a></li><li><a href="#utopya"><span class="tn">6</span><span class="tt">Ütopyacılar<span class="te" lang="en">The Utopians</span><span class="ts">More, Fourier, Owen</span></span></a></li><li><a href="#haussmann"><span class="tn">7</span><span class="tt">Haussmann'ın Paris'i<span class="te" lang="en">Haussmann's Paris</span><span class="ts">Hedefler, araçlar, 5 boyut</span></span></a></li><li><a href="#barcelona"><span class="tn">8</span><span class="tt">Barcelona ve Cerdà<span class="te" lang="en">Barcelona and Cerdà</span><span class="ts">113 m blok, pahlı köşe, süperblok</span></span></a></li><li><a href="#lineer"><span class="tn">9</span><span class="tt">Soria y Mata ve Lineer Kent<span class="te" lang="en">The Linear City</span><span class="ts">40 m omurga, Madrid</span></span></a></li><li><a href="#bahce"><span class="tn">10</span><span class="tt">Bahçe kent, Perry, Radburn<span class="te" lang="en">Garden City, Perry, Radburn</span><span class="ts">Üç Mıknatıs, komşuluk birimi</span></span></a></li><li><a href="#cb"><span class="tn">11</span><span class="tt">City Beautiful<span class="te" lang="en">City Beautiful Movement</span><span class="ts">Burnham, Washington, eleştiriler</span></span></a></li><li><a href="#test"><span class="tn">12</span><span class="tt">Kendini test et<span class="te" lang="en">Test yourself</span><span class="ts">69 soru · TR + EN</span></span></a></li></ol>
+    </nav>
     <h1>Kentsel tasarım <em>vizesi</em></h1>
     <p class="mono" lang="en" style="margin:-.75rem 0 0;color:var(--fg2)">Urban design history · midterm guide</p>
     <p class="lede">Antik Yunan'dan City Beautiful'a 2500 yıllık kent tasarımı tek sayfada. Önce özeti oku, plan ve diyagramlara bak, sonra 69 soruda kendini dene.<br><span lang="en" style="color:var(--fg2)">2500 years of urban design from Ancient Greece to the City Beautiful on one page: read the summary, study the plans, then test yourself with 69 questions.</span></p>
@@ -162,9 +178,6 @@ footer .big{font-family:var(--display);font-size:clamp(3rem,12vw,6rem);line-heig
       <button type="button" data-set="en" lang="en">English</button>
       <button type="button" data-set="both" class="on">İkisi / <span lang="en">Both</span></button>
     </div>
-    <nav class="toc mono" aria-label="İçindekiler">
-      <a href="#kronoloji">Kronoloji</a><a href="#antik">Antik</a><a href="#ortacag">Ortaçağ</a><a href="#ideal">İdeal kent</a><a href="#meydan">Meydanlar · Sixtus V</a><a href="#barok">Barok</a><a href="#utopya">Ütopya</a><a href="#haussmann">Haussmann</a><a href="#barcelona">Barcelona</a><a href="#lineer">Lineer kent</a><a href="#bahce">Bahçe kent</a><a href="#cb">City Beautiful</a><a href="#test">Teste geç →</a>
-    </nav>
   </div>
 
 <section class="step" id="kronoloji"><div class="no" aria-hidden="true">0</div><div class="body">
@@ -584,6 +597,7 @@ footer .big{font-family:var(--display);font-size:clamp(3rem,12vw,6rem);line-heig
       <a href="/">Duvara soru yaz →</a>
     </nav>
   </footer>
+  <a class="totop" href="#basliklar">↑ Başlıklar</a>
 </div>
 <script>
 (function(){
