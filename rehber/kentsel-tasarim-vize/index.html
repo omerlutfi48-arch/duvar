@@ -155,6 +155,16 @@ footer .big{font-family:var(--display);font-size:clamp(3rem,12vw,6rem);line-heig
 .contents .ts{font-weight:400;font-size:.8rem;color:var(--fg2)}
 .totop{position:fixed;right:1rem;bottom:1rem;z-index:20;font-family:var(--mono);font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--fill);color:var(--on-fill);text-decoration:none;padding:.7rem .9rem;border:2px solid var(--fill)}
 .step{scroll-margin-top:1rem}
+
+.levels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:2px solid var(--line)}
+.levels button{font:inherit;background:transparent;color:var(--fg);border:0;border-right:1px solid var(--line);padding:.6rem .5rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.05rem;min-height:3.5rem}
+.levels button:last-child{border-right:0}
+.levels b{font-family:var(--display);font-weight:400;font-size:1.5rem;line-height:1;letter-spacing:.03em}
+.levels span{font-size:.8rem;color:var(--fg2);font-style:italic}
+.levels i{font-style:normal;font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;color:var(--fg2)}
+.levels button.on{background:var(--fill);color:var(--on-fill)}
+.levels button.on span,.levels button.on i{color:var(--on-fill)}
+@media (max-width:30rem){.levels{grid-template-columns:repeat(2,minmax(0,1fr))}.levels button:nth-child(2){border-right:0}.levels button:nth-child(-n+2){border-bottom:1px solid var(--line)}}
 </style>
 
 </head>
@@ -167,7 +177,7 @@ footer .big{font-family:var(--display);font-size:clamp(3rem,12vw,6rem);line-heig
     </div>
     <nav class="contents" id="basliklar" aria-label="İçindekiler / Contents">
       <div class="mono ch">İçindekiler / <span lang="en">Contents</span></div>
-      <ol><li><a href="#kronoloji"><span class="tn">0</span><span class="tt">Hocanın kronolojisi<span class="te" lang="en">Chronology</span><span class="ts">1585–1920 tablosu, kritik tarihler</span></span></a></li><li><a href="#antik"><span class="tn">1</span><span class="tt">Antik Yunan ve Roma<span class="te" lang="en">Ancient Greece and Rome</span><span class="ts">Agora, Priene, Milet, Roma'nın 14 elemanı</span></span></a></li><li><a href="#ortacag"><span class="tn">2</span><span class="tt">Ortaçağ ve İslam kenti<span class="te" lang="en">Medieval and Islamic city</span><span class="ts">Morris sınıflaması, Şam</span></span></a></li><li><a href="#ideal"><span class="tn">3</span><span class="tt">Rönesans ideal kentleri<span class="te" lang="en">Renaissance ideal cities</span><span class="ts">Vitruvius, Sforzinda, Palmanova</span></span></a></li><li><a href="#meydan"><span class="tn">4</span><span class="tt">Rönesans meydanları ve Sixtus V<span class="te" lang="en">Renaissance squares and Sixtus V</span><span class="ts">Paris meydanları, Campidoglio, dikilitaşlar</span></span></a></li><li><a href="#barok"><span class="tn">5</span><span class="tt">Barok kent<span class="te" lang="en">The Baroque city</span><span class="ts">Versailles, Karlsruhe, ilkeler</span></span></a></li><li><a href="#utopya"><span class="tn">6</span><span class="tt">Ütopyacılar<span class="te" lang="en">The Utopians</span><span class="ts">More, Fourier, Owen</span></span></a></li><li><a href="#haussmann"><span class="tn">7</span><span class="tt">Haussmann'ın Paris'i<span class="te" lang="en">Haussmann's Paris</span><span class="ts">Hedefler, araçlar, 5 boyut</span></span></a></li><li><a href="#barcelona"><span class="tn">8</span><span class="tt">Barcelona ve Cerdà<span class="te" lang="en">Barcelona and Cerdà</span><span class="ts">113 m blok, pahlı köşe, süperblok</span></span></a></li><li><a href="#lineer"><span class="tn">9</span><span class="tt">Soria y Mata ve Lineer Kent<span class="te" lang="en">The Linear City</span><span class="ts">40 m omurga, Madrid</span></span></a></li><li><a href="#bahce"><span class="tn">10</span><span class="tt">Bahçe kent, Perry, Radburn<span class="te" lang="en">Garden City, Perry, Radburn</span><span class="ts">Üç Mıknatıs, komşuluk birimi</span></span></a></li><li><a href="#cb"><span class="tn">11</span><span class="tt">City Beautiful<span class="te" lang="en">City Beautiful Movement</span><span class="ts">Burnham, Washington, eleştiriler</span></span></a></li><li><a href="#test"><span class="tn">12</span><span class="tt">Kendini test et<span class="te" lang="en">Test yourself</span><span class="ts">69 soru · TR + EN</span></span></a></li></ol>
+      <ol><li><a href="#kronoloji"><span class="tn">0</span><span class="tt">Hocanın kronolojisi<span class="te" lang="en">Chronology</span><span class="ts">1585–1920 tablosu, kritik tarihler</span></span></a></li><li><a href="#antik"><span class="tn">1</span><span class="tt">Antik Yunan ve Roma<span class="te" lang="en">Ancient Greece and Rome</span><span class="ts">Agora, Priene, Milet, Roma'nın 14 elemanı</span></span></a></li><li><a href="#ortacag"><span class="tn">2</span><span class="tt">Ortaçağ ve İslam kenti<span class="te" lang="en">Medieval and Islamic city</span><span class="ts">Morris sınıflaması, Şam</span></span></a></li><li><a href="#ideal"><span class="tn">3</span><span class="tt">Rönesans ideal kentleri<span class="te" lang="en">Renaissance ideal cities</span><span class="ts">Vitruvius, Sforzinda, Palmanova</span></span></a></li><li><a href="#meydan"><span class="tn">4</span><span class="tt">Rönesans meydanları ve Sixtus V<span class="te" lang="en">Renaissance squares and Sixtus V</span><span class="ts">Paris meydanları, Campidoglio, dikilitaşlar</span></span></a></li><li><a href="#barok"><span class="tn">5</span><span class="tt">Barok kent<span class="te" lang="en">The Baroque city</span><span class="ts">Versailles, Karlsruhe, ilkeler</span></span></a></li><li><a href="#utopya"><span class="tn">6</span><span class="tt">Ütopyacılar<span class="te" lang="en">The Utopians</span><span class="ts">More, Fourier, Owen</span></span></a></li><li><a href="#haussmann"><span class="tn">7</span><span class="tt">Haussmann'ın Paris'i<span class="te" lang="en">Haussmann's Paris</span><span class="ts">Hedefler, araçlar, 5 boyut</span></span></a></li><li><a href="#barcelona"><span class="tn">8</span><span class="tt">Barcelona ve Cerdà<span class="te" lang="en">Barcelona and Cerdà</span><span class="ts">113 m blok, pahlı köşe, süperblok</span></span></a></li><li><a href="#lineer"><span class="tn">9</span><span class="tt">Soria y Mata ve Lineer Kent<span class="te" lang="en">The Linear City</span><span class="ts">40 m omurga, Madrid</span></span></a></li><li><a href="#bahce"><span class="tn">10</span><span class="tt">Bahçe kent, Perry, Radburn<span class="te" lang="en">Garden City, Perry, Radburn</span><span class="ts">Üç Mıknatıs, komşuluk birimi</span></span></a></li><li><a href="#cb"><span class="tn">11</span><span class="tt">City Beautiful<span class="te" lang="en">City Beautiful Movement</span><span class="ts">Burnham, Washington, eleştiriler</span></span></a></li><li><a href="#test"><span class="tn">12</span><span class="tt">Kendini test et<span class="te" lang="en">Test yourself</span><span class="ts">Kolay 24 · Orta 29 · Zor 16 · TR + EN</span></span></a></li></ol>
     </nav>
     <h1>Kentsel tasarım <em>vizesi</em></h1>
     <p class="mono" lang="en" style="margin:-.75rem 0 0;color:var(--fg2)">Urban design history · midterm guide</p>
@@ -584,7 +594,13 @@ footer .big{font-family:var(--display);font-size:clamp(3rem,12vw,6rem);line-heig
 
 <section class="step" id="test"><div class="no" aria-hidden="true">12</div><div class="body">
   <h2>Kendini test et / <span lang="en">Test yourself</span></h2>
-  <p class="note">69 soru, bazıları görselli. Dil seçiciye göre Türkçe, İngilizce ya da ikisi birden görünür. Şıklar her açılışta karışır.<br><span lang="en">69 questions, many with images. Use the language switch to show Turkish, English or both. Options are shuffled each time.</span></p>
+  <p class="note">69 soru üç seviyeye ayrıldı: önce Kolay ile başla, sonra Orta ve Zor. Her seviyenin ilerlemesi ayrı tutulur. Dil seçiciye göre Türkçe, İngilizce ya da ikisi birden görünür. Şıklar her açılışta karışır.<br><span lang="en">69 questions in three levels: start with Easy, then Medium and Hard. Progress is kept separately for each level. Use the language switch to show Turkish, English or both. Options are shuffled each time.</span></p>
+  <div class="levels" role="group" aria-label="Zorluk / Difficulty">
+    <button type="button" data-lv="k" class="on"><b>Kolay</b><span lang="en">Easy</span><i>24 soru</i></button>
+    <button type="button" data-lv="o"><b>Orta</b><span lang="en">Medium</span><i>29 soru</i></button>
+    <button type="button" data-lv="z"><b>Zor</b><span lang="en">Hard</span><i>16 soru</i></button>
+    <button type="button" data-lv="all"><b>Hepsi</b><span lang="en">All</span><i>69 soru</i></button>
+  </div>
   <div class="bar"><div class="progress"><i id="prog"></i></div><span class="mono count" id="count"></span><span class="mono score" id="score"></span></div>
   <div class="card" id="quiz"></div>
 </div></section>
@@ -609,6 +625,11 @@ footer .big{font-family:var(--display);font-size:clamp(3rem,12vw,6rem);line-heig
     for(var j=idx.length-1;j>0;j--){var r=Math.floor(Math.random()*(j+1));var t=idx[j];idx[j]=idx[r];idx[r]=t;}
     q.o=idx.map(function(k){return q.o[k]}); q.a=idx.indexOf(q.a);
   });
+  var LV='kozokokkoookozokkoozzzookzzzzkokkzokokokoozkokozkkokozkoozzkkkkoooozo', ALL=Q;
+  ALL.forEach(function(q,k){q.d=LV.charAt(k)});
+  var store={}, cur='k';
+  function pick(lv){ return lv==='all'?ALL:ALL.filter(function(q){return q.d===lv}); }
+  Q=pick(cur);
   var page=document.getElementById('page'), btns=document.querySelectorAll('.lang button');
   function mode(){return page.classList.contains('show-tr')?'tr':page.classList.contains('show-en')?'en':'both';}
   btns.forEach(function(b){ b.addEventListener('click',function(){
@@ -620,6 +641,14 @@ footer .big{font-family:var(--display);font-size:clamp(3rem,12vw,6rem);line-heig
   var root=document.getElementById('quiz'), prog=document.getElementById('prog'),
       countEl=document.getElementById('count'), scoreEl=document.getElementById('score');
   var answers=new Array(Q.length).fill(null), i=0;
+  var lvBtns=document.querySelectorAll('.levels button');
+  lvBtns.forEach(function(b){ b.addEventListener('click',function(){
+    store[cur]={a:answers,i:i};
+    cur=b.getAttribute('data-lv'); Q=pick(cur);
+    var s=store[cur]; answers=s?s.a:new Array(Q.length).fill(null); i=s?s.i:0;
+    lvBtns.forEach(function(x){x.classList.toggle('on',x===b)});
+    render();
+  }); });
   function esc(s){return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   function correct(){return answers.reduce(function(n,a,k){return n+(a===Q[k].a?1:0)},0)}
   function answered(){return answers.filter(function(a){return a!==null}).length}
