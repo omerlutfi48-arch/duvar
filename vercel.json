@@ -66,5 +66,17 @@
       "destination": "/#araclar",
       "permanent": false
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "harem.duvar.site"
+        }
+      ],
+      "destination": "/harem-otogari/:path*"
+    }
   ]
 }
