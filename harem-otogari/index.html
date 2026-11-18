@@ -66,6 +66,29 @@ a{color:var(--accent2)}
 .toast{position:fixed;left:50%;top:72px;transform:translateX(-50%);background:var(--panel);border:1px solid var(--line);padding:8px 14px;border-radius:10px;font-size:12.5px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:9}
 .toast.show{opacity:1}
 </style>
+<style id="mobil-uyum">
+/* Mobil uyum (900px altı) — masaüstü görünümü değişmez */
+@media (max-width:899px){
+  .title{top:max(8px,env(safe-area-inset-top));left:8px;right:8px}
+  .title .card{padding:8px 11px;max-width:none;flex:1;min-width:0}
+  .title h1{font-size:16px}
+  .title .sub{font-size:11px}
+  .title .card .sub[style]{font-size:9.5px!important;margin-top:4px!important;line-height:1.35}
+  .readout{font-size:11px;margin-top:4px;line-height:1.4}
+  .badge{font-size:9.5px;padding:1px 7px;margin-top:4px}
+  .compass{width:40px;height:40px}
+  .compass svg{width:26px;height:26px}
+  .sheet{max-height:48vh;padding:4px 10px calc(10px + env(safe-area-inset-bottom))}
+  .sheet.collapsed{transform:translateY(calc(100% - 74px - env(safe-area-inset-bottom)))}
+  .grab{position:relative;width:48px;height:5px;margin:6px auto 10px}
+  .grab::before{content:"";position:absolute;inset:-14px -60px}
+  .tabs{overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;gap:5px}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:1 1 0;min-width:52px;min-height:38px;padding:8px 2px;font-size:12px}
+  .chip{padding:8px 12px}
+  .toast{top:auto;bottom:calc(84px + env(safe-area-inset-bottom))}
+}
+</style>
 </head>
 <body>
 <canvas id="c"></canvas>
@@ -1202,6 +1225,24 @@ $('fogLbl').textContent='45%';
 let osmOk=false;try{osmOk=buildOSM()}catch(e){console.error(e)}
 if(!osmOk)buildSchematic();
 updateSun();applyEra(true);requestAnimationFrame(loop);
+</script>
+<script>
+/* Mobil: panel kapalı başlasın; tutamaç/sekme bölgesinde aşağı-yukarı kaydırma ile aç/kapa */
+(function(){
+  var sheet=document.getElementById('sheet'); if(!sheet) return;
+  var mobil=function(){return window.innerWidth<900};
+  if(mobil()) sheet.classList.add('collapsed');
+  var y0=null;
+  ['grab'].map(function(id){return document.getElementById(id)}).concat([sheet.querySelector('.tabs')]).forEach(function(el){
+    if(!el) return;
+    el.addEventListener('touchstart',function(e){y0=e.touches[0].clientY},{passive:true});
+    el.addEventListener('touchend',function(e){
+      if(y0===null||!mobil()) return;
+      var dy=e.changedTouches[0].clientY-y0; y0=null;
+      if(dy>30) sheet.classList.add('collapsed'); else if(dy<-30) sheet.classList.remove('collapsed');
+    },{passive:true});
+  });
+})();
 </script>
 </body>
 </html>
