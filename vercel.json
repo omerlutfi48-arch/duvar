@@ -12,6 +12,11 @@
       "permanent": true
     },
     {
+      "source": "/401g",
+      "destination": "/401g/",
+      "permanent": false
+    },
+    {
       "source": "/render",
       "destination": "/rehber/ekran-goruntusunden-render/",
       "permanent": false
@@ -77,6 +82,14 @@
         }
       ],
       "destination": "/harem-otogari/:path*"
+    },
+    {
+      "source": "/401g/",
+      "destination": "https://pharmakon-401g.vercel.app/index.html"
+    },
+    {
+      "source": "/401g/:path*",
+      "destination": "https://pharmakon-401g.vercel.app/:path*"
     }
   ]
 }
